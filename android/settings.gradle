@@ -1,0 +1,20 @@
+pluginManagement {
+    includeBuild("../node_modules/@react-native/gradle-plugin")
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "com.diffplug.spotless") {
+                useModule("com.diffplug.spotless:spotless-plugin-gradle:${requested.version}")
+            }
+        }
+    }
+    repositories {
+        mavenCentral()
+        google()
+        gradlePluginPortal()
+    }
+}
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+rootProject.name = 'AIOS'
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
