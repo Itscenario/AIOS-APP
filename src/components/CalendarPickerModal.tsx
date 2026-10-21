@@ -63,7 +63,9 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
   minimumDate = new Date(1940, 0, 1),
   title = 'Select Date of Birth',
 }) => {
-  const [viewMode, setViewMode] = useState<'calendar' | 'year' | 'month'>('calendar');
+  const [viewMode, setViewMode] = useState<'calendar' | 'year' | 'month'>(
+    'calendar',
+  );
 
   const defaultYear = new Date().getFullYear() - 25;
   const [currentYear, setCurrentYear] = useState<number>(defaultYear);
@@ -121,9 +123,9 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
       setCurrentMonth(11);
-      setCurrentYear((y) => y - 1);
+      setCurrentYear(y => y - 1);
     } else {
-      setCurrentMonth((m) => m - 1);
+      setCurrentMonth(m => m - 1);
     }
   };
 
@@ -133,9 +135,9 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
 
     if (currentMonth === 11) {
       setCurrentMonth(0);
-      setCurrentYear((y) => y + 1);
+      setCurrentYear(y => y + 1);
     } else {
-      setCurrentMonth((m) => m + 1);
+      setCurrentMonth(m => m + 1);
     }
   };
 
@@ -191,7 +193,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                   <View style={styles.headerIconContainer}>
                     <CalendarIcon size={18} color={colors.secondaryRoyal} />
                   </View>
-                  <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy}>
+                  <Typography
+                    variant="headlineSm"
+                    weight="bold"
+                    color={colors.primaryNavy}
+                  >
                     {title}
                   </Typography>
                 </View>
@@ -201,7 +207,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                   onPress={onClose}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Typography variant="bodyLg" weight="bold" color={colors.textMuted}>
+                  <Typography
+                    variant="bodyLg"
+                    weight="bold"
+                    color={colors.textMuted}
+                  >
                     ✕
                   </Typography>
                 </TouchableOpacity>
@@ -219,49 +229,82 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
 
                 <View style={styles.selectorButtons}>
                   <TouchableOpacity
-                    style={[styles.selectorBtn, viewMode === 'month' && styles.selectorBtnActive]}
-                    onPress={() => setViewMode((m) => (m === 'month' ? 'calendar' : 'month'))}
+                    style={[
+                      styles.selectorBtn,
+                      viewMode === 'month' && styles.selectorBtnActive,
+                    ]}
+                    onPress={() =>
+                      setViewMode(m => (m === 'month' ? 'calendar' : 'month'))
+                    }
                     activeOpacity={0.7}
                   >
                     <Typography
                       variant="labelLg"
                       weight="bold"
-                      color={viewMode === 'month' ? colors.primaryNavy : colors.textPrimary}
+                      color={
+                        viewMode === 'month'
+                          ? colors.primaryNavy
+                          : colors.textPrimary
+                      }
                     >
                       {MONTH_NAMES[currentMonth]}
                     </Typography>
-                    <Typography variant="labelSm" color={colors.textMuted} style={styles.caretText}>
+                    <Typography
+                      variant="labelSm"
+                      color={colors.textMuted}
+                      style={styles.caretText}
+                    >
                       ▼
                     </Typography>
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    style={[styles.selectorBtn, viewMode === 'year' && styles.selectorBtnActive]}
-                    onPress={() => setViewMode((m) => (m === 'year' ? 'calendar' : 'year'))}
+                    style={[
+                      styles.selectorBtn,
+                      viewMode === 'year' && styles.selectorBtnActive,
+                    ]}
+                    onPress={() =>
+                      setViewMode(m => (m === 'year' ? 'calendar' : 'year'))
+                    }
                     activeOpacity={0.7}
                   >
                     <Typography
                       variant="labelLg"
                       weight="bold"
-                      color={viewMode === 'year' ? colors.primaryNavy : colors.textPrimary}
+                      color={
+                        viewMode === 'year'
+                          ? colors.primaryNavy
+                          : colors.textPrimary
+                      }
                     >
                       {currentYear}
                     </Typography>
-                    <Typography variant="labelSm" color={colors.textMuted} style={styles.caretText}>
+                    <Typography
+                      variant="labelSm"
+                      color={colors.textMuted}
+                      style={styles.caretText}
+                    >
                       ▼
                     </Typography>
                   </TouchableOpacity>
                 </View>
 
                 <TouchableOpacity
-                  style={[styles.navArrowBtn, isNextMonthDisabled && styles.navArrowDisabled]}
+                  style={[
+                    styles.navArrowBtn,
+                    isNextMonthDisabled && styles.navArrowDisabled,
+                  ]}
                   onPress={handleNextMonth}
                   disabled={isNextMonthDisabled}
                   activeOpacity={0.7}
                 >
                   <ArrowRightIcon
                     size={16}
-                    color={isNextMonthDisabled ? colors.borderField : colors.primaryNavy}
+                    color={
+                      isNextMonthDisabled
+                        ? colors.borderField
+                        : colors.primaryNavy
+                    }
                   />
                 </TouchableOpacity>
               </View>
@@ -270,7 +313,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
               {viewMode === 'year' ? (
                 /* Year Picker Grid */
                 <View style={styles.scrollWrapper}>
-                  <Typography variant="labelSm" color={colors.textMuted} style={styles.gridSubtitle}>
+                  <Typography
+                    variant="labelSm"
+                    color={colors.textMuted}
+                    style={styles.gridSubtitle}
+                  >
                     Select Year of Birth
                   </Typography>
                   <ScrollView
@@ -278,19 +325,26 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                     showsVerticalScrollIndicator
                     contentContainerStyle={styles.yearGrid}
                   >
-                    {yearsList.map((y) => {
+                    {yearsList.map(y => {
                       const isCurrentYear = y === currentYear;
                       return (
                         <TouchableOpacity
                           key={y}
-                          style={[styles.yearItem, isCurrentYear && styles.yearItemActive]}
+                          style={[
+                            styles.yearItem,
+                            isCurrentYear && styles.yearItemActive,
+                          ]}
                           onPress={() => handleSelectYear(y)}
                           activeOpacity={0.7}
                         >
                           <Typography
                             variant="labelMd"
                             weight={isCurrentYear ? 'bold' : 'regular'}
-                            color={isCurrentYear ? colors.onPrimary : colors.textPrimary}
+                            color={
+                              isCurrentYear
+                                ? colors.onPrimary
+                                : colors.textPrimary
+                            }
                           >
                             {y}
                           </Typography>
@@ -302,13 +356,18 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
               ) : viewMode === 'month' ? (
                 /* Month Picker Grid */
                 <View style={styles.scrollWrapper}>
-                  <Typography variant="labelSm" color={colors.textMuted} style={styles.gridSubtitle}>
+                  <Typography
+                    variant="labelSm"
+                    color={colors.textMuted}
+                    style={styles.gridSubtitle}
+                  >
                     Select Month
                   </Typography>
                   <View style={styles.monthGrid}>
                     {MONTH_SHORT.map((m, idx) => {
                       const isCur = idx === currentMonth;
-                      const isFuture = new Date(currentYear, idx, 1) > maximumDate;
+                      const isFuture =
+                        new Date(currentYear, idx, 1) > maximumDate;
                       return (
                         <TouchableOpacity
                           key={m}
@@ -344,9 +403,13 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                 <View style={styles.calendarContainer}>
                   {/* Weekday headers */}
                   <View style={styles.weekDaysRow}>
-                    {WEEK_DAYS.map((wd) => (
+                    {WEEK_DAYS.map(wd => (
                       <View key={wd} style={styles.weekDayCol}>
-                        <Typography variant="labelSm" weight="bold" color={colors.textMuted}>
+                        <Typography
+                          variant="labelSm"
+                          weight="bold"
+                          color={colors.textMuted}
+                        >
                           {wd}
                         </Typography>
                       </View>
@@ -363,7 +426,8 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                     {/* Active days in current month */}
                     {Array.from({ length: daysInMonth }).map((_, i) => {
                       const day = i + 1;
-                      const isFuture = new Date(currentYear, currentMonth, day) > maximumDate;
+                      const isFuture =
+                        new Date(currentYear, currentMonth, day) > maximumDate;
                       const isSelected =
                         selectedDate?.day === day &&
                         selectedDate?.month === currentMonth &&
@@ -412,7 +476,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                   onPress={onClose}
                   activeOpacity={0.7}
                 >
-                  <Typography variant="labelMd" weight="bold" color={colors.textSecondary}>
+                  <Typography
+                    variant="labelMd"
+                    weight="bold"
+                    color={colors.textSecondary}
+                  >
                     Cancel
                   </Typography>
                 </TouchableOpacity>
@@ -423,7 +491,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                     onPress={() => setViewMode('calendar')}
                     activeOpacity={0.7}
                   >
-                    <Typography variant="labelMd" weight="bold" color={colors.secondaryRoyal}>
+                    <Typography
+                      variant="labelMd"
+                      weight="bold"
+                      color={colors.secondaryRoyal}
+                    >
                       Back to Calendar
                     </Typography>
                   </TouchableOpacity>

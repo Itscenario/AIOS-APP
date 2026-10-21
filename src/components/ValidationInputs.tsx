@@ -11,7 +11,14 @@ import {
 } from 'react-native';
 import { colors } from '../theme/colors';
 import { rounded, spacing } from '../theme/spacing';
-import { CheckIcon, EyeIcon, IdCardIcon, LockIcon, MailIcon, PhoneIcon } from './Icons';
+import {
+  CheckIcon,
+  EyeIcon,
+  IdCardIcon,
+  LockIcon,
+  MailIcon,
+  PhoneIcon,
+} from './Icons';
 import { Typography } from './Typography';
 import {
   formatPhoneNumber,
@@ -21,12 +28,17 @@ import {
   validatePassword,
   validatePhone,
 } from '../utils/validation';
-import { CountryCodePicker, CountryItem, DEFAULT_COUNTRY } from './CountryCodePicker';
+import {
+  CountryCodePicker,
+  CountryItem,
+  DEFAULT_COUNTRY,
+} from './CountryCodePicker';
 
 // ============================================================================
 // Base Validated Input Interface
 // ============================================================================
-export interface BaseValidationInputProps extends Omit<TextInputProps, 'onChangeText'> {
+export interface BaseValidationInputProps
+  extends Omit<TextInputProps, 'onChangeText'> {
   label?: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -97,10 +109,17 @@ export const EmailInput: React.FC<EmailInputProps> = ({
 
   const shouldShowError =
     Boolean(externalError) ||
-    (isTouched && !validation.isValid && (validateOn === 'change' || validateOn === 'both'));
+    (isTouched &&
+      !validation.isValid &&
+      (validateOn === 'change' || validateOn === 'both'));
 
-  const activeError = externalError || (shouldShowError ? validation.error : undefined);
-  const isSuccess = showSuccessIndicator && value.trim().length > 0 && validation.isValid && !externalError;
+  const activeError =
+    externalError || (shouldShowError ? validation.error : undefined);
+  const isSuccess =
+    showSuccessIndicator &&
+    value.trim().length > 0 &&
+    validation.isValid &&
+    !externalError;
 
   const handleBlur = (e: any) => {
     setIsFocused(false);
@@ -134,7 +153,9 @@ export const EmailInput: React.FC<EmailInputProps> = ({
           inputContainerStyle,
         ]}
       >
-        {leftIcon ? <View style={styles.leftIconContainer}>{leftIcon}</View> : null}
+        {leftIcon ? (
+          <View style={styles.leftIconContainer}>{leftIcon}</View>
+        ) : null}
 
         <TextInput
           style={[styles.input, style]}
@@ -161,7 +182,12 @@ export const EmailInput: React.FC<EmailInputProps> = ({
 
       {activeError ? (
         <View style={styles.errorContainer}>
-          <Typography variant="labelSm" color={colors.error} align="right" style={styles.errorText}>
+          <Typography
+            variant="labelSm"
+            color={colors.error}
+            align="right"
+            style={styles.errorText}
+          >
             {activeError}
           </Typography>
         </View>
@@ -213,7 +239,13 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
       requiredErrorMessage,
       invalidErrorMessage,
     });
-  }, [value, required, customErrorMessage, requiredErrorMessage, invalidErrorMessage]);
+  }, [
+    value,
+    required,
+    customErrorMessage,
+    requiredErrorMessage,
+    invalidErrorMessage,
+  ]);
 
   useEffect(() => {
     onValidationChange?.(validation.isValid, validation.error);
@@ -227,10 +259,17 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
 
   const shouldShowError =
     Boolean(externalError) ||
-    (isTouched && !validation.isValid && (validateOn === 'change' || validateOn === 'both'));
+    (isTouched &&
+      !validation.isValid &&
+      (validateOn === 'change' || validateOn === 'both'));
 
-  const activeError = externalError || (shouldShowError ? validation.error : undefined);
-  const isSuccess = showSuccessIndicator && value.trim().length > 0 && validation.isValid && !externalError;
+  const activeError =
+    externalError || (shouldShowError ? validation.error : undefined);
+  const isSuccess =
+    showSuccessIndicator &&
+    value.trim().length > 0 &&
+    validation.isValid &&
+    !externalError;
 
   const handleBlur = (e: any) => {
     setIsFocused(false);
@@ -245,7 +284,12 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
 
   const isEmail = value.includes('@');
   const resolvedLeftIcon =
-    leftIcon ?? (isEmail ? <MailIcon size={18} color={colors.textMuted} /> : <IdCardIcon size={18} color={colors.textMuted} />);
+    leftIcon ??
+    (isEmail ? (
+      <MailIcon size={18} color={colors.textMuted} />
+    ) : (
+      <IdCardIcon size={18} color={colors.textMuted} />
+    ));
 
   return (
     <View style={[styles.wrapper, containerStyle]}>
@@ -268,7 +312,9 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
           inputContainerStyle,
         ]}
       >
-        {resolvedLeftIcon ? <View style={styles.leftIconContainer}>{resolvedLeftIcon}</View> : null}
+        {resolvedLeftIcon ? (
+          <View style={styles.leftIconContainer}>{resolvedLeftIcon}</View>
+        ) : null}
 
         <TextInput
           style={[styles.input, style]}
@@ -295,7 +341,12 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
 
       {activeError ? (
         <View style={styles.errorContainer}>
-          <Typography variant="labelSm" color={colors.error} align="right" style={styles.errorText}>
+          <Typography
+            variant="labelSm"
+            color={colors.error}
+            align="right"
+            style={styles.errorText}
+          >
             {activeError}
           </Typography>
         </View>
@@ -307,7 +358,9 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
 // ============================================================================
 // 2. Password Validation Input
 // ============================================================================
-export interface PasswordInputProps extends BaseValidationInputProps, PasswordValidationOptions {
+export interface PasswordInputProps
+  extends BaseValidationInputProps,
+    PasswordValidationOptions {
   showStrengthMeter?: boolean;
   showRequirements?: boolean;
 }
@@ -351,7 +404,14 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       requireNumber,
       requireSpecialChar,
     });
-  }, [value, minLength, requireUppercase, requireLowercase, requireNumber, requireSpecialChar]);
+  }, [
+    value,
+    minLength,
+    requireUppercase,
+    requireLowercase,
+    requireNumber,
+    requireSpecialChar,
+  ]);
 
   useEffect(() => {
     onValidationChange?.(validation.isValid, validation.error);
@@ -365,10 +425,17 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 
   const shouldShowError =
     Boolean(externalError) ||
-    (isTouched && !validation.isValid && (validateOn === 'change' || validateOn === 'both'));
+    (isTouched &&
+      !validation.isValid &&
+      (validateOn === 'change' || validateOn === 'both'));
 
-  const activeError = externalError || (shouldShowError ? validation.error : undefined);
-  const isSuccess = showSuccessIndicator && value.length > 0 && validation.isValid && !externalError;
+  const activeError =
+    externalError || (shouldShowError ? validation.error : undefined);
+  const isSuccess =
+    showSuccessIndicator &&
+    value.length > 0 &&
+    validation.isValid &&
+    !externalError;
 
   const handleBlur = (e: any) => {
     setIsFocused(false);
@@ -415,7 +482,9 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
           inputContainerStyle,
         ]}
       >
-        {leftIcon ? <View style={styles.leftIconContainer}>{leftIcon}</View> : null}
+        {leftIcon ? (
+          <View style={styles.leftIconContainer}>{leftIcon}</View>
+        ) : null}
 
         <TextInput
           style={[styles.input, style]}
@@ -445,7 +514,7 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
       {showStrengthMeter && value.length > 0 && strengthInfo ? (
         <View style={styles.strengthContainer}>
           <View style={styles.strengthBarsRow}>
-            {[1, 2, 3].map((barIndex) => (
+            {[1, 2, 3].map(barIndex => (
               <View
                 key={barIndex}
                 style={[
@@ -503,7 +572,12 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 
       {activeError ? (
         <View style={styles.errorContainer}>
-          <Typography variant="labelSm" color={colors.error} align="right" style={styles.errorText}>
+          <Typography
+            variant="labelSm"
+            color={colors.error}
+            align="right"
+            style={styles.errorText}
+          >
             {activeError}
           </Typography>
         </View>
@@ -512,7 +586,10 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
   );
 };
 
-const RequirementItem: React.FC<{ text: string; satisfied: boolean }> = ({ text, satisfied }) => (
+const RequirementItem: React.FC<{ text: string; satisfied: boolean }> = ({
+  text,
+  satisfied,
+}) => (
   <View style={styles.requirementItem}>
     <View
       style={[
@@ -578,7 +655,9 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
   });
 
   const currentCountry = selectedCountry || activeCountry;
-  const isIndia = currentCountry.isoCode.toUpperCase() === 'IN' || currentCountry.phonecode === '91';
+  const isIndia =
+    currentCountry.isoCode.toUpperCase() === 'IN' ||
+    currentCountry.phonecode === '91';
   const effectiveExactDigits = isIndia ? exactDigits : undefined;
 
   const cleanDigits = value.replace(/\D/g, '');
@@ -590,7 +669,13 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
       allowInternational: !isIndia,
       customErrorMessage,
     });
-  }, [cleanDigits, required, effectiveExactDigits, isIndia, customErrorMessage]);
+  }, [
+    cleanDigits,
+    required,
+    effectiveExactDigits,
+    isIndia,
+    customErrorMessage,
+  ]);
 
   useEffect(() => {
     onValidationChange?.(validation.isValid, validation.error);
@@ -619,9 +704,12 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 
   const shouldShowError =
     Boolean(externalError) ||
-    (isTouched && !validation.isValid && (validateOn === 'change' || validateOn === 'both'));
+    (isTouched &&
+      !validation.isValid &&
+      (validateOn === 'change' || validateOn === 'both'));
 
-  const activeError = externalError || (shouldShowError ? validation.error : undefined);
+  const activeError =
+    externalError || (shouldShowError ? validation.error : undefined);
   const isSuccess =
     showSuccessIndicator &&
     cleanDigits.length > 0 &&
@@ -692,7 +780,12 @@ export const PhoneInput: React.FC<PhoneInputProps> = ({
 
       {activeError ? (
         <View style={styles.errorContainer}>
-          <Typography variant="labelSm" color={colors.error} align="right" style={styles.errorText}>
+          <Typography
+            variant="labelSm"
+            color={colors.error}
+            align="right"
+            style={styles.errorText}
+          >
             {activeError}
           </Typography>
         </View>

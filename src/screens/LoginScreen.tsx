@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   Background,
   Button,
@@ -30,7 +26,8 @@ import { waitForProfileSave } from '../store/persistence';
 import { rounded, shadows, spacing } from '../theme/spacing';
 
 export const LoginScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const dispatch = useAppDispatch();
   const savedProfile = useAppSelector(state => state.auth.profile);
   const [email, setEmail] = useState<string>('');
@@ -75,12 +72,14 @@ export const LoginScreen: React.FC = () => {
       const matchesSavedProfile = isEmail
         ? savedProfile?.email?.toLowerCase() === identifier.toLowerCase()
         : savedProfile?.membershipId === identifier;
-      dispatch(setCredentials({
-        user: {
-          ...(matchesSavedProfile ? savedProfile : {}),
-          ...(isEmail ? { email: identifier } : { membershipId: identifier }),
-        },
-      }));
+      dispatch(
+        setCredentials({
+          user: {
+            ...(matchesSavedProfile ? savedProfile : {}),
+            ...(isEmail ? { email: identifier } : { membershipId: identifier }),
+          },
+        }),
+      );
       await waitForProfileSave();
       setIsLoading(false);
       navigation.replace('MainTabs');
@@ -96,11 +95,7 @@ export const LoginScreen: React.FC = () => {
   };
 
   return (
-    <Background
-      scrollable
-      keyboardAvoiding
-      keyboardShouldPersistTaps="always"
-    >
+    <Background scrollable keyboardAvoiding keyboardShouldPersistTaps="always">
       {/* <View style={styles.accentStrip}>
         <View style={styles.accentGold} />
         <View style={styles.accentBlue} />
@@ -201,7 +196,7 @@ export const LoginScreen: React.FC = () => {
           <MembershipOrEmailInput
             label="Membership No./Email"
             value={email}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setEmail(text);
               if (emailError) setEmailError(undefined);
             }}
@@ -215,7 +210,7 @@ export const LoginScreen: React.FC = () => {
           <PasswordInput
             label="Password"
             value={password}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setPassword(text);
               if (passwordError) setPasswordError(undefined);
             }}
@@ -235,27 +230,19 @@ export const LoginScreen: React.FC = () => {
               onPress={() => setRememberMe(!rememberMe)}
               activeOpacity={0.8}
             >
-              <View
-                style={[
-                ]}
-              >
-              </View>
+              <View style={[]}></View>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleForgotPassword}
               activeOpacity={0.7}
             >
-              <Typography
-                weight="semibold"
-                color={colors.secondaryRoyal}
-              >
+              <Typography weight="semibold" color={colors.secondaryRoyal}>
                 Forgot Password?
               </Typography>
             </TouchableOpacity>
           </View>
 
-          {/* Primary Sign In Button */}
           <Button
             title="Sign In"
             onPress={handleSignIn}
@@ -281,22 +268,21 @@ export const LoginScreen: React.FC = () => {
 
           <TouchableOpacity
             style={styles.createAccountButton}
-            onPress={handleCreateAccount}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
-            accessibilityRole="button"
-            accessibilityLabel="Create an account"
+            onPress={() => {
+              // console.log("Create Account Pressed");
+              handleCreateAccount();
+            }}
+            // hitSlop={15}
+            // accessibilityRole="button"
           >
-            <View pointerEvents="none">
-              <Typography
-                variant="labelLg"
-                weight="semibold"
-                color={colors.primaryNavy}
-                style={styles.createAccountButtonText}
-              >
-                Create an account
-              </Typography>
-            </View>
+            <Typography
+              variant="labelLg"
+              weight="semibold"
+              color={colors.primaryNavy}
+              style={styles.createAccountButtonText}
+            >
+              Create an account
+            </Typography>
           </TouchableOpacity>
         </View>
       </View>
@@ -482,24 +468,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 12,
     fontSize: 12,
   },
+
   createAccountButton: {
-    width: '100%',
-    flexShrink: 0,
+    width: '90%',
     minHeight: 52,
-    borderRadius: rounded.md,
-    borderWidth: 1.5,
-    borderColor: colors.borderField,
-    backgroundColor: colors.surfaceContainerLowest,
-    flexDirection: 'row',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.spaceMd,
+    alignSelf: 'center',
+    borderRadius: rounded.md,
+    borderWidth: 1,
+    borderColor: colors.borderNeutral,
+    backgroundColor: colors.white,
   },
   createAccountButtonText: {
     textAlign: 'center',
   },
-
-  // Security Footer
   securityFooter: {
     flexDirection: 'row',
     alignItems: 'center',

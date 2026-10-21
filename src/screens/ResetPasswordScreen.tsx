@@ -1,10 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -24,14 +19,19 @@ import { colors } from '../theme/colors';
 import { shadows } from '../theme/spacing';
 
 export const ResetPasswordScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'ResetPassword'>>();
   const email = route.params?.email || '';
 
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [newPasswordError, setNewPasswordError] = useState<string | undefined>();
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>();
+  const [newPasswordError, setNewPasswordError] = useState<
+    string | undefined
+  >();
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | undefined
+  >();
 
   const handleResetPassword = () => {
     let hasError = false;
@@ -42,7 +42,9 @@ export const ResetPasswordScreen: React.FC = () => {
     } else {
       const passVal = validatePassword(newPassword, { minLength: 8 });
       if (!passVal.isValid) {
-        setNewPasswordError(passVal.error || 'Password must be at least 8 characters long.');
+        setNewPasswordError(
+          passVal.error || 'Password must be at least 8 characters long.',
+        );
         hasError = true;
       } else {
         setNewPasswordError(undefined);
@@ -67,10 +69,7 @@ export const ResetPasswordScreen: React.FC = () => {
   };
 
   return (
-    <Background
-      scrollable
-      keyboardAvoiding
-    >
+    <Background scrollable keyboardAvoiding>
       <View style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
@@ -128,7 +127,7 @@ export const ResetPasswordScreen: React.FC = () => {
           <PasswordInput
             label="New Password"
             value={newPassword}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setNewPassword(text);
               if (newPasswordError) setNewPasswordError(undefined);
             }}
@@ -145,7 +144,7 @@ export const ResetPasswordScreen: React.FC = () => {
           <PasswordInput
             label="Confirm New Password"
             value={confirmPassword}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setConfirmPassword(text);
               if (confirmPasswordError) setConfirmPasswordError(undefined);
             }}
@@ -165,7 +164,12 @@ export const ResetPasswordScreen: React.FC = () => {
           onPress={handleResetPassword}
           activeOpacity={0.8}
         >
-          <Typography variant="labelLg" weight="bold" color={colors.onPrimary} style={styles.buttonText}>
+          <Typography
+            variant="labelLg"
+            weight="bold"
+            color={colors.onPrimary}
+            style={styles.buttonText}
+          >
             Update Password
           </Typography>
         </TouchableOpacity>

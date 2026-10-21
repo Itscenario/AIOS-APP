@@ -47,10 +47,12 @@ export const PinCodeInput: React.FC<PinCodeInputProps> = ({
       <TextInput
         ref={hiddenInputRef}
         value={value}
-        onChangeText={(text) => {
+        onChangeText={text => {
           const sanitized = text.replace(/[^0-9]/g, '').slice(0, length);
           onChangePin?.(sanitized);
-          setFocusedIndex(sanitized.length < length ? sanitized.length : length - 1);
+          setFocusedIndex(
+            sanitized.length < length ? sanitized.length : length - 1,
+          );
         }}
         keyboardType="number-pad"
         maxLength={length}
@@ -88,7 +90,12 @@ export const PinCodeInput: React.FC<PinCodeInputProps> = ({
 
       {typeof error === 'string' && error ? (
         <View style={styles.errorContainer}>
-          <Typography variant="labelSm" color={colors.error} align="right" style={styles.errorText}>
+          <Typography
+            variant="labelSm"
+            color={colors.error}
+            align="right"
+            style={styles.errorText}
+          >
             {error}
           </Typography>
         </View>

@@ -23,7 +23,6 @@ import {
   CalendarPickerModal,
   CheckIcon,
   EmailInput,
-  EyeIcon,
   GroupIcon,
   Image,
   images,
@@ -41,7 +40,7 @@ import {
 import { colors } from '../theme/colors';
 import { rounded, shadows, spacing } from '../theme/spacing';
 
-const TITLE_OPTIONS = ['Dr.', 'Prof.',];
+const TITLE_OPTIONS = ['Dr.', 'Prof.'];
 const GENDER_OPTIONS = ['Male', 'Female', 'Other'];
 
 interface PickerOption {
@@ -49,9 +48,9 @@ interface PickerOption {
   value: string;
   extra?: string;
 }
-
 export const SignupScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'Signup'>>();
 
   const [isEmailVerified, setIsEmailVerified] = useState<boolean>(false);
@@ -74,7 +73,6 @@ export const SignupScreen: React.FC = () => {
       email: email.trim() || 'doctor@hospital.org',
     });
   };
-
   const [title, setTitle] = useState<string>('');
   const [surname, setSurname] = useState<string>('');
   const [firstName, setFirstName] = useState<string>('');
@@ -90,7 +88,6 @@ export const SignupScreen: React.FC = () => {
       setVerifiedPhone(route.params.phone.replace(/\D/g, ''));
     }
   }, [route.params?.phoneVerified, route.params?.phone]);
-
   const [houseNo, setHouseNo] = useState<string>('');
   const [street, setStreet] = useState<string>('');
   const [landmark, setLandmark] = useState<string>('');
@@ -98,15 +95,9 @@ export const SignupScreen: React.FC = () => {
   const [stateName, setStateName] = useState<string>('');
   const [city, setCity] = useState<string>('');
   const [pincode, setPincode] = useState<string>('');
-
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-
-
-
   const [titleError, setTitleError] = useState<string | undefined>();
   const [surnameError, setSurnameError] = useState<string | undefined>();
   const [firstNameError, setFirstNameError] = useState<string | undefined>();
@@ -122,8 +113,9 @@ export const SignupScreen: React.FC = () => {
   const [pincodeError, setPincodeError] = useState<string | undefined>();
   const [emailError, setEmailError] = useState<string | undefined>();
   const [passwordError, setPasswordError] = useState<string | undefined>();
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>();
-
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | undefined
+  >();
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>('');
   const [modalOptions, setModalOptions] = useState<PickerOption[]>([]);
@@ -153,7 +145,7 @@ export const SignupScreen: React.FC = () => {
     setActiveSelectField(fieldName);
     setModalTitle(dialogTitle);
     setSearchQuery('');
-    setModalOptions(options.map((opt) => ({ label: opt, value: opt })));
+    setModalOptions(options.map(opt => ({ label: opt, value: opt })));
     setModalVisible(true);
   };
 
@@ -162,10 +154,10 @@ export const SignupScreen: React.FC = () => {
     setModalTitle('Select Country');
     setSearchQuery('');
     const allCountries = Country.getAllCountries();
-    const india = allCountries.find((c) => c.isoCode === 'IN');
-    const others = allCountries.filter((c) => c.isoCode !== 'IN');
+    const india = allCountries.find(c => c.isoCode === 'IN');
+    const others = allCountries.filter(c => c.isoCode !== 'IN');
     const sorted = india ? [india, ...others] : allCountries;
-    const countryList = sorted.map((c) => ({
+    const countryList = sorted.map(c => ({
       label: `${c.flag ? c.flag + '  ' : ''}${c.name}`,
       value: c.isoCode,
       extra: c.name,
@@ -179,7 +171,7 @@ export const SignupScreen: React.FC = () => {
     setModalTitle('Select State');
     setSearchQuery('');
     const states = State.getStatesOfCountry('IN');
-    const stateList = states.map((s) => ({
+    const stateList = states.map(s => ({
       label: s.name,
       value: s.name,
     }));
@@ -215,7 +207,7 @@ export const SignupScreen: React.FC = () => {
     }
     const q = searchQuery.toLowerCase();
     return modalOptions.filter(
-      (opt) =>
+      opt =>
         opt.label.toLowerCase().includes(q) ||
         (opt.extra && opt.extra.toLowerCase().includes(q)),
     );
@@ -327,24 +319,26 @@ export const SignupScreen: React.FC = () => {
     }
 
     dispatch(
-      setCredentials({ user: {
-        avatar: profileImage,
-        title,
-        surname,
-        firstName,
-        name: `${title} ${firstName} ${surname}`.trim(),
-        gender,
-        dob,
-        phone,
-        houseNo,
-        street,
-        landmark,
-        country,
-        state: stateName,
-        city,
-        pincode,
-        email,
-      } }),
+      setCredentials({
+        user: {
+          avatar: profileImage,
+          title,
+          surname,
+          firstName,
+          name: `${title} ${firstName} ${surname}`.trim(),
+          gender,
+          dob,
+          phone,
+          houseNo,
+          street,
+          landmark,
+          country,
+          state: stateName,
+          city,
+          pincode,
+          email,
+        },
+      }),
     );
 
     navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
@@ -384,15 +378,25 @@ export const SignupScreen: React.FC = () => {
           <View style={styles.noticeIconContainer}>
             <GroupIcon size={24} color={colors.secondaryRoyal} />
           </View>
-          <Typography variant="bodyMd" color={colors.textPrimary} style={styles.noticeText}>
-            Join AIOS to access your member profile, conferences and certificates.
+          <Typography
+            variant="bodyMd"
+            color={colors.textPrimary}
+            style={styles.noticeText}
+          >
+            Join AIOS to access your member profile, conferences and
+            certificates.
           </Typography>
         </View>
 
         <View style={styles.divider} />
 
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.primaryNavy} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.primaryNavy}
+            style={styles.sectionTitle}
+          >
             Personal information
           </Typography>
           <View style={styles.orangeAccentBar} />
@@ -400,13 +404,18 @@ export const SignupScreen: React.FC = () => {
 
         <ProfileImagePicker
           imageUri={profileImage}
-          onImageSelected={(uri) => setProfileImage(uri)}
+          onImageSelected={uri => setProfileImage(uri)}
           onImageRemoved={() => setProfileImage(null)}
         />
 
         <View style={styles.row2Col}>
           <View style={styles.titleCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Title <Typography color={colors.error}>*</Typography>
             </Typography>
             <TouchableOpacity
@@ -423,17 +432,30 @@ export const SignupScreen: React.FC = () => {
                 {title || 'Select'}
               </Typography>
               <View style={styles.doubleArrowCol}>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowUp}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowUp}
+                >
                   ▲
                 </Typography>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowDown}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowDown}
+                >
                   ▼
                 </Typography>
               </View>
             </TouchableOpacity>
             {titleError ? (
               <View style={styles.fieldErrorContainerLeft}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorTextLeft}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorTextLeft}
+                >
                   {titleError}
                 </Typography>
               </View>
@@ -441,7 +463,12 @@ export const SignupScreen: React.FC = () => {
           </View>
 
           <View style={styles.flex1Col}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Surname <Typography color={colors.error}>*</Typography>
             </Typography>
             <TextInput
@@ -449,14 +476,19 @@ export const SignupScreen: React.FC = () => {
               placeholder="Surname"
               placeholderTextColor={colors.textMuted}
               value={surname}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setSurname(text);
                 if (surnameError) setSurnameError(undefined);
               }}
             />
             {surnameError ? (
               <View style={styles.fieldErrorContainer}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorText}
+                >
                   {surnameError}
                 </Typography>
               </View>
@@ -465,7 +497,12 @@ export const SignupScreen: React.FC = () => {
         </View>
 
         <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+          <Typography
+            variant="labelMd"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.labelAbove}
+          >
             First Name <Typography color={colors.error}>*</Typography>
           </Typography>
           <TextInput
@@ -473,14 +510,19 @@ export const SignupScreen: React.FC = () => {
             placeholder="First name"
             placeholderTextColor={colors.textMuted}
             value={firstName}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setFirstName(text);
               if (firstNameError) setFirstNameError(undefined);
             }}
           />
           {firstNameError ? (
             <View style={styles.fieldErrorContainer}>
-              <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+              <Typography
+                variant="labelSm"
+                color={colors.error}
+                align="left"
+                style={styles.fieldErrorText}
+              >
                 {firstNameError}
               </Typography>
             </View>
@@ -489,12 +531,19 @@ export const SignupScreen: React.FC = () => {
 
         <View style={styles.row2Col}>
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Gender <Typography color={colors.error}>*</Typography>
             </Typography>
             <TouchableOpacity
               style={styles.inputBox}
-              onPress={() => openPicker('gender', 'Select Gender', GENDER_OPTIONS)}
+              onPress={() =>
+                openPicker('gender', 'Select Gender', GENDER_OPTIONS)
+              }
               activeOpacity={0.8}
             >
               <Typography
@@ -506,17 +555,30 @@ export const SignupScreen: React.FC = () => {
                 {gender || 'Select'}
               </Typography>
               <View style={styles.doubleArrowCol}>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowUp}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowUp}
+                >
                   ▲
                 </Typography>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowDown}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowDown}
+                >
                   ▼
                 </Typography>
               </View>
             </TouchableOpacity>
             {genderError ? (
               <View style={styles.fieldErrorContainerLeft}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorTextLeft}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorTextLeft}
+                >
                   {genderError}
                 </Typography>
               </View>
@@ -524,7 +586,12 @@ export const SignupScreen: React.FC = () => {
           </View>
 
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Date of Birth <Typography color={colors.error}>*</Typography>
             </Typography>
             <TouchableOpacity
@@ -540,11 +607,19 @@ export const SignupScreen: React.FC = () => {
               >
                 {dob || 'DD/MM/YYYY'}
               </Typography>
-              <CalendarIcon size={18} color={dob ? colors.secondaryRoyal : colors.textMuted} />
+              <CalendarIcon
+                size={18}
+                color={dob ? colors.secondaryRoyal : colors.textMuted}
+              />
             </TouchableOpacity>
             {dobError ? (
               <View style={styles.fieldErrorContainer}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorText}
+                >
                   {dobError}
                 </Typography>
               </View>
@@ -556,7 +631,7 @@ export const SignupScreen: React.FC = () => {
           <PhoneInput
             label="Phone No."
             value={phone}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setPhone(text);
               setVerifiedPhone(null);
               if (phoneError) setPhoneError(undefined);
@@ -565,36 +640,66 @@ export const SignupScreen: React.FC = () => {
             defaultCountryCode="IN"
             placeholder="Enter phone number"
             showSuccessIndicator={false}
-            rightIcon={isPhoneVerified ? (
-              <View style={styles.verifiedBadge}>
-                <CheckIcon size={12} color={colors.success} />
-                <Typography variant="labelSm" weight="bold" color={colors.success} style={styles.verifiedBadgeText}>Verified</Typography>
-              </View>
-            ) : validatePhone(phone).isValid ? (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('OtpVerification', { phone: phoneDigits, from: 'signup' })}
-                accessibilityRole="button"
-                accessibilityLabel="Verify phone number"
-                activeOpacity={0.7}
-              >
-                <Typography variant="labelSm" weight="bold" color={colors.secondaryRoyal} style={styles.verifyBtnText}>Verify</Typography>
-              </TouchableOpacity>
-            ) : undefined}
+            rightIcon={
+              isPhoneVerified ? (
+                <View style={styles.verifiedBadge}>
+                  <CheckIcon size={12} color={colors.success} />
+                  <Typography
+                    variant="labelSm"
+                    weight="bold"
+                    color={colors.success}
+                    style={styles.verifiedBadgeText}
+                  >
+                    Verified
+                  </Typography>
+                </View>
+              ) : validatePhone(phone).isValid ? (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('OtpVerification', {
+                      phone: phoneDigits,
+                      from: 'signup',
+                    })
+                  }
+                  accessibilityRole="button"
+                  accessibilityLabel="Verify phone number"
+                  activeOpacity={0.7}
+                >
+                  <Typography
+                    variant="labelSm"
+                    weight="bold"
+                    color={colors.secondaryRoyal}
+                    style={styles.verifyBtnText}
+                  >
+                    Verify
+                  </Typography>
+                </TouchableOpacity>
+              ) : undefined
+            }
           />
         </View>
-
-        </View>
+      </View>
 
       <View style={styles.cardContainer}>
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.primaryNavy} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.primaryNavy}
+            style={styles.sectionTitle}
+          >
             Address
           </Typography>
           <View style={styles.orangeAccentBar} />
         </View>
 
         <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+          <Typography
+            variant="labelMd"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.labelAbove}
+          >
             House No/ Flat No<Typography color={colors.error}>*</Typography>
           </Typography>
           <TextInput
@@ -602,14 +707,19 @@ export const SignupScreen: React.FC = () => {
             placeholder="House or flat number"
             placeholderTextColor={colors.textMuted}
             value={houseNo}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setHouseNo(text);
               if (houseNoError) setHouseNoError(undefined);
             }}
           />
           {houseNoError ? (
             <View style={styles.fieldErrorContainer}>
-              <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+              <Typography
+                variant="labelSm"
+                color={colors.error}
+                align="left"
+                style={styles.fieldErrorText}
+              >
                 {houseNoError}
               </Typography>
             </View>
@@ -617,7 +727,12 @@ export const SignupScreen: React.FC = () => {
         </View>
 
         <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+          <Typography
+            variant="labelMd"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.labelAbove}
+          >
             Street/Locality<Typography color={colors.error}>*</Typography>
           </Typography>
           <TextInput
@@ -625,14 +740,19 @@ export const SignupScreen: React.FC = () => {
             placeholder="Street or locality"
             placeholderTextColor={colors.textMuted}
             value={street}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setStreet(text);
               if (streetError) setStreetError(undefined);
             }}
           />
           {streetError ? (
             <View style={styles.fieldErrorContainer}>
-              <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+              <Typography
+                variant="labelSm"
+                color={colors.error}
+                align="left"
+                style={styles.fieldErrorText}
+              >
                 {streetError}
               </Typography>
             </View>
@@ -640,7 +760,12 @@ export const SignupScreen: React.FC = () => {
         </View>
 
         <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+          <Typography
+            variant="labelMd"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.labelAbove}
+          >
             Landmark<Typography color={colors.error}>*</Typography>
           </Typography>
           <TextInput
@@ -648,14 +773,19 @@ export const SignupScreen: React.FC = () => {
             placeholder="Nearby landmark"
             placeholderTextColor={colors.textMuted}
             value={landmark}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setLandmark(text);
               if (landmarkError) setLandmarkError(undefined);
             }}
           />
           {landmarkError ? (
             <View style={styles.fieldErrorContainer}>
-              <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+              <Typography
+                variant="labelSm"
+                color={colors.error}
+                align="left"
+                style={styles.fieldErrorText}
+              >
                 {landmarkError}
               </Typography>
             </View>
@@ -664,7 +794,12 @@ export const SignupScreen: React.FC = () => {
 
         <View style={styles.row2Col}>
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Country <Typography color={colors.error}>*</Typography>
             </Typography>
             <TouchableOpacity
@@ -681,17 +816,30 @@ export const SignupScreen: React.FC = () => {
                 {country || 'Select'}
               </Typography>
               <View style={styles.doubleArrowCol}>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowUp}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowUp}
+                >
                   ▲
                 </Typography>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowDown}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowDown}
+                >
                   ▼
                 </Typography>
               </View>
             </TouchableOpacity>
             {countryError ? (
               <View style={styles.fieldErrorContainerLeft}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorTextLeft}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorTextLeft}
+                >
                   {countryError}
                 </Typography>
               </View>
@@ -699,7 +847,12 @@ export const SignupScreen: React.FC = () => {
           </View>
 
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               State <Typography color={colors.error}>*</Typography>
             </Typography>
             <TouchableOpacity
@@ -716,17 +869,30 @@ export const SignupScreen: React.FC = () => {
                 {stateName || 'Select'}
               </Typography>
               <View style={styles.doubleArrowCol}>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowUp}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowUp}
+                >
                   ▲
                 </Typography>
-                <Typography variant="caption" color={colors.textMuted} style={styles.arrowDown}>
+                <Typography
+                  variant="caption"
+                  color={colors.textMuted}
+                  style={styles.arrowDown}
+                >
                   ▼
                 </Typography>
               </View>
             </TouchableOpacity>
             {stateError ? (
               <View style={styles.fieldErrorContainer}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorText}
+                >
                   {stateError}
                 </Typography>
               </View>
@@ -736,7 +902,12 @@ export const SignupScreen: React.FC = () => {
 
         <View style={styles.row2Col}>
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               City <Typography color={colors.error}>*</Typography>
             </Typography>
             <TextInput
@@ -744,14 +915,19 @@ export const SignupScreen: React.FC = () => {
               placeholder="City"
               placeholderTextColor={colors.textMuted}
               value={city}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setCity(text);
                 if (cityError) setCityError(undefined);
               }}
             />
             {cityError ? (
               <View style={styles.fieldErrorContainerLeft}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorTextLeft}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorTextLeft}
+                >
                   {cityError}
                 </Typography>
               </View>
@@ -759,7 +935,12 @@ export const SignupScreen: React.FC = () => {
           </View>
 
           <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+              style={styles.labelAbove}
+            >
               Pin Code <Typography color={colors.error}>*</Typography>
             </Typography>
             <TextInput
@@ -773,19 +954,28 @@ export const SignupScreen: React.FC = () => {
             />
             {pincodeError ? (
               <View style={styles.fieldErrorContainer}>
-                <Typography variant="labelSm" color={colors.error} align="left" style={styles.fieldErrorText}>
+                <Typography
+                  variant="labelSm"
+                  color={colors.error}
+                  align="left"
+                  style={styles.fieldErrorText}
+                >
                   {pincodeError}
                 </Typography>
               </View>
             ) : null}
           </View>
         </View>
-
-        </View>
+      </View>
 
       <View style={styles.cardContainer}>
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.primaryNavy} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.primaryNavy}
+            style={styles.sectionTitle}
+          >
             Account details
           </Typography>
           <View style={styles.orangeAccentBar} />
@@ -795,7 +985,7 @@ export const SignupScreen: React.FC = () => {
           <EmailInput
             label="Email Address"
             value={email}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setEmail(text);
               if (isEmailVerified) {
                 setIsEmailVerified(false);
@@ -810,13 +1000,23 @@ export const SignupScreen: React.FC = () => {
               isEmailVerified ? (
                 <View style={styles.verifiedBadge}>
                   <CheckIcon size={12} color={colors.success} />
-                  <Typography variant="labelSm" weight="bold" color={colors.success} style={styles.verifiedBadgeText}>
+                  <Typography
+                    variant="labelSm"
+                    weight="bold"
+                    color={colors.success}
+                    style={styles.verifiedBadgeText}
+                  >
                     Verified
                   </Typography>
                 </View>
               ) : validateEmail(email.trim()).isValid ? (
                 <TouchableOpacity onPress={handleOpenOtp} activeOpacity={0.7}>
-                  <Typography variant="labelSm" weight="bold" color={colors.secondaryRoyal} style={styles.verifyBtnText}>
+                  <Typography
+                    variant="labelSm"
+                    weight="bold"
+                    color={colors.secondaryRoyal}
+                    style={styles.verifyBtnText}
+                  >
                     Verify
                   </Typography>
                 </TouchableOpacity>
@@ -829,7 +1029,7 @@ export const SignupScreen: React.FC = () => {
           <PasswordInput
             label="Password"
             value={password}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setPassword(text);
               if (passwordError) {
                 setPasswordError(undefined);
@@ -847,7 +1047,7 @@ export const SignupScreen: React.FC = () => {
           <PasswordInput
             label="Confirm Password"
             value={confirmPassword}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setConfirmPassword(text);
               if (confirmPasswordError) {
                 setConfirmPasswordError(undefined);
@@ -855,7 +1055,9 @@ export const SignupScreen: React.FC = () => {
             }}
             error={
               confirmPasswordError ||
-              (confirmPassword.length > 0 && confirmPassword !== password ? 'Passwords do not match.' : undefined)
+              (confirmPassword.length > 0 && confirmPassword !== password
+                ? 'Passwords do not match.'
+                : undefined)
             }
             minLength={1}
             requireUppercase={false}
@@ -877,8 +1079,17 @@ export const SignupScreen: React.FC = () => {
           <Typography variant="bodyMd" color={colors.textSecondary}>
             Already registered?{' '}
           </Typography>
-          <TouchableOpacity style={styles.signInLink} accessibilityRole="button" onPress={() => navigation.navigate('Login')} activeOpacity={0.7}>
-            <Typography variant="bodyMd" weight="semibold" color={colors.secondaryRoyal}>
+          <TouchableOpacity
+            style={styles.signInLink}
+            accessibilityRole="button"
+            onPress={() => navigation.navigate('Login')}
+            activeOpacity={0.7}
+          >
+            <Typography
+              variant="bodyMd"
+              weight="semibold"
+              color={colors.secondaryRoyal}
+            >
               Sign In
             </Typography>
           </TouchableOpacity>
@@ -894,7 +1105,11 @@ export const SignupScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="headlineSm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 {modalTitle}
               </Typography>
               <TouchableOpacity
@@ -907,11 +1122,14 @@ export const SignupScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {(activeSelectField === 'country' || activeSelectField === 'state') && (
+            {(activeSelectField === 'country' ||
+              activeSelectField === 'state') && (
               <View style={styles.modalSearchBox}>
                 <TextInput
                   style={styles.modalSearchInput}
-                  placeholder={`Search ${activeSelectField === 'country' ? 'country' : 'state'}...`}
+                  placeholder={`Search ${
+                    activeSelectField === 'country' ? 'country' : 'state'
+                  }...`}
                   placeholderTextColor={colors.textMuted}
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -1178,7 +1396,7 @@ const styles = StyleSheet.create({
   signInLink: {
     minHeight: 44,
     justifyContent: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 2,
   },
 
   doubleArrowCol: {

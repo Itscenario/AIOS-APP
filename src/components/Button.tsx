@@ -13,7 +13,13 @@ import { colors } from '../theme/colors';
 import { rounded, spacing } from '../theme/spacing';
 import { Typography } from './Typography';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'link';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'danger'
+  | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
@@ -95,7 +101,13 @@ export const Button: React.FC<ButtonProps> = ({
           {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
           {title ? (
             <Typography
-              variant={size === 'sm' ? 'labelSm' : size === 'lg' ? 'labelLg' : 'labelLg'}
+              variant={
+                size === 'sm'
+                  ? 'labelSm'
+                  : size === 'lg'
+                  ? 'labelLg'
+                  : 'labelLg'
+              }
               weight="semibold"
               color={getTextColor()}
               style={[styles.text, textStyle]}
@@ -105,7 +117,9 @@ export const Button: React.FC<ButtonProps> = ({
           ) : (
             children
           )}
-          {rightIcon && <View style={styles.rightIconContainer}>{rightIcon}</View>}
+          {rightIcon && (
+            <View style={styles.rightIconContainer}>{rightIcon}</View>
+          )}
         </View>
       )}
     </TouchableOpacity>

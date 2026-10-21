@@ -27,7 +27,6 @@ export interface ProfileImagePickerProps {
   onImageSelected: (uri: string, asset?: Asset) => void;
   onImageRemoved?: () => void;
   label?: string;
-  helperText?: string;
   error?: string;
   size?: number;
   disabled?: boolean;
@@ -38,7 +37,6 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
   onImageSelected,
   onImageRemoved,
   label = 'Profile Photo',
-  helperText = 'Choose a clear photo from your gallery or camera.',
   error,
   size = 110,
   disabled = false,
@@ -54,7 +52,8 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
         PermissionsAndroid.PERMISSIONS.CAMERA,
         {
           title: 'Camera Permission',
-          message: 'AIOS needs access to your camera to take a profile picture.',
+          message:
+            'AIOS needs access to your camera to take a profile picture.',
           buttonPositive: 'OK',
           buttonNegative: 'Cancel',
         },
@@ -89,7 +88,10 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
       }
 
       if (response.errorCode) {
-        Alert.alert('Camera Error', response.errorMessage || 'Unable to open camera.');
+        Alert.alert(
+          'Camera Error',
+          response.errorMessage || 'Unable to open camera.',
+        );
         return;
       }
 
@@ -103,14 +105,18 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
       const isNativeMissing =
         err?.message?.includes('null') ||
         err?.message?.includes('launchCamera') ||
-        typeof err?.message === 'string' && err.message.toLowerCase().includes('cannot read property');
+        (typeof err?.message === 'string' &&
+          err.message.toLowerCase().includes('cannot read property'));
       if (isNativeMissing) {
         Alert.alert(
           'App Rebuild Required',
           'Camera native module connect nahi hua hai. Nayi library install hone ke baad app ko rebuild karna zaroori hota hai. Please terminal me "npm run android" run karein.',
         );
       } else {
-        Alert.alert('Error', 'An unexpected error occurred while accessing the camera.');
+        Alert.alert(
+          'Error',
+          'An unexpected error occurred while accessing the camera.',
+        );
       }
     }
   };
@@ -128,7 +134,10 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
       }
 
       if (response.errorCode) {
-        Alert.alert('Gallery Error', response.errorMessage || 'Unable to open gallery.');
+        Alert.alert(
+          'Gallery Error',
+          response.errorMessage || 'Unable to open gallery.',
+        );
         return;
       }
 
@@ -142,14 +151,18 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
       const isNativeMissing =
         err?.message?.includes('null') ||
         err?.message?.includes('launchImageLibrary') ||
-        typeof err?.message === 'string' && err.message.toLowerCase().includes('cannot read property');
+        (typeof err?.message === 'string' &&
+          err.message.toLowerCase().includes('cannot read property'));
       if (isNativeMissing) {
         Alert.alert(
           'App Rebuild Required',
           'Gallery native module connect nahi hua hai. Nayi library install hone ke baad app ko rebuild karna zaroori hota hai. Please terminal me "npm run android" run karein.',
         );
       } else {
-        Alert.alert('Error', 'An unexpected error occurred while accessing your gallery.');
+        Alert.alert(
+          'Error',
+          'An unexpected error occurred while accessing your gallery.',
+        );
       }
     }
   };
@@ -182,7 +195,9 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
           activeOpacity={0.85}
           disabled={disabled}
           accessibilityRole="button"
-          accessibilityLabel={imageUri ? 'Change profile photo' : 'Upload profile photo'}
+          accessibilityLabel={
+            imageUri ? 'Change profile photo' : 'Upload profile photo'
+          }
           style={[
             styles.avatarCircle,
             {
@@ -246,7 +261,7 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => !disabled && setModalVisible(true)}
         activeOpacity={0.7}
         disabled={disabled}
@@ -259,9 +274,9 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
         >
           {imageUri ? 'Change Photo' : 'Upload Profile Picture'}
         </Typography>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
-      {helperText ? (
+      {/* {helperText ? (
         <Typography
           variant="caption"
           color={colors.textMuted}
@@ -269,7 +284,7 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
         >
           {helperText}
         </Typography>
-      ) : null}
+      ) : null} */}
 
       {error ? (
         <Typography
@@ -289,167 +304,185 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
         onRequestClose={() => setModalVisible(false)}
       >
         <SafeAreaProvider>
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
-          <View style={styles.modalBackdrop}>
-            <TouchableWithoutFeedback>
-              <SafeAreaView edges={['bottom', 'left', 'right']} style={styles.modalSheet}>
-                {/* Header */}
-                <View style={styles.modalHeader}>
-                  <View style={styles.modalTitleBlock}>
-                    <Typography
-                      variant="headlineSm"
-                      weight="bold"
-                      color={colors.primaryNavy}
-                    >
-                      Profile Photo
-                    </Typography>
-                    <Typography
-                      variant="bodySm"
-                      color={colors.textMuted}
-                      style={styles.modalSubtitle}
-                    >
-                      Choose an option to set your picture
-                    </Typography>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => setModalVisible(false)}
-                    style={styles.closeBtn}
-                    activeOpacity={0.7}
-                  >
-                    <CloseIcon size={16} color={colors.textMuted} />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Options List */}
-                <View style={styles.optionsList}>
-                  {/* Camera Option */}
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={handleTakePhoto}
-                    activeOpacity={0.75}
-                  >
-                    <View style={[styles.optionIconContainer, styles.cameraIconBg]}>
-                      <Image
-                        source={images.cameraIcon}
-                        style={{
-                          width: 22,
-                          height: 22,
-                          tintColor: colors.secondaryRoyal,
-                        }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                    <View style={styles.optionTextContainer}>
+          <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+            <View style={styles.modalBackdrop}>
+              <TouchableWithoutFeedback>
+                <SafeAreaView
+                  edges={['bottom', 'left', 'right']}
+                  style={styles.modalSheet}
+                >
+                  {/* Header */}
+                  <View style={styles.modalHeader}>
+                    <View style={styles.modalTitleBlock}>
                       <Typography
-                        variant="bodyMd"
+                        variant="headlineSm"
                         weight="bold"
-                        color={colors.textPrimary}
+                        color={colors.primaryNavy}
                       >
-                        Take Photo
+                        Profile Photo
                       </Typography>
-                      {/* <Typography
-                        variant="caption"
-                        color={colors.textMuted}
-                      >
-                        Use camera to capture a new photo
-                      </Typography> */}
-                    </View>
-                    <Typography
-                      variant="bodyLg"
-                      color={colors.borderFieldHover}
-                      style={styles.optionChevron}
-                    >
-                      ›
-                    </Typography>
-                  </TouchableOpacity>
-
-                  {/* Gallery Option */}
-                  <TouchableOpacity
-                    style={styles.optionItem}
-                    onPress={handleChooseFromGallery}
-                    activeOpacity={0.75}
-                  >
-                    <View style={[styles.optionIconContainer, styles.galleryIconBg]}>
-                      <GalleryIcon size={22} color={colors.tertiarySaffron} />
-                    </View>
-                    <View style={styles.optionTextContainer}>
                       <Typography
-                        variant="bodyMd"
-                        weight="bold"
-                        color={colors.textPrimary}
-                      >
-                        Choose from Gallery
-                      </Typography>
-                      {/* <Typography
-                        variant="caption"
+                        variant="bodySm"
                         color={colors.textMuted}
+                        style={styles.modalSubtitle}
                       >
-                        Select existing photo from device
-                      </Typography> */}
+                        Choose an option to set your picture
+                      </Typography>
                     </View>
-                    <Typography
-                      variant="bodyLg"
-                      color={colors.borderFieldHover}
-                      style={styles.optionChevron}
-                    >
-                      ›
-                    </Typography>
-                  </TouchableOpacity>
-
-                  {/* Remove Photo Option (if photo exists) */}
-                  {imageUri ? (
                     <TouchableOpacity
-                      style={[styles.optionItem, styles.removeOptionItem]}
-                      onPress={handleRemovePhoto}
+                      onPress={() => setModalVisible(false)}
+                      style={styles.closeBtn}
+                      activeOpacity={0.7}
+                    >
+                      <CloseIcon size={16} color={colors.textMuted} />
+                    </TouchableOpacity>
+                  </View>
+
+                  {/* Options List */}
+                  <View style={styles.optionsList}>
+                    {/* Camera Option */}
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={handleTakePhoto}
                       activeOpacity={0.75}
                     >
-                      <View style={[styles.optionIconContainer, styles.trashIconBg]}>
-                        <TrashIcon size={20} color={colors.error} />
+                      <View
+                        style={[
+                          styles.optionIconContainer,
+                          styles.cameraIconBg,
+                        ]}
+                      >
+                        <Image
+                          source={images.cameraIcon}
+                          style={{
+                            width: 22,
+                            height: 22,
+                            tintColor: colors.secondaryRoyal,
+                          }}
+                          resizeMode="contain"
+                        />
                       </View>
                       <View style={styles.optionTextContainer}>
                         <Typography
                           variant="bodyMd"
                           weight="bold"
-                          color={colors.error}
+                          color={colors.textPrimary}
                         >
-                          Remove Photo
+                          Take Photo
                         </Typography>
                         {/* <Typography
-                          variant="caption"
-                          color={colors.textMuted}
-                        >
-                          Delete current profile picture
-                        </Typography> */}
+                        variant="caption"
+                        color={colors.textMuted}
+                      >
+                        Use camera to capture a new photo
+                      </Typography> */}
                       </View>
                       <Typography
                         variant="bodyLg"
-                        color={colors.error}
+                        color={colors.borderFieldHover}
                         style={styles.optionChevron}
                       >
                         ›
                       </Typography>
                     </TouchableOpacity>
-                  ) : null}
-                </View>
 
-                {/* Cancel Button */}
-                <TouchableOpacity
-                  style={styles.cancelButton}
-                  onPress={() => setModalVisible(false)}
-                  activeOpacity={0.8}
-                >
-                  <Typography
-                    variant="labelLg"
-                    weight="bold"
-                    color={colors.textSecondary}
+                    {/* Gallery Option */}
+                    <TouchableOpacity
+                      style={styles.optionItem}
+                      onPress={handleChooseFromGallery}
+                      activeOpacity={0.75}
+                    >
+                      <View
+                        style={[
+                          styles.optionIconContainer,
+                          styles.galleryIconBg,
+                        ]}
+                      >
+                        <GalleryIcon size={22} color={colors.tertiarySaffron} />
+                      </View>
+                      <View style={styles.optionTextContainer}>
+                        <Typography
+                          variant="bodyMd"
+                          weight="bold"
+                          color={colors.textPrimary}
+                        >
+                          Choose from Gallery
+                        </Typography>
+                        {/* <Typography
+                        variant="caption"
+                        color={colors.textMuted}
+                      >
+                        Select existing photo from device
+                      </Typography> */}
+                      </View>
+                      <Typography
+                        variant="bodyLg"
+                        color={colors.borderFieldHover}
+                        style={styles.optionChevron}
+                      >
+                        ›
+                      </Typography>
+                    </TouchableOpacity>
+
+                    {/* Remove Photo Option (if photo exists) */}
+                    {imageUri ? (
+                      <TouchableOpacity
+                        style={[styles.optionItem, styles.removeOptionItem]}
+                        onPress={handleRemovePhoto}
+                        activeOpacity={0.75}
+                      >
+                        <View
+                          style={[
+                            styles.optionIconContainer,
+                            styles.trashIconBg,
+                          ]}
+                        >
+                          <TrashIcon size={20} color={colors.error} />
+                        </View>
+                        <View style={styles.optionTextContainer}>
+                          <Typography
+                            variant="bodyMd"
+                            weight="bold"
+                            color={colors.error}
+                          >
+                            Remove Photo
+                          </Typography>
+                          {/* <Typography
+                          variant="caption"
+                          color={colors.textMuted}
+                        >
+                          Delete current profile picture
+                        </Typography> */}
+                        </View>
+                        <Typography
+                          variant="bodyLg"
+                          color={colors.error}
+                          style={styles.optionChevron}
+                        >
+                          ›
+                        </Typography>
+                      </TouchableOpacity>
+                    ) : null}
+                  </View>
+
+                  {/* Cancel Button */}
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={() => setModalVisible(false)}
+                    activeOpacity={0.8}
                   >
-                    Cancel
-                  </Typography>
-                </TouchableOpacity>
-              </SafeAreaView>
-            </TouchableWithoutFeedback>
-          </View>
-        </TouchableWithoutFeedback>
+                    <Typography
+                      variant="labelLg"
+                      weight="bold"
+                      color={colors.textSecondary}
+                    >
+                      Cancel
+                    </Typography>
+                  </TouchableOpacity>
+                </SafeAreaView>
+              </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
         </SafeAreaProvider>
       </Modal>
     </View>
@@ -464,9 +497,6 @@ const styles = StyleSheet.create({
     width: '100%',
     padding: 18,
     borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    backgroundColor: '#F8FAFC',
   },
   label: {
     marginBottom: 14,
@@ -478,20 +508,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   avatarCircle: {
-    backgroundColor: '#F1F5F9',
-    borderWidth: 2,
-    borderColor: '#BFDBFE',
+    backgroundColor: colors.white,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
     overflow: 'visible',
-    ...shadows.level1,
+    elevation: 5,
+    shadowColor: '#0F294A',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.16,
+    shadowRadius: 6,
   },
   avatarCircleError: {
     borderColor: colors.error,
   },
   avatarImage: {
-    backgroundColor: colors.surfaceContainerLowest,
+    backgroundColor: 'transparent',
   },
   placeholderContainer: {
     alignItems: 'center',

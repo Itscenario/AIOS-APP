@@ -1,7 +1,12 @@
+import { PaymentInformation } from '../components/PaymentInformation';
+import { CertificateArchive } from '../components/CertificateArchive';
 import { formatProfileName } from '../utils/profileName';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
+  Keyboard,
+  KeyboardAvoidingView,
+  ToastAndroid,
   Text,
   StyleSheet,
   ScrollView,
@@ -23,8 +28,6 @@ import { Typography } from '../components/Typography';
 import {
   CalendarIcon,
   LocationPinIcon,
-  PhoneIcon,
-  MailIcon,
   WhatsAppIcon,
   ShareIcon,
   EditPencilIcon,
@@ -35,15 +38,24 @@ import {
   PersonIcon,
   VerifiedBadgeIcon,
   QrCodeIcon,
-  SearchIcon,
 } from '../components/Icons';
 import { images } from '../constants/images';
 import { useAppSelector } from '../store';
 import { downloadCertificate } from '../services/CertificateDownloader';
 
 // Custom icons matching the user's screenshot
-const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color = '#EA580C' }) => (
-  <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({
+  size = 20,
+  color = '#EA580C',
+}) => (
+  <View
+    style={{
+      width: size,
+      height: size,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
     {/* Top Paper */}
     <View
       style={{
@@ -55,7 +67,6 @@ const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, c
         marginBottom: 1,
       }}
     />
-    {/* Main Printer Body */}
     <View
       style={{
         width: size * 0.9,
@@ -66,9 +77,15 @@ const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, c
         alignItems: 'center',
       }}
     >
-      <View style={{ width: size * 0.65, height: 1.5, backgroundColor: '#FFFFFF', opacity: 0.8 }} />
+      <View
+        style={{
+          width: size * 0.65,
+          height: 1.5,
+          backgroundColor: '#FFFFFF',
+          opacity: 0.8,
+        }}
+      />
     </View>
-    {/* Bottom Output Paper */}
     <View
       style={{
         width: size * 0.65,
@@ -85,12 +102,26 @@ const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, c
   </View>
 );
 
-const BedIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color = '#EA580C' }) => (
+const BedIcon: React.FC<{ size?: number; color?: string }> = ({
+  size = 20,
+  color = '#EA580C',
+}) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
-    <View style={{ flexDirection: 'row', alignItems: 'flex-end', height: size * 0.6 }}>
-      {/* Headboard */}
-      <View style={{ width: 3, height: size * 0.55, backgroundColor: color, borderRadius: 1 }} />
-      {/* Pillow & Mattress */}
+    <View
+      style={{
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        height: size * 0.6,
+      }}
+    >
+      <View
+        style={{
+          width: 3,
+          height: size * 0.55,
+          backgroundColor: color,
+          borderRadius: 1,
+        }}
+      />
       <View
         style={{
           flex: 1,
@@ -100,10 +131,15 @@ const BedIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color
           marginHorizontal: 1.5,
         }}
       />
-      {/* Footboard */}
-      <View style={{ width: 3, height: size * 0.38, backgroundColor: color, borderRadius: 1 }} />
+      <View
+        style={{
+          width: 3,
+          height: size * 0.38,
+          backgroundColor: color,
+          borderRadius: 1,
+        }}
+      />
     </View>
-    {/* Legs */}
     <View
       style={{
         flexDirection: 'row',
@@ -118,9 +154,26 @@ const BedIcon: React.FC<{ size?: number; color?: string }> = ({ size = 20, color
   </View>
 );
 
-const RupeeIcon: React.FC<{ size?: number; color?: string }> = ({ size = 22, color = '#EA580C' }) => (
-  <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-    <Text style={{ fontSize: size * 0.95, fontWeight: '900', color: color, lineHeight: size * 1.1 }}>
+const RupeeIcon: React.FC<{ size?: number; color?: string }> = ({
+  size = 22,
+  color = '#EA580C',
+}) => (
+  <View
+    style={{
+      width: size,
+      height: size,
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <Text
+      style={{
+        fontSize: size * 0.95,
+        fontWeight: '900',
+        color: color,
+        lineHeight: size * 1.1,
+      }}
+    >
       ₹
     </Text>
   </View>
@@ -141,10 +194,38 @@ const PencilBadgeIcon: React.FC<{ size?: number }> = ({ size = 22 }) => (
   </View>
 );
 
-const SelectArrowsIcon: React.FC<{ size?: number; color?: string }> = ({ size = 11, color = '#64748B' }) => (
-  <View style={{ width: size, height: size * 1.5, justifyContent: 'center', alignItems: 'center' }}>
-    <Text style={{ fontSize: size * 0.7, color, lineHeight: size * 0.75, fontWeight: '800' }}>▲</Text>
-    <Text style={{ fontSize: size * 0.7, color, lineHeight: size * 0.75, fontWeight: '800' }}>▼</Text>
+const SelectArrowsIcon: React.FC<{ size?: number; color?: string }> = ({
+  size = 11,
+  color = '#64748B',
+}) => (
+  <View
+    style={{
+      width: size,
+      height: size * 1.5,
+      justifyContent: 'center',
+      alignItems: 'center',
+    }}
+  >
+    <Text
+      style={{
+        fontSize: size * 0.7,
+        color,
+        lineHeight: size * 0.75,
+        fontWeight: '800',
+      }}
+    >
+      ▲
+    </Text>
+    <Text
+      style={{
+        fontSize: size * 0.7,
+        color,
+        lineHeight: size * 0.75,
+        fontWeight: '800',
+      }}
+    >
+      ▼
+    </Text>
   </View>
 );
 
@@ -155,11 +236,7 @@ const DELEGATE_CATEGORIES = [
   'Trade Delegate',
 ];
 
-const DELEGATE_TYPES = [
-  'Ophthalmologist',
-  'Resident / Trainee',
-  'Exhibitor',
-];
+const DELEGATE_TYPES = ['Ophthalmologist', 'Resident / Trainee', 'Exhibitor'];
 
 const ACCOMPANYING_OPTIONS = ['0', '1', '2', '3', '4'];
 
@@ -210,10 +287,14 @@ const SPECIALITY_OPTIONS = [
   'Cornea',
   'Comprehensive Ophthalmology',
   'Uvea',
+  'Cataract/Phaco',
+  'Pediatric Ophthalmology & Strabismus',
+  'Oculoplastic Surgery',
   'Refractive Surgery',
-  'Pediatric Ophthalmology',
-  'Neuro-Ophthalmology',
-  'Orbit & Oculoplasty',
+  'Neurophthalmology',
+  'Ocular Pathology',
+  'Microbiology',
+  'None',
 ];
 
 const SCIENTIFIC_COURSES = {
@@ -233,6 +314,18 @@ const SCIENTIFIC_COURSES = {
     'Penetrating keratoplasty',
     'Deep anterior lamellar keratoplasty',
   ],
+  DSTC: [
+    'Mock MS/DNB Practical Exam with Examiner Feedback',
+    'Slit Lamp Biomicroscopy & 78/90D',
+    'Indirect Ophthalmoscopy & Scleral Depression',
+    'Macular OCT Made Simple',
+    'OCT Angiography Decoded',
+    'FFA & ICG: Pattern Recognition',
+    'Ultra-widefield Imaging & Autofluorescence',
+    'Ocular Ultrasound: Hands-on Scanning & Interpretation',
+    'Retinal Laser: PRP & Barrage',
+    'ERG, VEP & EOG Interpretation',
+  ],
   TSTC: [
     'AI Co-Pilots: Using Large Language Models in Ophthalmic Practice',
     'Deep Learning in Diagnostics: Advanced OCT and Visual Field Analytics',
@@ -244,65 +337,125 @@ const SCIENTIFIC_COURSES = {
   ],
 };
 
-export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ variant = 'midterm' }) => {
+export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
+  variant = 'midterm',
+}) => {
   const isAnnual = variant === 'annual';
-  const bannerSource = isAnnual ? images.aioc2027Banner : images.conferenceBanner;
+  const bannerSource = isAnnual
+    ? images.aioc2027Banner
+    : images.conferenceBanner;
   const bannerDimensions = Image.resolveAssetSource(bannerSource);
-  const bannerAspectRatio = bannerDimensions?.width && bannerDimensions?.height
-    ? bannerDimensions.width / bannerDimensions.height
-    : isAnnual ? 998 / 316 : 1003 / 212;
-  const conferenceTitle = isAnnual ? '85th Annual Conference of AIOS' : '5th AIOS Mid-Term Conference 2026';
-  const conferenceLocation = isAnnual ? 'Mahatma Mandir Convention and Exhibition Centre, Gandhinagar, Gujarat' : 'Hotel Chanakya BNR, Ranchi';
-  const conferenceDates = isAnnual ? 'February 18 - 21, 2027' : 'September 25 - 27, 2026';
+  const bannerAspectRatio =
+    bannerDimensions?.width && bannerDimensions?.height
+      ? bannerDimensions.width / bannerDimensions.height
+      : isAnnual
+      ? 998 / 316
+      : 1003 / 212;
+  const conferenceTitle = isAnnual
+    ? '85th Annual Conference of AIOS'
+    : '5th AIOS Mid-Term Conference 2026';
+  const conferenceLocation = isAnnual
+    ? 'Mahatma Mandir Convention and Exhibition Centre, Gandhinagar, Gujarat'
+    : 'Hotel Chanakya BNR, Ranchi';
+  const conferenceDates = isAnnual
+    ? 'February 18 - 21, 2027'
+    : 'September 25 - 27, 2026';
   const conferenceYear = isAnnual ? '2027' : '2026';
   const insets = useSafeAreaInsets();
-  const savedProfile = useAppSelector((state) => state.auth.profile);
+  const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
     ? { ...savedProfile, membershipId: undefined }
     : savedProfile;
+  const isMember = Boolean(profile?.membershipId?.trim());
+  const registrationKey = isAnnual ? 'annual-2027' : 'midterm-2026';
+  const isRegistered =
+    profile?.conferenceRegistrations?.[registrationKey] === 'completed';
 
   const doctorName = profile
-    ? formatProfileName(profile.name || [profile.title, profile.firstName, profile.surname].filter(Boolean).join(' ') || 'AIOS Member')
+    ? formatProfileName(
+        profile.name ||
+          [profile.title, profile.firstName, profile.surname]
+            .filter(Boolean)
+            .join(' ') ||
+          'AIOS Member',
+      )
     : 'AIOS Member';
   const memberId = profile?.membershipId || 'Not available';
   const regNo = 'AIOC27-REG-10492';
 
-  const [aiocRegistrationModalVisible, setAiocRegistrationModalVisible] = useState(false);
+  const [aiocRegistrationModalVisible, setAiocRegistrationModalVisible] =
+    useState(false);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
   const [printRegModalVisible, setPrintRegModalVisible] = useState(false);
-  const [accommodationInfoModalVisible, setAccommodationInfoModalVisible] = useState(false);
-  const [accommodationReceiptModalVisible, setAccommodationReceiptModalVisible] = useState(false);
-  const [invitationLetterModalVisible, setInvitationLetterModalVisible] = useState(false);
+  const [accommodationInfoModalVisible, setAccommodationInfoModalVisible] =
+    useState(false);
+  const [
+    accommodationReceiptModalVisible,
+    setAccommodationReceiptModalVisible,
+  ] = useState(false);
+  const [invitationLetterModalVisible, setInvitationLetterModalVisible] =
+    useState(false);
 
   const [certModalVisible, setCertModalVisible] = useState(false);
-  const [selectedCert, setSelectedCert] = useState<PersonCertificateItem | null>(null);
-  const [certificateNameFilter, setCertificateNameFilter] = useState('');
+  const [selectedCert, setSelectedCert] =
+    useState<PersonCertificateItem | null>(null);
   const [certificateDownloading, setCertificateDownloading] = useState(false);
-  const [certCategory, setCertCategory] = useState<'Faculty' | 'Delegate'>('Faculty');
+  const [certCategory, setCertCategory] = useState<'Faculty' | 'Delegate'>(
+    'Faculty',
+  );
 
   const [institution, setInstitution] = useState('');
-  const [orgType, setOrgType] = useState<'Govt' | 'Private' | ''>('');
+  const [orgType, setOrgType] = useState<'Govt' | 'Private' | ''>('Private');
   const [dob, setDob] = useState('');
   const [nationality, setNationality] = useState('');
   const [passportNo, setPassportNo] = useState('');
   const [passportExpiry, setPassportExpiry] = useState('');
   const [mobileNo, setMobileNo] = useState('');
-  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>(
+    ['None'],
+  );
 
   const [delegateCategory, setDelegateCategory] = useState<string>('');
   const [delegateType, setDelegateType] = useState<string>('');
   const [noOfAccompanying, setNoOfAccompanying] = useState<number>(0);
   const [accompanyingNames, setAccompanyingNames] = useState<string[]>([]);
-  const [expandedActivity, setExpandedActivity] = useState<'SSTC' | 'TSTC' | null>(null);
-  const [selectedCourses, setSelectedCourses] = useState<{ SSTC: string[]; TSTC: string[] }>({ SSTC: [], TSTC: [] });
-  const [programBook, setProgramBook] = useState<'Hard Copy' | 'Online Version' | ''>('');
-  const [foodChoice, setFoodChoice] = useState<'Vegetarian' | 'Non-Vegetarian' | 'Jain Food' | ''>('');
-  const [cateringChoice, setCateringChoice] = useState<'Buffet' | 'Packed Food Box' | ''>('');
-  const [activePicker, setActivePicker] = useState<'category' | 'type' | 'accompanying' | null>(null);
+  const [expandedActivity, setExpandedActivity] = useState<
+    keyof typeof SCIENTIFIC_COURSES | null
+  >(null);
+  const [selectedCourses, setSelectedCourses] = useState<
+    Record<keyof typeof SCIENTIFIC_COURSES, string[]>
+  >({ SSTC: [], DSTC: [], TSTC: [] });
+  const [programBook, setProgramBook] = useState<
+    'Hard Copy' | 'Online Version' | ''
+  >('');
+  const [foodChoice, setFoodChoice] = useState<
+    'Vegetarian' | 'Non-Vegetarian' | 'Jain Food' | ''
+  >('');
+  const [cateringChoice, setCateringChoice] = useState<
+    'Buffet' | 'Packed Food Box' | ''
+  >('');
+  const [activePicker, setActivePicker] = useState<
+    'category' | 'type' | 'accompanying' | null
+  >(null);
 
-  const [paymentMode, setPaymentMode] = useState<'Online' | 'Offline'>('Online');
+  const [paymentMode, setPaymentMode] = useState<'Online' | 'Offline'>(
+    'Online',
+  );
   const [captchaCode, setCaptchaCode] = useState<string>('7987b');
   const [captchaInput, setCaptchaInput] = useState<string>('');
+  const registrationScrollRef =
+    useRef<React.ElementRef<typeof ScrollView>>(null);
+  const captchaFocused = useRef(false);
+  useEffect(() => {
+    const listener = Keyboard.addListener('keyboardDidShow', () => {
+      if (captchaFocused.current) {
+        requestAnimationFrame(() =>
+          registrationScrollRef.current?.scrollToEnd({ animated: true }),
+        );
+      }
+    });
+    return () => listener.remove();
+  }, []);
 
   const refreshCaptcha = () => {
     const chars = '23456789abcdefghkmnpqrstuvwxyz';
@@ -313,21 +466,45 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
     setCaptchaCode(res);
   };
 
+  const [paymentReviewVisible, setPaymentReviewVisible] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState<boolean>(false);
 
-  const annualCertificates: MidtermCertificateItem[] = [
-    { id: 'annual-2025', title: 'APAO AIOS 2025', year: '2025', location: 'New Delhi', dates: '', theme: 'Innovations in Vision Care' },
-    { id: 'annual-2024', title: 'AIOC 2024', year: '2024', location: 'Kolkata', dates: '', theme: 'Surgical Retina & Vitreous Masterclass' },
-    { id: 'annual-2023', title: 'AIOC 2023', year: '2023', location: 'Kochi', dates: '', theme: 'Emerging Technologies in Eye Care' },
+  const archiveConferences: MidtermCertificateItem[] = [
+    {
+      id: 'annual-2025',
+      title: 'APAO AIOS 2025',
+      year: '2025',
+      location: 'Delhi',
+      dates: '',
+      theme: '',
+    },
+    MIDTERM_CERTIFICATES[1],
+    {
+      id: 'annual-2024',
+      title: 'AIOC 2024',
+      year: '2024',
+      location: 'Kolkata',
+      dates: '',
+      theme: '',
+    },
+    MIDTERM_CERTIFICATES[2],
+    {
+      id: 'annual-2023',
+      title: 'AIOC 2023',
+      year: '2023',
+      location: 'Kochi',
+      dates: '',
+      theme: '',
+    },
+    {
+      id: 'mt-patna-2023',
+      title: 'AIOS Mid-term 2023',
+      year: '2023',
+      location: 'Patna',
+      dates: '',
+      theme: '',
+    },
   ];
-  const personCertificates = Array.from(isAnnual ? annualCertificates : MIDTERM_CERTIFICATES, (certificate): PersonCertificateItem => ({
-    ...certificate,
-    recipientName: doctorName,
-    memberId,
-  }));
-  const filteredCertificates = personCertificates.filter((certificate) =>
-    certificate.recipientName.toLowerCase().includes(certificateNameFilter.trim().toLowerCase()),
-  );
 
   const regCategory = delegateCategory || delegateType || 'AIOS Member';
 
@@ -344,25 +521,38 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
 
   const accompanyingFee = noOfAccompanying * 4000;
   const sstcActivityFee = selectedCourses.SSTC.length * 1000;
+  const dstcActivityFee = selectedCourses.DSTC.length * 1000;
   const tstcActivityFee = selectedCourses.TSTC.length * 1000;
-  const extraActivitiesFee = sstcActivityFee + tstcActivityFee;
+  const extraActivitiesFee =
+    sstcActivityFee + dstcActivityFee + tstcActivityFee;
   const totalPayable = getBaseFee() + accompanyingFee + extraActivitiesFee;
   const gstAmount = Math.round(totalPayable * 0.18);
 
   const handleToggleSpeciality = (spec: string) => {
+    if (spec === 'None') {
+      setSelectedSpecialities(['None']);
+      return;
+    }
+    const current = selectedSpecialities.filter(s => s !== 'None');
     if (selectedSpecialities.includes(spec)) {
-      setSelectedSpecialities(selectedSpecialities.filter((s) => s !== spec));
+      const next = current.filter(s => s !== spec);
+      setSelectedSpecialities(next.length ? next : ['None']);
     } else {
-      if (selectedSpecialities.length >= 3) {
-        Alert.alert('Maximum Reached', 'You can select a maximum of 3 specialities.');
+      if (current.length >= 3) {
+        Alert.alert(
+          'Maximum Reached',
+          'You can select a maximum of 3 specialities.',
+        );
         return;
       }
-      setSelectedSpecialities([...selectedSpecialities, spec]);
+      setSelectedSpecialities([...current, spec]);
     }
   };
 
   const handleWhatsApp = () => {
-    Linking.openURL('https://wa.me/919697692000?text=Inquiry%20regarding%20AIOS%20Conferences');
+    Linking.openURL(
+      'https://wa.me/919697692000?text=Inquiry%20regarding%20AIOS%20Conferences',
+    );
   };
 
   const handleOpenCertificate = (cert: PersonCertificateItem) => {
@@ -374,20 +564,32 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
     if (!selectedCert || certificateDownloading) return;
     setCertificateDownloading(true);
     try {
-      if (Platform.OS !== 'android' || !NativeModules.CertificateDownloader?.downloadCertificate) {
-        throw new Error('PDF download is currently available in the Android app only.');
+      if (
+        Platform.OS !== 'android' ||
+        !NativeModules.CertificateDownloader?.downloadCertificate
+      ) {
+        throw new Error(
+          'PDF download is currently available in the Android app only.',
+        );
       }
-      const result = await NativeModules.CertificateDownloader.downloadCertificate({
-        title: `${selectedCert.title} - ${certCategory}`,
-        recipientName: selectedCert.recipientName,
-        memberId: selectedCert.memberId,
-        location: selectedCert.location,
-        year: selectedCert.year,
-      });
+      const result =
+        await NativeModules.CertificateDownloader.downloadCertificate({
+          title: `${selectedCert.title} - ${certCategory}`,
+          recipientName: selectedCert.recipientName,
+          memberId: selectedCert.memberId,
+          location: selectedCert.location,
+          year: selectedCert.year,
+        });
       if (!result.success) throw new Error('Could not download certificate.');
-      Alert.alert('Download Complete', `${result.fileName} saved successfully.`);
+      Alert.alert(
+        'Download Complete',
+        `${result.fileName} saved successfully.`,
+      );
     } catch (error: any) {
-      Alert.alert('Download Error', error?.message || 'Could not download certificate.');
+      Alert.alert(
+        'Download Error',
+        error?.message || 'Could not download certificate.',
+      );
     } finally {
       setCertificateDownloading(false);
     }
@@ -411,29 +613,40 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
   const handleShareDoc = (title: string, extra?: string) => {
     Share.share({
       title: title,
-      message: `${title} - All India Ophthalmological Society (AIOS).\nIssued to: ${doctorName} (${memberId}).\n${extra || ''}`,
+      message: `${title} - All India Ophthalmological Society (AIOS).\nIssued to: ${doctorName} (${memberId}).\n${
+        extra || ''
+      }`,
     });
   };
 
   return (
     <View style={styles.container}>
       <ScreenStatusBar barStyle="dark-content" />
-      <View style={[styles.header, { paddingTop: insets.top + (Platform.OS === 'ios' ? 8 : 10) }]}>
+      <View
+        style={[
+          styles.header,
+          { paddingTop: insets.top + (Platform.OS === 'ios' ? 8 : 10) },
+        ]}
+      >
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
-            <Image source={images.logo} style={styles.logoImg} resizeMode="contain" />
+            <Image
+              source={images.logo}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.headerTitleWrap}>
-            <Text style={styles.headerTitle}>{isAnnual ? 'AIOS Annual Conference' : 'AIOC & Mid-Term'}</Text>
+            <Text style={styles.headerTitle}>
+              {isAnnual ? 'AIOS Annual Conference' : 'AIOC & Mid-Term'}
+            </Text>
             <Text style={styles.headerSubtitle}>
               Conference Portal & Registration
             </Text>
           </View>
         </View>
         <View style={styles.statusBadge}>
-          <Text style={styles.statusBadgeText}>
-            AIOC 2027
-          </Text>
+          <Text style={styles.statusBadgeText}>AIOC 2027</Text>
         </View>
       </View>
 
@@ -442,956 +655,1222 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={[styles.bannerWrapper, { aspectRatio: bannerAspectRatio }]}>
+        <View
+          style={[styles.bannerWrapper, { aspectRatio: bannerAspectRatio }]}
+        >
           <Image
             source={bannerSource}
             style={styles.bannerImage}
             resizeMode="contain"
           />
         </View>
-        {!isAnnual && <TouchableOpacity
-          style={styles.aiocHeroBtn}
-          activeOpacity={0.85}
-          onPress={() => setAiocRegistrationModalVisible(true)}
-        >
-          <View style={styles.aiocHeroIconBadge}>
-            <EditPencilIcon size={26} color="#FFFFFF" />
-          </View>
-          <View style={styles.aiocHeroTextCol}>
-            <Text style={styles.aiocHeroTitle}>AIOC Registration</Text>
-            <Text style={styles.aiocHeroYear}>2027</Text>
-          </View>
-          <View style={styles.aiocHeroActionTag}>
-            <Text style={styles.aiocHeroActionText}>Register Now ➔</Text>
-          </View>
-        </TouchableOpacity>}
-        {isAnnual ? (
-          <FlatList
-            scrollEnabled={false}
-            numColumns={2}
-            style={styles.actionGridContainer}
-            columnWrapperStyle={styles.actionGridRow}
-            data={[
-              { id: 'registration', title: 'AIOC Registration 2027', icon: <PencilBadgeIcon size={24} />, onPress: () => setAiocRegistrationModalVisible(true) },
-              { id: 'payment', title: 'Payment Details', icon: <RupeeIcon size={24} color="#F59E0B" />, onPress: () => setPaymentModalVisible(true) },
-              { id: 'print', title: 'Print Registration Detail', icon: <PrinterIcon size={24} color="#F59E0B" />, onPress: () => setPrintRegModalVisible(true) },
-              { id: 'invitation', title: 'Print Invitation Letter', icon: <PrinterIcon size={24} color="#F59E0B" />, onPress: () => setInvitationLetterModalVisible(true) },
-              { id: 'accommodation', title: 'Accommodation Booking', icon: <BedIcon size={24} color="#F59E0B" />, onPress: () => setAccommodationInfoModalVisible(true) },
-            ]}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity style={styles.annualActionBtn} onPress={item.onPress} activeOpacity={0.8}>
-                {item.icon}
-                <Text style={styles.actionBtnText}>{item.title}</Text>
-              </TouchableOpacity>
-            )}
-          />
-        ) : <View style={styles.actionGridContainer}>
-          <View style={styles.actionGridRow}>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setAiocRegistrationModalVisible(true)}
-            >
-              <PencilBadgeIcon size={24} />
-              <Text style={styles.actionBtnText}>
-                {'AIOC Registration\n2027'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setPaymentModalVisible(true)}
-            >
-              <RupeeIcon size={22} color="#EA580C" />
-              <Text style={styles.actionBtnText}>
-                {'Payment\nDetails'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.actionGridRow}>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setPrintRegModalVisible(true)}
-            >
-              <PrinterIcon size={22} color="#EA580C" />
-              <Text style={styles.actionBtnText}>
-                {'Print Registration\nDetail'}
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setAccommodationInfoModalVisible(true)}
-            >
-              <BedIcon size={22} color="#EA580C" />
-              <Text style={styles.actionBtnText}>
-                {'Accommodation Booking\nClosed'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.actionGridRow}>
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setAccommodationReceiptModalVisible(true)}
-            >
-              <PrinterIcon size={22} color="#EA580C" />
-              <Text style={styles.actionBtnText}>
-                {'Accommodation Booking\nPayment Receipt'}
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.actionBtn}
-              activeOpacity={0.8}
-              onPress={() => setInvitationLetterModalVisible(true)}
-            >
-              <PrinterIcon size={22} color="#EA580C" />
-              <Text style={styles.actionBtnText}>
-                {'Print Invitation\nLetter'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        }
-        <View style={styles.certCard}>
-          <View style={styles.certCardHeader}>
-            <View style={styles.certIconBadge}>
-              <AwardMedalIcon size={20} color="#D97706" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Typography variant="labelMd" weight="bold" color="#0A1E3F">
-                {isAnnual ? 'AIOS Annual Certificates' : 'Mid-Term Certificates'}
-              </Typography>
-              <Typography variant="caption" color="#64748B">
-                Find your certificate, preview and download
-              </Typography>
-            </View>
-          </View>
-            {/* Category Toggle */}
-            <FlatList
-              numColumns={2}
-              scrollEnabled={false}
-              style={styles.certCategoryToggle}
-              columnWrapperStyle={styles.certCategoryRow}
-              data={['Faculty', 'Delegate'] as const}
-              keyExtractor={(cat) => cat}
-              extraData={certCategory}
-              renderItem={({ item: cat }) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.certCategoryChip,
-                    certCategory === cat && (cat === 'Faculty' ? styles.certCategoryChipFaculty : styles.certCategoryChipDelegate),
-                  ]}
-                  onPress={() => setCertCategory(cat)}
-                  accessibilityRole="tab"
-                  accessibilityState={{ selected: certCategory === cat }}
-                >
-                  <Text
-                    style={[
-                      styles.certCategoryChipText,
-                      certCategory === cat && styles.certCategoryChipTextActive,
-                    ]}
-                  >
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-
-          <Text style={styles.certificateFilterLabel}>Search by name</Text>
-          <View style={styles.certificateSearchBox}>
-            <SearchIcon size={18} color="#64748B" />
-          <TextInput
-            style={styles.certificateNameFilter}
-            value={certificateNameFilter}
-            onChangeText={setCertificateNameFilter}
-            placeholder="Search person name"
-            placeholderTextColor="#94A3B8"
-            accessibilityLabel="Filter certificates by person name"
-            autoCorrect={false}
-          />
-          </View>
-          <Text style={styles.certificateResultsLabel}>
-            {certCategory} certificates · {filteredCertificates.length}
-          </Text>
-          <FlatList
-            data={filteredCertificates}
-            scrollEnabled={false}
-            keyExtractor={(cert) => cert.id}
-            extraData={certCategory}
-            renderItem={({ item: cert }) => (
-              <TouchableOpacity
-                style={styles.facultyCard}
-                onPress={() => handleOpenCertificate(cert)}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel={`View ${cert.recipientName}'s ${cert.year} ${certCategory} certificate`}
-              >
-                <View style={styles.facultyHeading}>
-                  <View style={styles.facultyMedal}>
-                    <AwardMedalIcon size={22} color="#B45309" />
-                  </View>
-                  <Text style={styles.facultyEyebrow}>{certCategory.toUpperCase()} CERTIFICATE</Text>
-                  <Text style={styles.facultyYearLabel}>{cert.year}</Text>
-                </View>
-                <Text style={styles.facultyRecipient}>{cert.recipientName}</Text>
-                <Text style={styles.facultyConference}>{cert.title}</Text>
-                <View style={styles.facultyLocationRow}>
-                  <LocationPinIcon size={14} color="#64748B" />
-                  <Text style={styles.facultyLocation}>{cert.location}</Text>
-                </View>
-                <View style={styles.facultyViewButton}>
-                  <DocumentIcon size={16} color="#FFFFFF" />
-                  <Text style={styles.viewCertBtnText}>View certificate</Text>
-                  <Text style={styles.facultyArrow}>→</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-            ListEmptyComponent={<Text style={styles.certItemSubtitle}>No certificates found for this name.</Text>}
-          />
-        </View>
-
-        <View style={styles.infoCard}>
-          <Typography variant="labelMd" weight="bold" color="#1E293B" style={{ marginBottom: 12 }}>
-            {isAnnual ? 'AIOC 2027 Conference Details' : '5th Mid-Term Conference Details'}
-          </Typography>
-
-          <View style={styles.infoRow}>
-            <View style={styles.iconCircleOrange}>
-              <CalendarIcon size={16} color="#EA580C" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Typography variant="caption" color="#64748B">Dates</Typography>
-              <Typography variant="bodySm" weight="bold" color="#1E293B">
-                {conferenceDates}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.infoRow}>
-            <View style={styles.iconCircleBlue}>
-              <LocationPinIcon size={16} color="#2563EB" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Typography variant="caption" color="#64748B">Venue</Typography>
-              <Typography variant="bodySm" weight="bold" color="#1E293B">
-                {conferenceLocation}
-              </Typography>
-              <Typography variant="caption" color="#64748B">
-                {isAnnual ? 'Organised by All Gujarat Ophthalmological Society' : 'Under the aegis of Jharkhand Ophthalmological Society'}
-              </Typography>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.contactCard}>
-          <Typography variant="labelMd" weight="bold" color="#1E293B" style={{ marginBottom: 10 }}>
-            Secretariat & Support
-          </Typography>
+        {!isMember && !isRegistered ? (
           <TouchableOpacity
-            style={styles.contactActionRow}
-            onPress={handleWhatsApp}
-            activeOpacity={0.8}
+            style={styles.registrationClosedCard}
+            activeOpacity={0.85}
+            disabled={!isAnnual}
+            onPress={() => setAiocRegistrationModalVisible(true)}
+            accessibilityRole={isAnnual ? 'button' : 'text'}
+            accessibilityLabel={
+              isAnnual
+                ? 'AIOC Registration 2027. Open registration form'
+                : 'Mid-term 2026 Registration Closed'
+            }
           >
-            <View style={styles.whatsAppBadge}>
-              <WhatsAppIcon size={18} color="#FFFFFF" />
+            <View style={styles.registrationClosedIcon}>
+              <EditPencilIcon size={28} color="#1689BE" />
             </View>
-            <View style={{ flex: 1 }}>
-              <Typography variant="labelSm" weight="bold" color="#1E293B">
-                AIOS Helpline WhatsApp
-              </Typography>
-              <Typography variant="caption" color="#25D366">
-                +91 96976 92000 (Tap to Chat)
-              </Typography>
-            </View>
+            <Text style={styles.registrationClosedText}>
+              {isAnnual
+                ? 'AIOC Registration\n2027'
+                : 'Mid-term 2026\nRegistration Closed'}
+            </Text>
           </TouchableOpacity>
-        </View>
+        ) : (
+          <>
+            {!isAnnual && (
+              <TouchableOpacity
+                style={styles.aiocHeroBtn}
+                activeOpacity={0.85}
+                onPress={() => setAiocRegistrationModalVisible(true)}
+              >
+                <View style={styles.aiocHeroIconBadge}>
+                  <EditPencilIcon size={26} color="#FFFFFF" />
+                </View>
+                <View style={styles.aiocHeroTextCol}>
+                  <Text style={styles.aiocHeroTitle}>AIOC Registration</Text>
+                  <Text style={styles.aiocHeroYear}>2027</Text>
+                </View>
+                <View style={styles.aiocHeroActionTag}>
+                  <Text style={styles.aiocHeroActionText}>Register Now ➔</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+            {isAnnual ? (
+              <FlatList
+                scrollEnabled={false}
+                numColumns={2}
+                style={styles.actionGridContainer}
+                columnWrapperStyle={styles.actionGridRow}
+                data={[
+                  {
+                    id: 'registration',
+                    title: 'AIOC Registration 2027',
+                    icon: <PencilBadgeIcon size={24} />,
+                    onPress: () => setAiocRegistrationModalVisible(true),
+                  },
+                  {
+                    id: 'payment',
+                    title: 'Payment Details',
+                    icon: <RupeeIcon size={24} color="#F59E0B" />,
+                    onPress: () => setPaymentModalVisible(true),
+                  },
+                  {
+                    id: 'print',
+                    title: 'Print Registration Detail',
+                    icon: <PrinterIcon size={24} color="#F59E0B" />,
+                    onPress: () => setPrintRegModalVisible(true),
+                  },
+                  {
+                    id: 'invitation',
+                    title: 'Print Invitation Letter',
+                    icon: <PrinterIcon size={24} color="#F59E0B" />,
+                    onPress: () => setInvitationLetterModalVisible(true),
+                  },
+                  {
+                    id: 'accommodation',
+                    title: 'Accommodation Booking',
+                    icon: <BedIcon size={24} color="#F59E0B" />,
+                    onPress: () => setAccommodationInfoModalVisible(true),
+                  },
+                ].filter(item => item.id === 'registration' || isRegistered)}
+                keyExtractor={item => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={styles.annualActionBtn}
+                    onPress={item.onPress}
+                    activeOpacity={0.8}
+                  >
+                    {item.icon}
+                    <Text style={styles.actionBtnText}>{item.title}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            ) : (
+              <View style={styles.actionGridContainer}>
+                <View style={styles.actionGridRow}>
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    activeOpacity={0.8}
+                    onPress={() => setAiocRegistrationModalVisible(true)}
+                  >
+                    <PencilBadgeIcon size={24} />
+                    <Text style={styles.actionBtnText}>
+                      {'AIOC Registration\n2027'}
+                    </Text>
+                  </TouchableOpacity>
+                  {isRegistered && (
+                    <TouchableOpacity
+                      style={styles.actionBtn}
+                      activeOpacity={0.8}
+                      onPress={() => setPaymentModalVisible(true)}
+                    >
+                      <RupeeIcon size={22} color="#EA580C" />
+                      <Text style={styles.actionBtnText}>
+                        {'Payment\nDetails'}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
+                {isRegistered && (
+                  <>
+                    <View style={styles.actionGridRow}>
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        activeOpacity={0.8}
+                        onPress={() => setPrintRegModalVisible(true)}
+                      >
+                        <PrinterIcon size={22} color="#EA580C" />
+                        <Text style={styles.actionBtnText}>
+                          {'Print Registration\nDetail'}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        activeOpacity={0.8}
+                        onPress={() => setAccommodationInfoModalVisible(true)}
+                      >
+                        <BedIcon size={22} color="#EA580C" />
+                        <Text style={styles.actionBtnText}>
+                          {'Accommodation Booking\nClosed'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                    <View style={styles.actionGridRow}>
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        activeOpacity={0.8}
+                        onPress={() =>
+                          setAccommodationReceiptModalVisible(true)
+                        }
+                      >
+                        <PrinterIcon size={22} color="#EA580C" />
+                        <Text style={styles.actionBtnText}>
+                          {'Accommodation Booking\nPayment Receipt'}
+                        </Text>
+                      </TouchableOpacity>
 
-        <View style={{ height: 40 }} />
+                      <TouchableOpacity
+                        style={styles.actionBtn}
+                        activeOpacity={0.8}
+                        onPress={() => setInvitationLetterModalVisible(true)}
+                      >
+                        <PrinterIcon size={22} color="#EA580C" />
+                        <Text style={styles.actionBtnText}>
+                          {'Print Invitation\nLetter'}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
+              </View>
+            )}
+          </>
+        )}
+        <CertificateArchive
+          conferences={archiveConferences}
+          onOpen={(conference, person) => {
+            setCertCategory(person.memberType);
+            handleOpenCertificate({
+              ...conference,
+              recipientName: person.name,
+              memberId: person.registrationNo,
+            });
+          }}
+        />
+
+        {isMember && (
+          <>
+            <View style={styles.infoCard}>
+              <Typography
+                variant="labelMd"
+                weight="bold"
+                color="#1E293B"
+                style={{ marginBottom: 12 }}
+              >
+                {isAnnual
+                  ? 'AIOC 2027 Conference Details'
+                  : '5th Mid-Term Conference Details'}
+              </Typography>
+
+              <View style={styles.infoRow}>
+                <View style={styles.iconCircleOrange}>
+                  <CalendarIcon size={16} color="#EA580C" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="caption" color="#64748B">
+                    Dates
+                  </Typography>
+                  <Typography variant="bodySm" weight="bold" color="#1E293B">
+                    {conferenceDates}
+                  </Typography>
+                </View>
+              </View>
+
+              <View style={styles.infoRow}>
+                <View style={styles.iconCircleBlue}>
+                  <LocationPinIcon size={16} color="#2563EB" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="caption" color="#64748B">
+                    Venue
+                  </Typography>
+                  <Typography variant="bodySm" weight="bold" color="#1E293B">
+                    {conferenceLocation}
+                  </Typography>
+                  <Typography variant="caption" color="#64748B">
+                    {isAnnual
+                      ? 'Organised by All Gujarat Ophthalmological Society'
+                      : 'Under the aegis of Jharkhand Ophthalmological Society'}
+                  </Typography>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.contactCard}>
+              <Typography
+                variant="labelMd"
+                weight="bold"
+                color="#1E293B"
+                style={{ marginBottom: 10 }}
+              >
+                Secretariat & Support
+              </Typography>
+              <TouchableOpacity
+                style={styles.contactActionRow}
+                onPress={handleWhatsApp}
+                activeOpacity={0.8}
+              >
+                <View style={styles.whatsAppBadge}>
+                  <WhatsAppIcon size={18} color="#FFFFFF" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Typography variant="labelSm" weight="bold" color="#1E293B">
+                    AIOS Helpline WhatsApp
+                  </Typography>
+                  <Typography variant="caption" color="#25D366">
+                    +91 96976 92000 (Tap to Chat)
+                  </Typography>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </ScrollView>
       <Modal
         visible={aiocRegistrationModalVisible}
         animationType="slide"
-        onRequestClose={() => setAiocRegistrationModalVisible(false)}
+        onRequestClose={() =>
+          paymentReviewVisible
+            ? setPaymentReviewVisible(false)
+            : setAiocRegistrationModalVisible(false)
+        }
       >
-        <View style={[styles.aiocFormContainer, { paddingTop: insets.top }]}>
-          <View style={styles.aiocFormNav}>
-            <TouchableOpacity
-              style={styles.backToDashboardBtn}
-              onPress={() => {
-                setAiocRegistrationModalVisible(false);
-                setPaymentCompleted(false);
-              }}
-            >
-              <Text style={styles.backToDashboardText}>← Back to Dashboard</Text>
-            </TouchableOpacity>
-
-            <View style={styles.aiocBadge}>
-              <Text style={styles.aiocBadgeText}>AIOC 2027</Text>
-            </View>
-          </View>
-
-          <ScrollView
-            style={styles.aiocFormScroll}
-            contentContainerStyle={styles.aiocFormScrollContent}
-            showsVerticalScrollIndicator={false}
+        {paymentReviewVisible ? (
+          <PaymentInformation
+            amount={totalPayable}
+            onBack={() => setPaymentReviewVisible(false)}
+          />
+        ) : (
+          <KeyboardAvoidingView
+            style={[styles.aiocFormContainer, { paddingTop: insets.top }]}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
-            <View style={styles.memberSummaryStrip}>
-              <View style={styles.memberAvatarCircle}>
-                <PersonIcon size={24} color="#0A1E3F" filled={true} />
-              </View>
-              <View style={{ flex: 1, marginLeft: 10 }}>
-                <Text style={styles.memberStripName}>{doctorName}</Text>
-                <Text style={styles.memberStripMeta}>
-                {memberId} • {profile?.email || 'Email not added'}
+            <View style={styles.aiocFormNav}>
+              <TouchableOpacity
+                style={styles.backToDashboardBtn}
+                onPress={() => {
+                  setAiocRegistrationModalVisible(false);
+                  setPaymentCompleted(false);
+                }}
+              >
+                <Text style={styles.backToDashboardText}>
+                  ← Back to Dashboard
                 </Text>
-              </View>
-              <View style={styles.verifiedTag}>
-                <Text style={styles.verifiedTagText}>AIOS Member</Text>
+              </TouchableOpacity>
+
+              <View style={styles.aiocBadge}>
+                <Text style={styles.aiocBadgeText}>AIOC 2027</Text>
               </View>
             </View>
 
-            {!paymentCompleted ? (
-              <>
-                <View style={styles.aiocSectionCard}>
-                  {/* Row 1: Date of Birth & Nationality (Labels on top) */}
-                  <View style={styles.formRow2Col}>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>* Date of Birth</Text>
-                      <TextInput
-                        style={styles.aiocTextInput}
-                        value={dob}
-                        onChangeText={setDob}
-                        placeholder="DD/MM/YYYY"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>*Nationality</Text>
-                      <TextInput
-                        style={styles.aiocTextInput}
-                        value={nationality}
-                        onChangeText={setNationality}
-                        placeholder="e.g. IN"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                  </View>
-
-                  {/* Row 2: Passport no & Passport Expiry (Labels on top) */}
-                  <View style={styles.formRow2Col}>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>Passport no</Text>
-                      <TextInput
-                        style={styles.aiocTextInput}
-                        value={passportNo}
-                        onChangeText={setPassportNo}
-                        placeholder="Passport no"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>Passport Expiry</Text>
-                      <TextInput
-                        style={styles.aiocTextInput}
-                        value={passportExpiry}
-                        onChangeText={setPassportExpiry}
-                        placeholder="Passport Expiry"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                  </View>
-
-                  {/* Row 3: Mobile No & Institution / Organization */}
-                  <View style={styles.formRow2Col}>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>* Mobile No</Text>
-                      <TextInput
-                        style={styles.aiocTextInput}
-                        value={mobileNo}
-                        onChangeText={setMobileNo}
-                        placeholder="Mobile No"
-                        keyboardType="phone-pad"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                    <View style={[styles.formCol, styles.institutionColumn]}>
-                      <Text style={styles.aiocFieldLabel}>* Institution / Organization</Text>
-                      <TextInput
-                        style={[styles.aiocTextInput, !institution && styles.institutionPlaceholderInput]}
-                        value={institution}
-                        onChangeText={setInstitution}
-                        placeholder="Institution / Organization"
-                        placeholderTextColor="#94A3B8"
-                      />
-                    </View>
-                  </View>
-
-                  {/* Type of Organization */}
-                  <Text style={[styles.aiocFieldLabel, { marginTop: 4 }]}>
-                    * Type of Organization
-                  </Text>
-                  <View style={styles.radioGroupRow}>
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setOrgType('Govt')}
-                      activeOpacity={0.7}
-                    >
-                      <View style={[styles.radioOuter, orgType === 'Govt' && styles.radioOuterActive]}>
-                        {orgType === 'Govt' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Govt.</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setOrgType('Private')}
-                      activeOpacity={0.7}
-                    >
-                      <View style={[styles.radioOuter, orgType === 'Private' && styles.radioOuterActive]}>
-                        {orgType === 'Private' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Private</Text>
-                    </TouchableOpacity>
-                  </View>
+            <ScrollView
+              ref={registrationScrollRef}
+              style={styles.aiocFormScroll}
+              contentContainerStyle={[
+                styles.aiocFormScrollContent,
+                { paddingBottom: Math.max(insets.bottom, 16) },
+              ]}
+              keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="none"
+              nestedScrollEnabled
+              onLayout={() => {
+                if (captchaFocused.current)
+                  registrationScrollRef.current?.scrollToEnd({
+                    animated: true,
+                  });
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View style={styles.memberSummaryStrip}>
+                <View style={styles.memberAvatarCircle}>
+                  <PersonIcon size={24} color="#0A1E3F" filled={true} />
                 </View>
+                <View style={{ flex: 1, marginLeft: 10 }}>
+                  <Text style={styles.memberStripName}>{doctorName}</Text>
+                  <Text style={styles.memberStripMeta}>
+                    {memberId} • {profile?.email || 'Email not added'}
+                  </Text>
+                </View>
+                <View style={styles.verifiedTag}>
+                  <Text style={styles.verifiedTagText}>AIOS Member</Text>
+                </View>
+              </View>
 
-                <View style={styles.aiocSectionCard}>
-                  <View style={styles.specialityHeaderRow}>
-                    <Text style={styles.aiocFieldLabel}>
-                      * Speciality <Text style={styles.hintSub}>(Maximum Three)</Text>
+              {!paymentCompleted ? (
+                <>
+                  <View style={styles.aiocSectionCard}>
+                    {/* Row 1: Date of Birth & Nationality (Labels on top) */}
+                    <View style={styles.formRow2Col}>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>
+                          * Date of Birth
+                        </Text>
+                        <TextInput
+                          style={styles.aiocTextInput}
+                          value={dob}
+                          onChangeText={setDob}
+                          placeholder="DD/MM/YYYY"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>*Nationality</Text>
+                        <TextInput
+                          style={styles.aiocTextInput}
+                          value={nationality}
+                          onChangeText={setNationality}
+                          placeholder="IN"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Row 2: Passport no & Passport Expiry (Labels on top) */}
+                    <View style={styles.formRow2Col}>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>Passport no</Text>
+                        <TextInput
+                          style={styles.aiocTextInput}
+                          value={passportNo}
+                          onChangeText={setPassportNo}
+                          placeholder="Passport no"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>
+                          Passport Expiry
+                        </Text>
+                        <TextInput
+                          style={styles.aiocTextInput}
+                          value={passportExpiry}
+                          onChangeText={setPassportExpiry}
+                          placeholder="Passport Expiry"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Row 3: Mobile No & Institution / Organization */}
+                    <View style={styles.formRow2Col}>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>* Mobile No</Text>
+                        <TextInput
+                          style={styles.aiocTextInput}
+                          value={mobileNo}
+                          onChangeText={setMobileNo}
+                          placeholder="Mobile No"
+                          keyboardType="phone-pad"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                      <View style={[styles.formCol, styles.institutionColumn]}>
+                        <Text style={styles.aiocFieldLabel}>
+                          * Institution / Organization
+                        </Text>
+                        <TextInput
+                          style={[
+                            styles.aiocTextInput,
+                            !institution && styles.institutionPlaceholderInput,
+                          ]}
+                          value={institution}
+                          onChangeText={setInstitution}
+                          placeholder="Institution / Organization"
+                          placeholderTextColor="#94A3B8"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Type of Organization */}
+                    <Text style={[styles.aiocFieldLabel, { marginTop: 4 }]}>
+                      * Type of Organization
                     </Text>
-                    <Text style={styles.selectionCount}>
-                      {selectedSpecialities.length}/3 Selected
-                    </Text>
+                    <View style={styles.radioGroupRow}>
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setOrgType('Govt')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            orgType === 'Govt' && styles.radioOuterActive,
+                          ]}
+                        >
+                          {orgType === 'Govt' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Govt.</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setOrgType('Private')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            orgType === 'Private' && styles.radioOuterActive,
+                          ]}
+                        >
+                          {orgType === 'Private' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Private</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
-                  <FlatList
-                    data={SPECIALITY_OPTIONS}
-                    scrollEnabled={false}
-                    contentContainerStyle={styles.specialityGrid}
-                    keyExtractor={(spec) => spec}
-                    extraData={selectedSpecialities}
-                    renderItem={({ item: spec }) => {
-                      const isSelected = selectedSpecialities.includes(spec);
-                      return (
-                        <TouchableOpacity
-                          key={spec}
-                          style={[
-                            styles.checkboxRow,
-                            isSelected && styles.checkboxRowActive,
-                          ]}
-                          onPress={() => handleToggleSpeciality(spec)}
-                          activeOpacity={0.7}
-                        >
-                          <View
+                  <View style={styles.aiocSectionCard}>
+                    <View style={styles.specialityHeaderRow}>
+                      <Text style={styles.aiocFieldLabel}>
+                        * Speciality{' '}
+                        <Text style={styles.hintSub}>(Maximum Three)</Text>
+                      </Text>
+                      <Text style={styles.selectionCount}>
+                        {selectedSpecialities.length}/3 Selected
+                      </Text>
+                    </View>
+
+                    <FlatList
+                      data={SPECIALITY_OPTIONS}
+                      scrollEnabled={false}
+                      contentContainerStyle={styles.specialityGrid}
+                      keyExtractor={spec => spec}
+                      extraData={selectedSpecialities}
+                      renderItem={({ item: spec }) => {
+                        const isSelected = selectedSpecialities.includes(spec);
+                        return (
+                          <TouchableOpacity
+                            key={spec}
                             style={[
-                              styles.checkboxSquare,
-                              isSelected && styles.checkboxSquareActive,
+                              styles.checkboxRow,
+                              isSelected && styles.checkboxRowActive,
                             ]}
+                            onPress={() => handleToggleSpeciality(spec)}
+                            activeOpacity={0.7}
                           >
-                            {isSelected && <CheckIcon size={12} color="#FFFFFF" />}
-                          </View>
+                            <View
+                              style={[
+                                styles.checkboxSquare,
+                                isSelected && styles.checkboxSquareActive,
+                              ]}
+                            >
+                              {isSelected && (
+                                <CheckIcon size={12} color="#FFFFFF" />
+                              )}
+                            </View>
+                            <Text
+                              style={[
+                                styles.checkboxLabel,
+                                isSelected && styles.checkboxLabelActive,
+                              ]}
+                            >
+                              {spec}
+                            </Text>
+                          </TouchableOpacity>
+                        );
+                      }}
+                    />
+                  </View>
+
+                  {/* Delegate Details, Accompanying & Scientific Activities Card */}
+                  <View style={styles.aiocSectionCard}>
+                    {/* Row: Delegate Category & Delegate Type (Labels on Top) */}
+                    <View style={styles.formRow2Col}>
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>
+                          Delegate Category
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.selectBox}
+                          activeOpacity={0.7}
+                          onPress={() => setActivePicker('category')}
+                        >
                           <Text
                             style={[
-                              styles.checkboxLabel,
-                              isSelected && styles.checkboxLabelActive,
+                              styles.selectBoxText,
+                              !delegateCategory && styles.selectBoxPlaceholder,
                             ]}
+                            numberOfLines={1}
                           >
-                            {spec}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    }}
-                  />
-                </View>
-
-                {/* Delegate Details, Accompanying & Scientific Activities Card */}
-                <View style={styles.aiocSectionCard}>
-                  {/* Row: Delegate Category & Delegate Type (Labels on Top) */}
-                  <View style={styles.formRow2Col}>
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>Delegate Category</Text>
-                      <TouchableOpacity
-                        style={styles.selectBox}
-                        activeOpacity={0.7}
-                        onPress={() => setActivePicker('category')}
-                      >
-                        <Text
-                          style={[
-                            styles.selectBoxText,
-                            !delegateCategory && styles.selectBoxPlaceholder,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {delegateCategory || '(Please Select)'}
-                        </Text>
-                        <SelectArrowsIcon />
-                      </TouchableOpacity>
-                    </View>
-
-                    <View style={styles.formCol}>
-                      <Text style={styles.aiocFieldLabel}>*Delegate Type</Text>
-                      <TouchableOpacity
-                        style={styles.selectBox}
-                        activeOpacity={0.7}
-                        onPress={() => setActivePicker('type')}
-                      >
-                        <Text
-                          style={[
-                            styles.selectBoxText,
-                            !delegateType && styles.selectBoxPlaceholder,
-                          ]}
-                          numberOfLines={1}
-                        >
-                          {delegateType || '(Please Select)'}
-                        </Text>
-                        <SelectArrowsIcon />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-
-                  <View style={styles.formSectionDivider} />
-
-                  {/* Accompanying Person */}
-                  <View style={styles.accompanyingContainer}>
-                    <Text style={styles.accompanyingSubtext}>
-                      Accompanying Person(s)(Family i.e. Spouse/Children - Non Ophthalmologist)
-                    </Text>
-
-                    <View style={styles.accompanyingControlRow}>
-                      <View style={styles.accompanyingCountField}>
-                        <TouchableOpacity
-                          style={styles.accompanyingInputBox}
-                          accessibilityRole="button"
-                          accessibilityLabel={`Number of accompanying persons: ${noOfAccompanying}`}
-                          activeOpacity={0.7}
-                          onPress={() => setActivePicker('accompanying')}
-                        >
-                          <Text style={styles.accompanyingInputText}>
-                            {noOfAccompanying}
+                            {delegateCategory || '(Please Select)'}
                           </Text>
                           <SelectArrowsIcon />
                         </TouchableOpacity>
-                      <Text style={styles.accompanyingFieldLabel}>
-                        *No. of Accompanying Person
-                      </Text>
+                      </View>
+
+                      <View style={styles.formCol}>
+                        <Text style={styles.aiocFieldLabel}>
+                          *Delegate Type
+                        </Text>
+                        <TouchableOpacity
+                          style={styles.selectBox}
+                          activeOpacity={0.7}
+                          onPress={() => setActivePicker('type')}
+                        >
+                          <Text
+                            style={[
+                              styles.selectBoxText,
+                              !delegateType && styles.selectBoxPlaceholder,
+                            ]}
+                            numberOfLines={1}
+                          >
+                            {delegateType || '(Please Select)'}
+                          </Text>
+                          <SelectArrowsIcon />
+                        </TouchableOpacity>
                       </View>
                     </View>
+
+                    <View style={styles.formSectionDivider} />
+
+                    {/* Accompanying Person */}
+                    <View style={styles.accompanyingContainer}>
+                      <Text style={styles.accompanyingSubtext}>
+                        Accompanying Person(s)(Family i.e. Spouse/Children - Non
+                        Ophthalmologist)
+                      </Text>
+
+                      <View style={styles.accompanyingControlRow}>
+                        <View style={styles.accompanyingCountField}>
+                          <TouchableOpacity
+                            style={styles.accompanyingInputBox}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Number of accompanying persons: ${noOfAccompanying}`}
+                            activeOpacity={0.7}
+                            onPress={() => setActivePicker('accompanying')}
+                          >
+                            <Text style={styles.accompanyingInputText}>
+                              {noOfAccompanying}
+                            </Text>
+                            <SelectArrowsIcon />
+                          </TouchableOpacity>
+                          <Text style={styles.accompanyingFieldLabel}>
+                            *No. of Accompanying Person
+                          </Text>
+                        </View>
+                      </View>
                       {noOfAccompanying > 0 && (
                         <FlatList
-                          data={Array.from({ length: noOfAccompanying }, (_, index) => index)}
+                          data={Array.from(
+                            { length: noOfAccompanying },
+                            (_, index) => index,
+                          )}
                           numColumns={2}
                           scrollEnabled={false}
                           style={styles.accompanyingNamesGrid}
                           columnWrapperStyle={styles.accompanyingNamesRow}
-                          keyExtractor={(index) => String(index)}
+                          keyExtractor={index => String(index)}
                           extraData={accompanyingNames}
                           renderItem={({ item: index }) => (
-                            <View key={index} style={styles.accompanyingNameField}>
+                            <View
+                              key={index}
+                              style={styles.accompanyingNameField}
+                            >
                               <TextInput
                                 style={styles.aiocTextInput}
                                 placeholder="Enter Name"
                                 placeholderTextColor="#94A3B8"
-                                accessibilityLabel={`Accompanying person ${index + 1} name`}
+                                accessibilityLabel={`Accompanying person ${
+                                  index + 1
+                                } name`}
                                 autoCapitalize="words"
                                 value={accompanyingNames[index] || ''}
-                                onChangeText={(name) => setAccompanyingNames((previous) => {
-                                  const updated = [...previous];
-                                  updated[index] = name;
-                                  return updated;
-                                })}
+                                onChangeText={name =>
+                                  setAccompanyingNames(previous => {
+                                    const updated = [...previous];
+                                    updated[index] = name;
+                                    return updated;
+                                  })
+                                }
                               />
                               <Text style={styles.accompanyingFieldLabel}>
-                                * Accompanying Name{noOfAccompanying > 1 ? ` ${index + 1}` : ''}
+                                * Accompanying Name
+                                {noOfAccompanying > 1 ? ` ${index + 1}` : ''}
                               </Text>
                             </View>
                           )}
                         />
                       )}
+                    </View>
+
+                    <View style={styles.formSectionDivider} />
+
+                    {/* Extra Scientific activities */}
+                    <Text style={styles.extraActivityTitle}>
+                      Registration for Extra Scientific activities (Optional) -
+                      Per course is chargeable 1000/-
+                    </Text>
+
+                    <FlatList
+                      data={['SSTC', 'DSTC', 'TSTC'] as const}
+                      numColumns={3}
+                      scrollEnabled={false}
+                      columnWrapperStyle={styles.extraActivitiesRow}
+                      keyExtractor={activity => activity}
+                      extraData={{ expandedActivity, selectedCourses }}
+                      renderItem={({ item: activity }) => {
+                        const expanded = expandedActivity === activity;
+                        return (
+                          <View key={activity} style={styles.formCol}>
+                            <TouchableOpacity
+                              style={[
+                                styles.extraActivityBtn,
+                                expanded && styles.extraActivityHeaderActive,
+                              ]}
+                              onPress={() =>
+                                setExpandedActivity(previous =>
+                                  previous === activity ? null : activity,
+                                )
+                              }
+                              activeOpacity={0.7}
+                              accessibilityRole="button"
+                              accessibilityState={{ expanded }}
+                              accessibilityLabel={activity}
+                            >
+                              <View
+                                style={[
+                                  styles.extraActivityIndicator,
+                                  expanded && styles.extraActivityBtnActive,
+                                ]}
+                              >
+                                <Text
+                                  style={[
+                                    styles.extraActivityPlus,
+                                    expanded && styles.extraActivityPlusActive,
+                                  ]}
+                                >
+                                  {expanded ? '−' : '+'}
+                                </Text>
+                              </View>
+                              <View style={{ flex: 1 }}>
+                                <Text style={styles.extraActivityText}>
+                                  {activity}
+                                </Text>
+                              </View>
+                            </TouchableOpacity>
+                          </View>
+                        );
+                      }}
+                    />
+
+                    {expandedActivity && (
+                      <FlatList
+                        data={SCIENTIFIC_COURSES[expandedActivity]}
+                        scrollEnabled={false}
+                        contentContainerStyle={styles.extraActivityDropdown}
+                        keyExtractor={course => course}
+                        extraData={selectedCourses[expandedActivity]}
+                        ListHeaderComponent={
+                          <View style={styles.extraActivityDropdownHeader}>
+                            <Text style={styles.extraActivityDropdownTitle}>
+                              {expandedActivity} courses
+                            </Text>
+                          </View>
+                        }
+                        renderItem={({ item: course }) => {
+                          const activity = expandedActivity;
+                          const selected =
+                            selectedCourses[activity].includes(course);
+                          return (
+                            <TouchableOpacity
+                              key={course}
+                              style={[
+                                styles.extraActivityCourse,
+                                selected && styles.extraActivityCourseActive,
+                              ]}
+                              activeOpacity={0.7}
+                              accessibilityRole="checkbox"
+                              accessibilityState={{ checked: selected }}
+                              accessibilityLabel={course}
+                              onPress={() =>
+                                setSelectedCourses(previous => ({
+                                  ...previous,
+                                  [activity]: selected
+                                    ? previous[activity].filter(
+                                        item => item !== course,
+                                      )
+                                    : [...previous[activity], course],
+                                }))
+                              }
+                            >
+                              <View
+                                style={[
+                                  styles.extraActivityCheckbox,
+                                  selected &&
+                                    styles.extraActivityCheckboxActive,
+                                ]}
+                              >
+                                {selected && (
+                                  <CheckIcon size={12} color="#FFFFFF" />
+                                )}
+                              </View>
+                              <Text
+                                style={[
+                                  styles.extraActivityCourseText,
+                                  selected &&
+                                    styles.extraActivityCourseTextActive,
+                                ]}
+                              >
+                                {course}
+                              </Text>
+                            </TouchableOpacity>
+                          );
+                        }}
+                      />
+                    )}
+
+                    {/* Program Book Required */}
+                    <Text style={styles.aiocFieldLabel}>
+                      *Program Book Required
+                    </Text>
+                    <View style={styles.radioGroupVertical}>
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setProgramBook('Hard Copy')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            programBook === 'Hard Copy' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {programBook === 'Hard Copy' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Hard Copy</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setProgramBook('Online Version')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            programBook === 'Online Version' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {programBook === 'Online Version' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Online Version</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Food Choice */}
+                    <Text style={[styles.aiocFieldLabel, { marginTop: 12 }]}>
+                      *Food Choice
+                    </Text>
+                    <View style={styles.radioGroupVertical}>
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setFoodChoice('Vegetarian')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            foodChoice === 'Vegetarian' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {foodChoice === 'Vegetarian' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Vegetarian</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setFoodChoice('Non-Vegetarian')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            foodChoice === 'Non-Vegetarian' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {foodChoice === 'Non-Vegetarian' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Non-Vegetarian</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setFoodChoice('Jain Food')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            foodChoice === 'Jain Food' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {foodChoice === 'Jain Food' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Jain Food</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {/* Catering Choice */}
+                    <Text style={[styles.aiocFieldLabel, { marginTop: 16 }]}>
+                      *Catering Choice
+                    </Text>
+                    <View style={styles.radioGroupVertical}>
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setCateringChoice('Buffet')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            cateringChoice === 'Buffet' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {cateringChoice === 'Buffet' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Buffet</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        style={styles.radioOption}
+                        onPress={() => setCateringChoice('Packed Food Box')}
+                        activeOpacity={0.7}
+                      >
+                        <View
+                          style={[
+                            styles.radioOuter,
+                            cateringChoice === 'Packed Food Box' &&
+                              styles.radioOuterActive,
+                          ]}
+                        >
+                          {cateringChoice === 'Packed Food Box' && (
+                            <View style={styles.radioInner} />
+                          )}
+                        </View>
+                        <Text style={styles.radioLabel}>Packed Food Box</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
 
-                  <View style={styles.formSectionDivider} />
+                  {/* Payment Summary */}
+                  <View style={styles.paymentSummaryCard}>
+                    <View style={styles.paymentSummaryHeading}>
+                      <View style={styles.paymentSummaryIcon}>
+                        <RupeeIcon size={23} color="#FDBA74" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.paymentSummaryTitle}>
+                          Payment Summary
+                        </Text>
+                        <Text style={styles.paymentSummarySubtitle}>
+                          Review your registration charges
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.paymentSummaryDivider} />
+                    <FlatList
+                      scrollEnabled={false}
+                      data={[
+                        { label: 'Registration fee', amount: getBaseFee() },
+                        {
+                          label: `Accompanying persons (${noOfAccompanying})`,
+                          amount: accompanyingFee,
+                        },
+                        {
+                          label: `SSTC courses (${selectedCourses.SSTC.length})`,
+                          amount: sstcActivityFee,
+                        },
+                        {
+                          label: `DSTC courses (${selectedCourses.DSTC.length})`,
+                          amount: dstcActivityFee,
+                        },
+                        {
+                          label: `TSTC courses (${selectedCourses.TSTC.length})`,
+                          amount: tstcActivityFee,
+                        },
+                      ]}
+                      keyExtractor={item => item.label}
+                      renderItem={({ item }) => (
+                        <View style={styles.payRowNavy}>
+                          <Text style={styles.payRowNavyLabel}>
+                            {item.label}
+                          </Text>
+                          <Text style={styles.payRowNavyValue}>
+                            ₹ {item.amount.toLocaleString('en-IN')}
+                          </Text>
+                        </View>
+                      )}
+                    />
 
-                  {/* Extra Scientific activities */}
-                  <Text style={styles.extraActivityTitle}>
-                    Registration for Extra Scientific activities (Optional) - Per course is chargeable 1000/-
+                    {/* TOTAL */}
+                    <View style={styles.payRowNavyTotal}>
+                      <Text style={styles.payTotalNavyLabel}>
+                        Total payable
+                      </Text>
+                      <Text style={styles.payTotalNavyValue}>
+                        ₹ {totalPayable.toLocaleString('en-IN')}
+                      </Text>
+                    </View>
+
+                    {/* Payment Mode */}
+                    <View style={styles.paymentModeSection}>
+                      <View style={styles.paymentModeLabelCol}>
+                        <Text style={styles.paymentModeText}>Payment mode</Text>
+                      </View>
+
+                      <View style={styles.paymentModeRadiosRow}>
+                        <TouchableOpacity
+                          style={[
+                            styles.paymentModeRadioItem,
+                            paymentMode === 'Online' &&
+                              styles.paymentModeRadioItemActive,
+                          ]}
+                          onPress={() => setPaymentMode('Online')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.payRadioOuter,
+                              paymentMode === 'Online' &&
+                                styles.payRadioOuterActive,
+                            ]}
+                          >
+                            {paymentMode === 'Online' && (
+                              <View style={styles.payRadioInner} />
+                            )}
+                          </View>
+                          <Text style={styles.payRadioLabel}>Online</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={[
+                            styles.paymentModeRadioItem,
+                            paymentMode === 'Offline' &&
+                              styles.paymentModeRadioItemActive,
+                          ]}
+                          onPress={() => setPaymentMode('Offline')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.payRadioOuter,
+                              paymentMode === 'Offline' &&
+                                styles.payRadioOuterActive,
+                            ]}
+                          >
+                            {paymentMode === 'Offline' && (
+                              <View style={styles.payRadioInner} />
+                            )}
+                          </View>
+                          <Text style={styles.payRadioLabel}>Offline</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+
+                    {/* Captcha Section */}
+                    <View style={styles.captchaSection}>
+                      <Text style={styles.captchaHeaderLabel}>
+                        Enter the contents of image
+                      </Text>
+                      <View style={styles.captchaControlRow}>
+                        <Text style={styles.captchaColon}>:</Text>
+                        <TouchableOpacity
+                          style={styles.captchaCodeBox}
+                          onPress={refreshCaptcha}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={styles.captchaCodeText}>
+                            {captchaCode}
+                          </Text>
+                        </TouchableOpacity>
+                        <TextInput
+                          style={styles.captchaInputBox}
+                          value={captchaInput}
+                          onFocus={() => {
+                            captchaFocused.current = true;
+                            registrationScrollRef.current?.scrollToEnd({
+                              animated: true,
+                            });
+                          }}
+                          onBlur={() => {
+                            captchaFocused.current = false;
+                          }}
+                          onChangeText={setCaptchaInput}
+                          placeholder=""
+                          placeholderTextColor="#94A3B8"
+                          autoCapitalize="none"
+                        />
+                      </View>
+                    </View>
+
+                    {/* Submit / Pay Button */}
+                    <TouchableOpacity
+                      style={styles.payNowBtn}
+                      activeOpacity={0.85}
+                      onPress={() => {
+                        if (
+                          paymentMode === 'Offline' &&
+                          (!delegateCategory || !delegateType)
+                        ) {
+                          const message = !delegateCategory
+                            ? 'Please select delegate category.'
+                            : 'Please select delegate type.';
+                          if (Platform.OS === 'android')
+                            ToastAndroid.show(message, ToastAndroid.SHORT);
+                          else
+                            Alert.alert('Delegate details required', message);
+                          setActivePicker(
+                            !delegateCategory ? 'category' : 'type',
+                          );
+                          return;
+                        }
+                        const captchaError =
+                          paymentMode === 'Offline'
+                            ? null
+                            : !captchaInput.trim()
+                            ? 'Please enter the captcha.'
+                            : captchaInput.trim() !== captchaCode
+                            ? 'Incorrect captcha. Please try again.'
+                            : null;
+                        if (captchaError) {
+                          if (Platform.OS === 'android') {
+                            ToastAndroid.show(captchaError, ToastAndroid.SHORT);
+                          } else {
+                            Alert.alert('Captcha required', captchaError);
+                          }
+                          return;
+                        }
+                        Keyboard.dismiss();
+                        if (paymentMode === 'Online') {
+                          setPaymentReviewVisible(true);
+                        } else {
+                          handleDownloadDoc(
+                            'AIOC_2027_Offline_Registration',
+                            `${doctorName} • Offline payment pending`,
+                          );
+                        }
+                      }}
+                    >
+                      <Text style={styles.payNowBtnText}>
+                        {paymentMode === 'Online'
+                          ? 'PROCEED TO PAY ➔'
+                          : 'SAVE AND PRINT'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </>
+              ) : (
+                /* Success / Verified Slip Card */
+                <View style={styles.successConfirmedCard}>
+                  <View style={styles.successIconCircle}>
+                    <CheckIcon size={28} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.successTitle}>
+                    Registration Confirmed!
+                  </Text>
+                  <Text style={styles.successSubtitle}>
+                    Thank you, {doctorName}. Your seat is confirmed for AIOC
+                    2027.
                   </Text>
 
-                  <FlatList
-                    data={['SSTC', 'TSTC'] as const}
-                    numColumns={2}
-                    scrollEnabled={false}
-                    columnWrapperStyle={styles.extraActivitiesRow}
-                    keyExtractor={(activity) => activity}
-                    extraData={{ expandedActivity, selectedCourses }}
-                    renderItem={({ item: activity }) => {
-                      const expanded = expandedActivity === activity;
-                      return (
-                        <View key={activity} style={styles.formCol}>
-                          <TouchableOpacity
-                            style={[styles.extraActivityBtn, expanded && styles.extraActivityHeaderActive]}
-                            onPress={() => setExpandedActivity((previous) => previous === activity ? null : activity)}
-                            activeOpacity={0.7}
-                            accessibilityRole="button"
-                            accessibilityState={{ expanded }}
-                            accessibilityLabel={activity}
-                          >
-                            <View style={[styles.extraActivityIndicator, expanded && styles.extraActivityBtnActive]}>
-                              <Text style={[styles.extraActivityPlus, expanded && styles.extraActivityPlusActive]}>
-                                {expanded ? '−' : '+'}
-                              </Text>
-                            </View>
-                            <View style={{ flex: 1 }}>
-                              <Text style={styles.extraActivityText}>{activity}</Text>
-                            </View>
-                          </TouchableOpacity>
-
-                        </View>
-                      );
-                    }}
-                  />
-
-                          {expandedActivity && (
-                            <FlatList
-                              data={SCIENTIFIC_COURSES[expandedActivity]}
-                              scrollEnabled={false}
-                              contentContainerStyle={styles.extraActivityDropdown}
-                              keyExtractor={(course) => course}
-                              extraData={selectedCourses[expandedActivity]}
-                              ListHeaderComponent={
-                                <View style={styles.extraActivityDropdownHeader}>
-                                  <Text style={styles.extraActivityDropdownTitle}>{expandedActivity} courses</Text>
-                                </View>
-                              }
-                              renderItem={({ item: course }) => {
-                                const activity = expandedActivity;
-                                const selected = selectedCourses[activity].includes(course);
-                                return (
-                                  <TouchableOpacity
-                                    key={course}
-                                    style={[styles.extraActivityCourse, selected && styles.extraActivityCourseActive]}
-                                    activeOpacity={0.7}
-                                    accessibilityRole="checkbox"
-                                    accessibilityState={{ checked: selected }}
-                                    accessibilityLabel={course}
-                                    onPress={() => setSelectedCourses((previous) => ({
-                                      ...previous,
-                                      [activity]: selected
-                                        ? previous[activity].filter((item) => item !== course)
-                                        : [...previous[activity], course],
-                                    }))}
-                                  >
-                                    <View style={[styles.extraActivityCheckbox, selected && styles.extraActivityCheckboxActive]}>
-                                      {selected && <CheckIcon size={12} color="#FFFFFF" />}
-                                    </View>
-                                    <Text style={[styles.extraActivityCourseText, selected && styles.extraActivityCourseTextActive]}>{course}</Text>
-                                  </TouchableOpacity>
-                                );
-                              }}
-                            />
-                          )}
-
-                  {/* Program Book Required */}
-                  <Text style={styles.aiocFieldLabel}>*Program Book Required</Text>
-                  <View style={styles.radioGroupVertical}>
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setProgramBook('Hard Copy')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          programBook === 'Hard Copy' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {programBook === 'Hard Copy' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Hard Copy</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setProgramBook('Online Version')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          programBook === 'Online Version' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {programBook === 'Online Version' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Online Version</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Food Choice */}
-                  <Text style={[styles.aiocFieldLabel, { marginTop: 12 }]}>*Food Choice</Text>
-                  <View style={styles.radioGroupVertical}>
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setFoodChoice('Vegetarian')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          foodChoice === 'Vegetarian' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {foodChoice === 'Vegetarian' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Vegetarian</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setFoodChoice('Non-Vegetarian')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          foodChoice === 'Non-Vegetarian' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {foodChoice === 'Non-Vegetarian' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Non-Vegetarian</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setFoodChoice('Jain Food')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          foodChoice === 'Jain Food' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {foodChoice === 'Jain Food' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Jain Food</Text>
-                    </TouchableOpacity>
-                  </View>
-
-                  {/* Catering Choice */}
-                  <Text style={[styles.aiocFieldLabel, { marginTop: 16 }]}>*Catering Choice</Text>
-                  <View style={styles.radioGroupVertical}>
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setCateringChoice('Buffet')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          cateringChoice === 'Buffet' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {cateringChoice === 'Buffet' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Buffet</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.radioOption}
-                      onPress={() => setCateringChoice('Packed Food Box')}
-                      activeOpacity={0.7}
-                    >
-                      <View
-                        style={[
-                          styles.radioOuter,
-                          cateringChoice === 'Packed Food Box' && styles.radioOuterActive,
-                        ]}
-                      >
-                        {cateringChoice === 'Packed Food Box' && <View style={styles.radioInner} />}
-                      </View>
-                      <Text style={styles.radioLabel}>Packed Food Box</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Payment Summary */}
-                <View style={styles.paymentSummaryCard}>
-                  <View style={styles.paymentSummaryHeading}>
-                    <View style={styles.paymentSummaryIcon}>
-                      <RupeeIcon size={23} color="#FDBA74" />
+                  <View style={styles.successDetailsBox}>
+                    <View style={styles.successDetailRow}>
+                      <Text style={styles.successDetailLabel}>
+                        Registration ID:
+                      </Text>
+                      <Text style={styles.successDetailValue}>{regNo}</Text>
                     </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.paymentSummaryTitle}>Payment Summary</Text>
-                      <Text style={styles.paymentSummarySubtitle}>Review your registration charges</Text>
+                    <View style={styles.successDetailRow}>
+                      <Text style={styles.successDetailLabel}>Category:</Text>
+                      <Text style={styles.successDetailValue}>
+                        {regCategory}
+                      </Text>
                     </View>
-                  </View>
-                  <View style={styles.paymentSummaryDivider} />
-                  <FlatList
-                    scrollEnabled={false}
-                    data={[
-                      { label: 'Registration fee', amount: getBaseFee() },
-                      { label: `Accompanying persons (${noOfAccompanying})`, amount: accompanyingFee },
-                      { label: `SSTC courses (${selectedCourses.SSTC.length})`, amount: sstcActivityFee },
-                      { label: `TSTC courses (${selectedCourses.TSTC.length})`, amount: tstcActivityFee },
-                    ]}
-                    keyExtractor={(item) => item.label}
-                    renderItem={({ item }) => (
-                      <View style={styles.payRowNavy}>
-                        <Text style={styles.payRowNavyLabel}>{item.label}</Text>
-                        <Text style={styles.payRowNavyValue}>₹ {item.amount.toLocaleString('en-IN')}</Text>
-                      </View>
-                    )}
-                  />
-
-                  {/* TOTAL */}
-                  <View style={styles.payRowNavyTotal}>
-                    <Text style={styles.payTotalNavyLabel}>Total payable</Text>
-                    <Text style={styles.payTotalNavyValue}>
-                      ₹ {totalPayable.toLocaleString('en-IN')}
-                    </Text>
-                  </View>
-
-                  {/* Payment Mode */}
-                  <View style={styles.paymentModeSection}>
-                    <View style={styles.paymentModeLabelCol}>
-                      <Text style={styles.paymentModeText}>Payment mode</Text>
+                    <View style={styles.successDetailRow}>
+                      <Text style={styles.successDetailLabel}>
+                        Institution:
+                      </Text>
+                      <Text style={styles.successDetailValue}>
+                        {institution} ({orgType})
+                      </Text>
                     </View>
-
-                    <View style={styles.paymentModeRadiosRow}>
-                      <TouchableOpacity
-                        style={[styles.paymentModeRadioItem, paymentMode === 'Online' && styles.paymentModeRadioItemActive]}
-                        onPress={() => setPaymentMode('Online')}
-                        activeOpacity={0.7}
+                    <View style={styles.successDetailRow}>
+                      <Text style={styles.successDetailLabel}>
+                        Specialities:
+                      </Text>
+                      <Text style={styles.successDetailValue}>
+                        {selectedSpecialities.join(', ')}
+                      </Text>
+                    </View>
+                    <View style={styles.successDetailRow}>
+                      <Text style={styles.successDetailLabel}>Total Paid:</Text>
+                      <Text
+                        style={[
+                          styles.successDetailValue,
+                          { color: '#0284C7', fontWeight: '800' },
+                        ]}
                       >
-                        <View style={[styles.payRadioOuter, paymentMode === 'Online' && styles.payRadioOuterActive]}>
-                          {paymentMode === 'Online' && <View style={styles.payRadioInner} />}
-                        </View>
-                        <Text style={styles.payRadioLabel}>Online</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={[styles.paymentModeRadioItem, paymentMode === 'Offline' && styles.paymentModeRadioItemActive]}
-                        onPress={() => setPaymentMode('Offline')}
-                        activeOpacity={0.7}
-                      >
-                        <View style={[styles.payRadioOuter, paymentMode === 'Offline' && styles.payRadioOuterActive]}>
-                          {paymentMode === 'Offline' && <View style={styles.payRadioInner} />}
-                        </View>
-                        <Text style={styles.payRadioLabel}>Offline</Text>
-                      </TouchableOpacity>
+                        ₹ {totalPayable.toLocaleString('en-IN')} (Incl. GST)
+                      </Text>
                     </View>
                   </View>
 
-                  {/* Captcha Section */}
-                  <View style={styles.captchaSection}>
-                    <Text style={styles.captchaHeaderLabel}>
-                      Enter the contents of image
-                    </Text>
-                    <View style={styles.captchaControlRow}>
-                      <Text style={styles.captchaColon}>:</Text>
-                      <TouchableOpacity
-                        style={styles.captchaCodeBox}
-                        onPress={refreshCaptcha}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.captchaCodeText}>{captchaCode}</Text>
-                      </TouchableOpacity>
-                      <TextInput
-                        style={styles.captchaInputBox}
-                        value={captchaInput}
-                        onChangeText={setCaptchaInput}
-                        placeholder=""
-                        placeholderTextColor="#94A3B8"
-                        autoCapitalize="none"
-                      />
-                    </View>
-                  </View>
+                  <View style={styles.successActionsRow}>
+                    <TouchableOpacity
+                      style={styles.successDownloadBtn}
+                      onPress={() =>
+                        handleDownloadDoc('AIOC_2027_Registration_Confirmation')
+                      }
+                    >
+                      <PrinterIcon size={16} color="#FFFFFF" />
+                      <Text style={styles.successDownloadText}>
+                        Download Slip (PDF)
+                      </Text>
+                    </TouchableOpacity>
 
-                  {/* Submit / Pay Button */}
-                  <TouchableOpacity
-                    style={styles.payNowBtn}
-                    activeOpacity={0.85}
-                    onPress={() => {
-                      setPaymentCompleted(true);
-                      Alert.alert(
-                        'Registration Successful',
-                        `AIOC 2027 Registration Confirmed!\nMode: ${paymentMode}\nAmount Paid: ${totalPayable > 0 ? totalPayable : 0}/-`,
-                      );
-                    }}
-                  >
-                    <Text style={styles.payNowBtnText}>PROCEED TO PAY ➔</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : (
-              /* Success / Verified Slip Card */
-              <View style={styles.successConfirmedCard}>
-                <View style={styles.successIconCircle}>
-                  <CheckIcon size={28} color="#FFFFFF" />
-                </View>
-                <Text style={styles.successTitle}>Registration Confirmed!</Text>
-                <Text style={styles.successSubtitle}>
-                  Thank you, {doctorName}. Your seat is confirmed for AIOC 2027.
-                </Text>
-
-                <View style={styles.successDetailsBox}>
-                  <View style={styles.successDetailRow}>
-                    <Text style={styles.successDetailLabel}>Registration ID:</Text>
-                    <Text style={styles.successDetailValue}>{regNo}</Text>
-                  </View>
-                  <View style={styles.successDetailRow}>
-                    <Text style={styles.successDetailLabel}>Category:</Text>
-                    <Text style={styles.successDetailValue}>{regCategory}</Text>
-                  </View>
-                  <View style={styles.successDetailRow}>
-                    <Text style={styles.successDetailLabel}>Institution:</Text>
-                    <Text style={styles.successDetailValue}>{institution} ({orgType})</Text>
-                  </View>
-                  <View style={styles.successDetailRow}>
-                    <Text style={styles.successDetailLabel}>Specialities:</Text>
-                    <Text style={styles.successDetailValue}>{selectedSpecialities.join(', ')}</Text>
-                  </View>
-                  <View style={styles.successDetailRow}>
-                    <Text style={styles.successDetailLabel}>Total Paid:</Text>
-                    <Text style={[styles.successDetailValue, { color: '#0284C7', fontWeight: '800' }]}>
-                      ₹ {totalPayable.toLocaleString('en-IN')} (Incl. GST)
-                    </Text>
+                    <TouchableOpacity
+                      style={styles.successShareBtn}
+                      onPress={() =>
+                        handleShareDoc(
+                          'AIOC 2027 Registration Confirmed',
+                          `Reg ID: ${regNo} | Amount: ₹ ${totalPayable}`,
+                        )
+                      }
+                    >
+                      <ShareIcon size={16} color="#0284C7" />
+                      <Text style={styles.successShareText}>Share</Text>
+                    </TouchableOpacity>
                   </View>
                 </View>
-
-                <View style={styles.successActionsRow}>
-                  <TouchableOpacity
-                    style={styles.successDownloadBtn}
-                    onPress={() => handleDownloadDoc('AIOC_2027_Registration_Confirmation')}
-                  >
-                    <PrinterIcon size={16} color="#FFFFFF" />
-                    <Text style={styles.successDownloadText}>Download Slip (PDF)</Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={styles.successShareBtn}
-                    onPress={() => handleShareDoc('AIOC 2027 Registration Confirmed', `Reg ID: ${regNo} | Amount: ₹ ${totalPayable}`)}
-                  >
-                    <ShareIcon size={16} color="#0284C7" />
-                    <Text style={styles.successShareText}>Share</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-
-            <View style={{ height: 40 }} />
-          </ScrollView>
-        </View>
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
+        )}
       </Modal>
       <Modal
         visible={paymentModalVisible}
@@ -1404,7 +1883,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>Payment Details</Text>
-                <Text style={styles.modalSubtitle}>AIOS Official Transaction Receipt</Text>
+                <Text style={styles.modalSubtitle}>
+                  AIOS Official Transaction Receipt
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setPaymentModalVisible(false)}
@@ -1414,20 +1895,29 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 480 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 480 }}
+            >
               <View style={styles.receiptContainer}>
                 <View style={styles.receiptHeaderRow}>
                   <View style={styles.receiptStatusPill}>
                     <CheckIcon size={12} color="#FFFFFF" />
-                    <Text style={styles.receiptStatusText}>PAYMENT SUCCESSFUL</Text>
+                    <Text style={styles.receiptStatusText}>
+                      PAYMENT SUCCESSFUL
+                    </Text>
                   </View>
                   <Text style={styles.receiptDate}>25 Sep 2026 • 10:42 AM</Text>
                 </View>
 
                 <View style={styles.receiptAmountBox}>
-                  <Text style={styles.receiptAmountLabel}>Total Amount Paid</Text>
+                  <Text style={styles.receiptAmountLabel}>
+                    Total Amount Paid
+                  </Text>
                   <Text style={styles.receiptAmountValue}>₹ 8,850.00</Text>
-                  <Text style={styles.receiptTxnId}>Txn ID: AIOS-MT26-TXN-94812</Text>
+                  <Text style={styles.receiptTxnId}>
+                    Txn ID: AIOS-MT26-TXN-94812
+                  </Text>
                 </View>
 
                 <View style={styles.receiptTable}>
@@ -1445,17 +1935,25 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                   </View>
                   <View style={styles.receiptTableRow}>
                     <Text style={styles.receiptTableLabel}>Payment Mode</Text>
-                    <Text style={styles.receiptTableValue}>HDFC NetBanking / UPI</Text>
+                    <Text style={styles.receiptTableValue}>
+                      HDFC NetBanking / UPI
+                    </Text>
                   </View>
                   <View style={styles.receiptTableRow}>
-                    <Text style={styles.receiptTableLabel}>Registration Fee</Text>
+                    <Text style={styles.receiptTableLabel}>
+                      Registration Fee
+                    </Text>
                     <Text style={styles.receiptTableValue}>₹ 7,500.00</Text>
                   </View>
                   <View style={styles.receiptTableRow}>
-                    <Text style={styles.receiptTableLabel}>CGST + SGST (18%)</Text>
+                    <Text style={styles.receiptTableLabel}>
+                      CGST + SGST (18%)
+                    </Text>
                     <Text style={styles.receiptTableValue}>₹ 1,350.00</Text>
                   </View>
-                  <View style={[styles.receiptTableRow, { borderBottomWidth: 0 }]}>
+                  <View
+                    style={[styles.receiptTableRow, { borderBottomWidth: 0 }]}
+                  >
                     <Text style={styles.receiptTableLabel}>Bank Ref No</Text>
                     <Text style={styles.receiptTableValue}>REF-7102948172</Text>
                   </View>
@@ -1466,7 +1964,12 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalActionsRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
-                onPress={() => handleShareDoc('Payment Receipt', 'Total: ₹ 8,850.00 | Status: SUCCESSFUL')}
+                onPress={() =>
+                  handleShareDoc(
+                    'Payment Receipt',
+                    'Total: ₹ 8,850.00 | Status: SUCCESSFUL',
+                  )
+                }
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
@@ -1480,7 +1983,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 }}
               >
                 <PrinterIcon size={16} color="#FFFFFF" />
-                <Text style={styles.modalPrimaryBtnText}>Print Invoice (PDF)</Text>
+                <Text style={styles.modalPrimaryBtnText}>
+                  Print Invoice (PDF)
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1497,7 +2002,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>Print Registration Detail</Text>
-                <Text style={styles.modalSubtitle}>Official Delegate Confirmation Slip</Text>
+                <Text style={styles.modalSubtitle}>
+                  Official Delegate Confirmation Slip
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setPrintRegModalVisible(false)}
@@ -1507,13 +2014,26 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 480 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 480 }}
+            >
               <View style={styles.slipCard}>
                 <View style={styles.slipHeader}>
-                  <Image source={images.logo} style={{ width: 34, height: 34 }} resizeMode="contain" />
+                  <Image
+                    source={images.logo}
+                    style={{ width: 34, height: 34 }}
+                    resizeMode="contain"
+                  />
                   <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.slipSocietyName}>ALL INDIA OPHTHALMOLOGICAL SOCIETY</Text>
-                    <Text style={styles.slipConfTitle}>{isAnnual ? 'AIOC 2027 Annual Conference' : 'AIOC & Mid-Term Conference Portal'}</Text>
+                    <Text style={styles.slipSocietyName}>
+                      ALL INDIA OPHTHALMOLOGICAL SOCIETY
+                    </Text>
+                    <Text style={styles.slipConfTitle}>
+                      {isAnnual
+                        ? 'AIOC 2027 Annual Conference'
+                        : 'AIOC & Mid-Term Conference Portal'}
+                    </Text>
                   </View>
                 </View>
 
@@ -1521,7 +2041,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
 
                 <View style={styles.slipBarcodeRow}>
                   <View style={styles.barcodeVisual}>
-                    <Text style={styles.barcodeLines}>||||| | |||| ||| | ||||| || ||||</Text>
+                    <Text style={styles.barcodeLines}>
+                      ||||| | |||| ||| | ||||| || ||||
+                    </Text>
                     <Text style={styles.barcodeText}>{regNo}</Text>
                   </View>
                   <View style={styles.qrBadgeBox}>
@@ -1540,23 +2062,33 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                   </View>
                   <View style={styles.slipDetailItem}>
                     <Text style={styles.slipDetailLabel}>CATEGORY</Text>
-                    <Text style={[styles.slipDetailValue, { color: '#0284C7', fontWeight: '800' }]}>
+                    <Text
+                      style={[
+                        styles.slipDetailValue,
+                        { color: '#0284C7', fontWeight: '800' },
+                      ]}
+                    >
                       {regCategory}
                     </Text>
                   </View>
                   <View style={styles.slipDetailItem}>
                     <Text style={styles.slipDetailLabel}>ORGANIZATION</Text>
-                    <Text style={styles.slipDetailValue}>{institution} ({orgType})</Text>
+                    <Text style={styles.slipDetailValue}>
+                      {institution} ({orgType})
+                    </Text>
                   </View>
                   <View style={styles.slipDetailItem}>
                     <Text style={styles.slipDetailLabel}>SPECIALITY</Text>
-                    <Text style={styles.slipDetailValue}>{selectedSpecialities.join(', ')}</Text>
+                    <Text style={styles.slipDetailValue}>
+                      {selectedSpecialities.join(', ')}
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.slipNoticeBox}>
                   <Text style={styles.slipNoticeText}>
-                    Please show this confirmation slip at the registration desk for physical badge and kit collection.
+                    Please show this confirmation slip at the registration desk
+                    for physical badge and kit collection.
                   </Text>
                 </View>
               </View>
@@ -1565,7 +2097,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalActionsRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
-                onPress={() => handleShareDoc('Registration Slip', `Reg No: ${regNo}`)}
+                onPress={() =>
+                  handleShareDoc('Registration Slip', `Reg No: ${regNo}`)
+                }
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share Slip</Text>
@@ -1596,7 +2130,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>Accommodation Booking</Text>
-                <Text style={styles.modalSubtitle}>Venue & Partner Hotels Status</Text>
+                <Text style={styles.modalSubtitle}>
+                  Venue & Partner Hotels Status
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setAccommodationInfoModalVisible(false)}
@@ -1606,27 +2142,47 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 460 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 460 }}
+            >
               <View style={styles.closedNoticeBox}>
                 <BedIcon size={24} color="#EA580C" />
-                <Text style={styles.closedNoticeTitle}>Official Booking Closed</Text>
+                <Text style={styles.closedNoticeTitle}>
+                  Official Booking Closed
+                </Text>
                 <Text style={styles.closedNoticeText}>
-                  Rooms at the primary venue have reached full capacity. Contact secretariat desk for spot assistance.
+                  Rooms at the primary venue have reached full capacity. Contact
+                  secretariat desk for spot assistance.
                 </Text>
               </View>
 
-              <Text style={styles.partnerHotelsHeading}>Recommended Partner Hotels:</Text>
+              <Text style={styles.partnerHotelsHeading}>
+                Recommended Partner Hotels:
+              </Text>
 
               <View style={styles.partnerHotelItem}>
-                <Text style={styles.partnerHotelName}>1. Radisson Blu Hotel</Text>
-                <Text style={styles.partnerHotelDetail}>Main Road (approx. 2.4 km from venue)</Text>
-                <Text style={styles.partnerHotelPhone}>📞 Contact: +91 651 660 2222</Text>
+                <Text style={styles.partnerHotelName}>
+                  1. Radisson Blu Hotel
+                </Text>
+                <Text style={styles.partnerHotelDetail}>
+                  Main Road (approx. 2.4 km from venue)
+                </Text>
+                <Text style={styles.partnerHotelPhone}>
+                  📞 Contact: +91 651 660 2222
+                </Text>
               </View>
 
               <View style={styles.partnerHotelItem}>
-                <Text style={styles.partnerHotelName}>2. Hotel Capitol Hill</Text>
-                <Text style={styles.partnerHotelDetail}>MG Marg (approx. 1.8 km from venue)</Text>
-                <Text style={styles.partnerHotelPhone}>📞 Contact: +91 651 233 1331</Text>
+                <Text style={styles.partnerHotelName}>
+                  2. Hotel Capitol Hill
+                </Text>
+                <Text style={styles.partnerHotelDetail}>
+                  MG Marg (approx. 1.8 km from venue)
+                </Text>
+                <Text style={styles.partnerHotelPhone}>
+                  📞 Contact: +91 651 233 1331
+                </Text>
               </View>
             </ScrollView>
 
@@ -1639,7 +2195,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 }}
               >
                 <WhatsAppIcon size={18} color="#FFFFFF" />
-                <Text style={styles.modalPrimaryBtnText}>Contact Secretariat Desk</Text>
+                <Text style={styles.modalPrimaryBtnText}>
+                  Contact Secretariat Desk
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1656,7 +2214,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>Accommodation Receipt</Text>
-                <Text style={styles.modalSubtitle}>Hotel Booking Voucher & Payment</Text>
+                <Text style={styles.modalSubtitle}>
+                  Hotel Booking Voucher & Payment
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setAccommodationReceiptModalVisible(false)}
@@ -1666,18 +2226,32 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 460 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 460 }}
+            >
               <View style={styles.receiptContainer}>
                 <View style={styles.receiptHeaderRow}>
-                  <View style={[styles.receiptStatusPill, { backgroundColor: '#0284C7' }]}>
+                  <View
+                    style={[
+                      styles.receiptStatusPill,
+                      { backgroundColor: '#0284C7' },
+                    ]}
+                  >
                     <CheckIcon size={12} color="#FFFFFF" />
-                    <Text style={styles.receiptStatusText}>BOOKING CONFIRMED</Text>
+                    <Text style={styles.receiptStatusText}>
+                      BOOKING CONFIRMED
+                    </Text>
                   </View>
-                  <Text style={styles.receiptDate}>Voucher # ACC-MT26-0219</Text>
+                  <Text style={styles.receiptDate}>
+                    Voucher # ACC-MT26-0219
+                  </Text>
                 </View>
 
                 <View style={styles.receiptAmountBox}>
-                  <Text style={styles.receiptAmountLabel}>Total Paid (2 Nights)</Text>
+                  <Text style={styles.receiptAmountLabel}>
+                    Total Paid (2 Nights)
+                  </Text>
                   <Text style={styles.receiptAmountValue}>₹ 12,000.00</Text>
                   <Text style={styles.receiptTxnId}>{conferenceLocation}</Text>
                 </View>
@@ -1689,15 +2263,30 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                   </View>
                   <View style={styles.receiptTableRow}>
                     <Text style={styles.receiptTableLabel}>Room Type</Text>
-                    <Text style={styles.receiptTableValue}>Deluxe Double Room</Text>
+                    <Text style={styles.receiptTableValue}>
+                      Deluxe Double Room
+                    </Text>
                   </View>
                   <View style={styles.receiptTableRow}>
-                    <Text style={styles.receiptTableLabel}>Check-in / Check-out</Text>
-                    <Text style={styles.receiptTableValue}>{conferenceDates}</Text>
+                    <Text style={styles.receiptTableLabel}>
+                      Check-in / Check-out
+                    </Text>
+                    <Text style={styles.receiptTableValue}>
+                      {conferenceDates}
+                    </Text>
                   </View>
-                  <View style={[styles.receiptTableRow, { borderBottomWidth: 0 }]}>
-                    <Text style={styles.receiptTableLabel}>Confirmation Code</Text>
-                    <Text style={[styles.receiptTableValue, { fontWeight: '800', color: '#0A1E3F' }]}>
+                  <View
+                    style={[styles.receiptTableRow, { borderBottomWidth: 0 }]}
+                  >
+                    <Text style={styles.receiptTableLabel}>
+                      Confirmation Code
+                    </Text>
+                    <Text
+                      style={[
+                        styles.receiptTableValue,
+                        { fontWeight: '800', color: '#0A1E3F' },
+                      ]}
+                    >
                       BNR-CONF-9281
                     </Text>
                   </View>
@@ -1708,7 +2297,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalActionsRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
-                onPress={() => handleShareDoc('Hotel Booking Voucher', 'Conf: BNR-CONF-9281')}
+                onPress={() =>
+                  handleShareDoc('Hotel Booking Voucher', 'Conf: BNR-CONF-9281')
+                }
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
@@ -1722,7 +2313,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 }}
               >
                 <PrinterIcon size={16} color="#FFFFFF" />
-                <Text style={styles.modalPrimaryBtnText}>Print Voucher (PDF)</Text>
+                <Text style={styles.modalPrimaryBtnText}>
+                  Print Voucher (PDF)
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1739,7 +2332,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalHeader}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.modalTitle}>Print Invitation Letter</Text>
-                <Text style={styles.modalSubtitle}>Official AIOS Conference Invitation</Text>
+                <Text style={styles.modalSubtitle}>
+                  Official AIOS Conference Invitation
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setInvitationLetterModalVisible(false)}
@@ -1749,48 +2344,82 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
               </TouchableOpacity>
             </View>
 
-            <ScrollView showsVerticalScrollIndicator={false} style={{ maxHeight: 480 }}>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              style={{ maxHeight: 480 }}
+            >
               <View style={styles.letterheadFrame}>
                 <View style={styles.letterheadTop}>
-                  <Image source={images.logo} style={{ width: 38, height: 38 }} resizeMode="contain" />
+                  <Image
+                    source={images.logo}
+                    style={{ width: 38, height: 38 }}
+                    resizeMode="contain"
+                  />
                   <View style={{ flex: 1, alignItems: 'center' }}>
-                    <Text style={styles.letterheadTitle}>ALL INDIA OPHTHALMOLOGICAL SOCIETY</Text>
-                    <Text style={styles.letterheadSub}>Secretariat: AIOS Headquarters, New Delhi</Text>
+                    <Text style={styles.letterheadTitle}>
+                      ALL INDIA OPHTHALMOLOGICAL SOCIETY
+                    </Text>
+                    <Text style={styles.letterheadSub}>
+                      Secretariat: AIOS Headquarters, New Delhi
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.letterheadGoldLine} />
 
                 <View style={styles.letterMetaRow}>
-                  <Text style={styles.letterMetaText}>Ref: AIOS/INV-2027/0482</Text>
-                  <Text style={styles.letterMetaText}>Date: 15 August 2026</Text>
+                  <Text style={styles.letterMetaText}>
+                    Ref: AIOS/INV-2027/0482
+                  </Text>
+                  <Text style={styles.letterMetaText}>
+                    Date: 15 August 2026
+                  </Text>
                 </View>
 
                 <Text style={styles.letterRecipient}>
                   To,{'\n'}
-                  <Text style={{ fontWeight: '800' }}>{doctorName}</Text>{'\n'}
-                  Member ID: {memberId}{'\n'}
+                  <Text style={{ fontWeight: '800' }}>{doctorName}</Text>
+                  {'\n'}
+                  Member ID: {memberId}
+                  {'\n'}
                   Category: {regCategory}
                 </Text>
 
                 <Text style={styles.letterSalutation}>Dear Doctor,</Text>
 
                 <Text style={styles.letterBody}>
-                  On behalf of the All India Ophthalmological Society (AIOS), we have the honor of inviting you to participate in the upcoming AIOS conferences. Your participation will contribute immensely to the scientific deliberations and clinical exchange.
+                  On behalf of the All India Ophthalmological Society (AIOS), we
+                  have the honor of inviting you to participate in the upcoming
+                  AIOS conferences. Your participation will contribute immensely
+                  to the scientific deliberations and clinical exchange.
                 </Text>
 
                 <View style={styles.letterSigBlock}>
                   <View style={{ alignItems: 'flex-start' }}>
-                    <Text style={styles.letterSigName}>Dr. President, AIOS</Text>
+                    <Text style={styles.letterSigName}>
+                      Dr. President, AIOS
+                    </Text>
                     <Text style={styles.letterSigDesig}>President, AIOS</Text>
                   </View>
                   <View style={styles.letterSeal}>
                     <AwardMedalIcon size={18} color="#D97706" />
-                    <Text style={{ fontSize: 7, fontWeight: '800', color: '#D97706' }}>SEAL</Text>
+                    <Text
+                      style={{
+                        fontSize: 7,
+                        fontWeight: '800',
+                        color: '#D97706',
+                      }}
+                    >
+                      SEAL
+                    </Text>
                   </View>
                   <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={styles.letterSigName}>Dr. Hon. Gen. Secretary</Text>
-                    <Text style={styles.letterSigDesig}>General Secretary, AIOS</Text>
+                    <Text style={styles.letterSigName}>
+                      Dr. Hon. Gen. Secretary
+                    </Text>
+                    <Text style={styles.letterSigDesig}>
+                      General Secretary, AIOS
+                    </Text>
                   </View>
                 </View>
               </View>
@@ -1799,7 +2428,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalActionsRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
-                onPress={() => handleShareDoc('Official AIOS Invitation Letter')}
+                onPress={() =>
+                  handleShareDoc('Official AIOS Invitation Letter')
+                }
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
@@ -1813,7 +2444,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 }}
               >
                 <PrinterIcon size={16} color="#FFFFFF" />
-                <Text style={styles.modalPrimaryBtnText}>Print Letter (PDF)</Text>
+                <Text style={styles.modalPrimaryBtnText}>
+                  Print Letter (PDF)
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1830,7 +2463,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.certModalHeader}>
               <View style={styles.verifiedHeaderBadge}>
                 <VerifiedBadgeIcon size={14} color="#10B981" />
-                <Text style={styles.verifiedHeaderText}>OFFICIAL AIOS CREDENTIAL</Text>
+                <Text style={styles.verifiedHeaderText}>
+                  OFFICIAL AIOS CREDENTIAL
+                </Text>
               </View>
               <TouchableOpacity
                 onPress={() => setCertModalVisible(false)}
@@ -1843,26 +2478,48 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <ScrollView showsVerticalScrollIndicator={false}>
               <View style={styles.certDocumentFrame}>
                 <View style={styles.certTopRow}>
-                  <Image source={images.logo} style={{ width: 42, height: 42 }} resizeMode="contain" />
+                  <Image
+                    source={images.logo}
+                    style={{ width: 42, height: 42 }}
+                    resizeMode="contain"
+                  />
                   <View style={{ flex: 1, alignItems: 'center' }}>
-                    <Text style={styles.certHeadingText}>ALL INDIA OPHTHALMOLOGICAL SOCIETY</Text>
-                    <Text style={styles.certSubheadingText}>Established 1930 • From Darkness to Light</Text>
+                    <Text style={styles.certHeadingText}>
+                      ALL INDIA OPHTHALMOLOGICAL SOCIETY
+                    </Text>
+                    <Text style={styles.certSubheadingText}>
+                      Established 1930 • From Darkness to Light
+                    </Text>
                   </View>
                 </View>
 
                 <View style={styles.certGoldLine} />
 
                 <Text style={styles.certTitleText}>
-                  {certCategory === 'Faculty' ? 'CERTIFICATE OF APPRECIATION' : 'CERTIFICATE OF PARTICIPATION'}
+                  {certCategory === 'Faculty'
+                    ? 'CERTIFICATE OF APPRECIATION'
+                    : 'CERTIFICATE OF PARTICIPATION'}
                 </Text>
 
-                <Text style={styles.certPresentedText}>This is proudly presented to</Text>
-                <Text style={styles.certRecipientName}>{selectedCert?.recipientName}</Text>
+                <Text style={styles.certPresentedText}>
+                  This is proudly presented to
+                </Text>
+                <Text style={styles.certRecipientName}>
+                  {selectedCert?.recipientName}
+                </Text>
 
                 <Text style={styles.certBodyText}>
                   {certCategory === 'Faculty'
-                    ? `in grateful appreciation for distinguished contribution and valuable service as Faculty in the ${selectedCert?.title || conferenceTitle} held at ${selectedCert?.location || conferenceLocation} (${selectedCert?.year || conferenceYear}).`
-                    : `for active and distinguished participation as a Delegate in the ${selectedCert?.title || conferenceTitle} held at ${selectedCert?.location || conferenceLocation} (${selectedCert?.year || conferenceYear}).`}
+                    ? `in grateful appreciation for distinguished contribution and valuable service as Faculty in the ${
+                        selectedCert?.title || conferenceTitle
+                      } held at ${
+                        selectedCert?.location || conferenceLocation
+                      } (${selectedCert?.year || conferenceYear}).`
+                    : `for active and distinguished participation as a Delegate in the ${
+                        selectedCert?.title || conferenceTitle
+                      } held at ${
+                        selectedCert?.location || conferenceLocation
+                      } (${selectedCert?.year || conferenceYear}).`}
                 </Text>
 
                 <View style={styles.certSignaturesRow}>
@@ -1887,7 +2544,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 </View>
 
                 <Text style={styles.certDocId}>
-                  Document ID: AIOS-{isAnnual ? 'ANNUAL' : 'MIDTERM'}-{selectedCert?.year || conferenceYear}-{selectedCert?.memberId}
+                  Document ID: AIOS-{isAnnual ? 'ANNUAL' : 'MIDTERM'}-
+                  {selectedCert?.year || conferenceYear}-
+                  {selectedCert?.memberId}
                 </Text>
               </View>
             </ScrollView>
@@ -1895,10 +2554,12 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <View style={styles.modalActionsRow}>
               <TouchableOpacity
                 style={styles.modalSecondaryBtn}
-                onPress={() => Share.share({
-                  title: selectedCert?.title,
-                  message: `${selectedCert?.title} - ${certCategory}\nIssued to: ${selectedCert?.recipientName} (${selectedCert?.memberId})\n${selectedCert?.location} • ${selectedCert?.year}`,
-                })}
+                onPress={() =>
+                  Share.share({
+                    title: selectedCert?.title,
+                    message: `${selectedCert?.title} - ${certCategory}\nIssued to: ${selectedCert?.recipientName} (${selectedCert?.memberId})\n${selectedCert?.location} • ${selectedCert?.year}`,
+                  })
+                }
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share Document</Text>
@@ -1910,7 +2571,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 disabled={certificateDownloading}
               >
                 <DocumentIcon size={16} color="#FFFFFF" />
-                <Text style={styles.modalPrimaryBtnText}>{certificateDownloading ? 'Downloading…' : 'Download PDF'}</Text>
+                <Text style={styles.modalPrimaryBtnText}>
+                  {certificateDownloading ? 'Downloading…' : 'Download PDF'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -1935,8 +2598,8 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
                 {activePicker === 'category'
                   ? 'Select Delegate Category'
                   : activePicker === 'type'
-                    ? 'Select Delegate Type'
-                    : 'Select No. of Accompanying Persons'}
+                  ? 'Select Delegate Type'
+                  : 'Select No. of Accompanying Persons'}
               </Text>
               <TouchableOpacity
                 onPress={() => setActivePicker(null)}
@@ -1948,21 +2611,27 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
             <FlatList
               style={{ maxHeight: 300 }}
               keyboardShouldPersistTaps="handled"
-              data={activePicker === 'category'
-                ? DELEGATE_CATEGORIES
-                : activePicker === 'type'
+              data={
+                activePicker === 'category'
+                  ? DELEGATE_CATEGORIES
+                  : activePicker === 'type'
                   ? DELEGATE_TYPES
                   : ACCOMPANYING_OPTIONS
               }
-              keyExtractor={(opt) => opt}
-              extraData={{ activePicker, delegateCategory, delegateType, noOfAccompanying }}
+              keyExtractor={opt => opt}
+              extraData={{
+                activePicker,
+                delegateCategory,
+                delegateType,
+                noOfAccompanying,
+              }}
               renderItem={({ item: opt }) => {
                 const isSelected =
                   activePicker === 'category'
                     ? delegateCategory === opt
                     : activePicker === 'type'
-                      ? delegateType === opt
-                      : String(noOfAccompanying) === opt;
+                    ? delegateType === opt
+                    : String(noOfAccompanying) === opt;
                 return (
                   <TouchableOpacity
                     key={opt}
@@ -1998,6 +2667,32 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({ va
 };
 
 const styles = StyleSheet.create({
+  registrationClosedCard: {
+    marginTop: 16,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 20,
+    borderRadius: 6,
+    backgroundColor: '#1689BE',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  registrationClosedIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#F5A021',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  registrationClosedText: {
+    flex: 1,
+    fontSize: 22,
+    lineHeight: 25,
+    fontWeight: '400',
+    color: '#FFFFFF',
+  },
   facultyCard: {
     backgroundColor: '#FFFFFF',
     borderColor: '#E2E8F0',
@@ -2235,6 +2930,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 8,
   },
   bannerWrapper: {
     width: '100%',
@@ -2246,7 +2942,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.08,
     shadowRadius: 4,
   },
@@ -2266,7 +2965,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginBottom: 14,
     shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 3,
@@ -2327,7 +3029,10 @@ const styles = StyleSheet.create({
     minHeight: 58,
     gap: 8,
     shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 2,
@@ -2349,7 +3054,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
@@ -2503,10 +3211,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 12,
   },
-
-  /* ============================================================ */
-  /* AIOC 2027 FORM MODAL STYLES (MATCHING IMAGE 2 EXACTLY) */
-  /* ============================================================ */
   aiocFormContainer: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -2876,7 +3580,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
         shadowOpacity: 0.15,
         shadowRadius: 10,
       },
@@ -3144,7 +3851,10 @@ const styles = StyleSheet.create({
     marginTop: 6,
     marginBottom: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
@@ -3461,7 +4171,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: {
+          width: 0,
+          height: 6,
+        },
         shadowOpacity: 0.15,
         shadowRadius: 12,
       },
@@ -3851,7 +4564,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
+        shadowOffset: {
+          width: 0,
+          height: 6,
+        },
         shadowOpacity: 0.15,
         shadowRadius: 12,
       },

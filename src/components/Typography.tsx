@@ -59,7 +59,6 @@ export const Typography: React.FC<TypographyProps> = ({
 };
 
 const styles = StyleSheet.create({
-  // DESIGN.md Clinical Prestige Typography Tokens
   headlineXl: {
     fontSize: typography.fontSizes.headlineXl,
     lineHeight: typography.lineHeights.headlineXl,

@@ -35,7 +35,10 @@ export interface BackgroundProps {
   keyboardShouldPersistTaps?: 'always' | 'never' | 'handled';
 }
 
-export const Background = React.forwardRef<React.ElementRef<typeof ScrollView>, BackgroundProps>(
+export const Background = React.forwardRef<
+  React.ElementRef<typeof ScrollView>,
+  BackgroundProps
+>(
   (
     {
       children,
@@ -58,10 +61,12 @@ export const Background = React.forwardRef<React.ElementRef<typeof ScrollView>, 
     const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
     useEffect(() => {
-      const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-      const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+      const showEvent =
+        Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+      const hideEvent =
+        Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
-      const showSub = Keyboard.addListener(showEvent, (e) => {
+      const showSub = Keyboard.addListener(showEvent, e => {
         setKeyboardHeight(e?.endCoordinates?.height ?? 280);
       });
       const hideSub = Keyboard.addListener(hideEvent, () => {
@@ -77,7 +82,8 @@ export const Background = React.forwardRef<React.ElementRef<typeof ScrollView>, 
     const hasGradient = Boolean(gradientColors && gradientColors.length > 0);
     const containerStyle: ViewStyle = {
       flex: 1,
-      backgroundColor: backgroundColor ?? (hasGradient ? undefined : colors.background),
+      backgroundColor:
+        backgroundColor ?? (hasGradient ? undefined : colors.background),
     };
 
     const userContentStyle = StyleSheet.flatten(contentContainerStyle) || {};
@@ -105,7 +111,10 @@ export const Background = React.forwardRef<React.ElementRef<typeof ScrollView>, 
             automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
             scrollEventThrottle={16}
           >
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <TouchableWithoutFeedback
+              onPress={Keyboard.dismiss}
+              accessible={false}
+            >
               <View style={styles.scrollBody}>{children}</View>
             </TouchableWithoutFeedback>
           </ScrollView>
@@ -115,17 +124,18 @@ export const Background = React.forwardRef<React.ElementRef<typeof ScrollView>, 
       return <View style={[styles.content, style]}>{children}</View>;
     };
 
-    const wrappedWithKeyboard = keyboardAvoiding && !scrollable ? (
-      <KeyboardAvoidingView
-        style={styles.keyboardContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        keyboardVerticalOffset={keyboardVerticalOffset}
-      >
-        {renderContent()}
-      </KeyboardAvoidingView>
-    ) : (
-      renderContent()
-    );
+    const wrappedWithKeyboard =
+      keyboardAvoiding && !scrollable ? (
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          keyboardVerticalOffset={keyboardVerticalOffset}
+        >
+          {renderContent()}
+        </KeyboardAvoidingView>
+      ) : (
+        renderContent()
+      );
 
     return (
       <View style={containerStyle}>

@@ -1,10 +1,14 @@
+import { Toast, ToastNotification } from '../components/Toast';
+import { PaymentInformation } from '../components/PaymentInformation';
 import { formatProfileName } from '../utils/profileName';
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
+  Keyboard,
+  KeyboardAvoidingView,
   TouchableOpacity,
   TextInput,
   Image,
@@ -25,7 +29,6 @@ import {
   ShieldCheckIcon,
   PersonIcon,
   DocumentIcon,
-  ArrowRightIcon,
   CloseIcon,
   ChevronDownIcon,
   EditPencilIcon,
@@ -58,15 +61,15 @@ export type GoGreenOption = 'hard_copy' | 'online' | 'both';
 
 export const AccountScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-  const savedProfile = useAppSelector((state) => state.auth.profile);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
     ? { ...savedProfile, membershipId: undefined }
     : savedProfile;
   const dispatch = useAppDispatch();
 
-  // Profile accordion & edit modal
-  const [isProfileExpanded, setIsProfileExpanded] = useState(false);
+  // Profile edit modal
   const [editModalVisible, setEditModalVisible] = useState(false);
   const [editTitle, setEditTitle] = useState('Dr.');
   const [editFirstName, setEditFirstName] = useState('');
@@ -77,39 +80,22 @@ export const AccountScreen: React.FC = () => {
   const [editState, setEditState] = useState('');
 
   const currentDoctorName = profile
-    ? formatProfileName(profile.name || [profile.title, profile.firstName, profile.surname].filter(Boolean).join(' ') || '')
+    ? formatProfileName(
+        profile.name ||
+          [profile.title, profile.firstName, profile.surname]
+            .filter(Boolean)
+            .join(' ') ||
+          '',
+      )
     : '';
 
   const currentMemberSub = profile?.membershipId
     ? `All India Ophthalmological Society • ${profile.membershipId}`
-    : (profile ? 'All India Ophthalmological Society • Member' : '');
+    : profile
+    ? 'All India Ophthalmological Society • Member'
+    : '';
 
   const currentAvatarUri = profile?.avatar || null;
-
-  const handleOpenEditModal = () => {
-    setEditTitle(profile?.title || '');
-    setEditFirstName(
-      profile?.firstName ||
-      (profile?.name
-        ? profile.name.replace(/^(Dr\.|Prof\.|Mr\.|Mrs\.|Ms\.)\s*/i, '').split(' ')[0]
-        : ''),
-    );
-    setEditSurname(
-      profile?.surname ||
-      (profile?.name
-        ? profile.name
-          .replace(/^(Dr\.|Prof\.|Mr\.|Mrs\.|Ms\.)\s*/i, '')
-          .split(' ')
-          .slice(1)
-          .join(' ')
-        : ''),
-    );
-    setEditPhone(profile?.phone || '');
-    setEditEmail(profile?.email || '');
-    setEditCity(profile?.city || '');
-    setEditState(profile?.state || '');
-    setEditModalVisible(true);
-  };
 
   const handleSaveProfile = () => {
     const fullName = `${editTitle} ${editFirstName} ${editSurname}`.trim();
@@ -133,7 +119,6 @@ export const AccountScreen: React.FC = () => {
   const [institution, setInstitution] = useState('');
   const [orgType, setOrgType] = useState<'Govt' | 'Private' | null>(null);
 
-
   const [qualifications, setQualifications] = useState<QualificationItem[]>([
     {
       id: '1',
@@ -146,7 +131,7 @@ export const AccountScreen: React.FC = () => {
 
   const handleAddDegree = () => {
     const newId = (qualifications.length + 1).toString();
-    setQualifications((prev) => [
+    setQualifications(prev => [
       ...prev,
       {
         id: newId,
@@ -164,9 +149,9 @@ export const AccountScreen: React.FC = () => {
       return;
     }
     if (typeof indexToRemove === 'number') {
-      setQualifications((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+      setQualifications(prev => prev.filter((_, idx) => idx !== indexToRemove));
     } else {
-      setQualifications((prev) => prev.slice(0, prev.length - 1));
+      setQualifications(prev => prev.slice(0, prev.length - 1));
     }
   };
 
@@ -175,7 +160,7 @@ export const AccountScreen: React.FC = () => {
     field: keyof QualificationItem,
     value: string,
   ) => {
-    setQualifications((prev) => {
+    setQualifications(prev => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
       return next;
@@ -189,7 +174,10 @@ export const AccountScreen: React.FC = () => {
         updateQualification(index, 'fileName', file.name);
       }
     } catch {
-      Alert.alert('File Selection', 'Unable to pick document. Please try again.');
+      Alert.alert(
+        'File Selection',
+        'Unable to pick document. Please try again.',
+      );
     }
   };
 
@@ -206,8 +194,7 @@ export const AccountScreen: React.FC = () => {
       if (file) {
         setPhotoFileName(file.name);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handlePickSignature = async () => {
@@ -216,8 +203,7 @@ export const AccountScreen: React.FC = () => {
       if (file) {
         setSignatureFileName(file.name);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const handlePickRegCert = async () => {
@@ -226,23 +212,28 @@ export const AccountScreen: React.FC = () => {
       if (file) {
         setRegCertFileName(file.name);
       }
-    } catch {
-    }
+    } catch {}
   };
 
   const [specialities, setSpecialities] = useState<string[]>([]);
 
-  const [goGreenSelections, setGoGreenSelections] = useState<Record<string, GoGreenOption>>({});
+  const [goGreenSelections, setGoGreenSelections] = useState<
+    Record<string, GoGreenOption>
+  >({});
 
   const handleSelectGoGreen = (pubId: string, option: GoGreenOption) => {
-    setGoGreenSelections((prev) => ({
+    setGoGreenSelections(prev => ({
       ...prev,
       [pubId]: option,
     }));
   };
 
-  const [mobileConsent, setMobileConsent] = useState<'office_only' | 'can_be_shared' | ''>('office_only');
-  const [emailConsent, setEmailConsent] = useState<'office_only' | 'can_be_shared' | ''>('office_only');
+  const [mobileConsent, setMobileConsent] = useState<
+    'office_only' | 'can_be_shared' | ''
+  >('office_only');
+  const [emailConsent, setEmailConsent] = useState<
+    'office_only' | 'can_be_shared' | ''
+  >('office_only');
 
   const [proposerMembershipNo, setProposerMembershipNo] = useState('');
   const [proposerName, setProposerName] = useState('');
@@ -255,6 +246,15 @@ export const AccountScreen: React.FC = () => {
   const [seconderMobile, setSeconderMobile] = useState('');
   const [seconderEmail, setSeconderEmail] = useState('');
   const [seconderConsent, setSeconderConsent] = useState(false);
+  const [lifeMemberDeclaration, setLifeMemberDeclaration] = useState(false);
+  const [fbsAcknowledgements, setFbsAcknowledgements] = useState<boolean[]>([
+    false,
+    false,
+    false,
+  ]);
+  const [fbsInterest, setFbsInterest] = useState<
+    'interested' | 'not_interested' | null
+  >(null);
 
   const GOV_ID_OPTIONS = [
     'Voter ID Card',
@@ -279,6 +279,38 @@ export const AccountScreen: React.FC = () => {
   };
 
   const [captchaInput, setCaptchaInput] = useState('');
+  const formScroll = useRef<React.ElementRef<typeof ScrollView>>(null);
+  const formViewport = useRef<React.ElementRef<typeof View>>(null);
+  const captchaFocused = useRef(false);
+  const keyboardTop = useRef<number | null>(null);
+  const [keyboardOverlap, setKeyboardOverlap] = useState(0);
+  const updateScrollSpace = () => {
+    formViewport.current?.measureInWindow((_x, y, _width, height) => {
+      setKeyboardOverlap(
+        Platform.OS === 'android' && keyboardTop.current !== null
+          ? Math.max(0, y + height - keyboardTop.current)
+          : 0,
+      );
+      if (captchaFocused.current)
+        requestAnimationFrame(() =>
+          formScroll.current?.scrollToEnd({ animated: true }),
+        );
+    });
+  };
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', event => {
+      keyboardTop.current = event.endCoordinates.screenY;
+      requestAnimationFrame(updateScrollSpace);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardTop.current = null;
+      setKeyboardOverlap(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
   const [captchaCode, setCaptchaCode] = useState('5b33m');
 
   const ALL_SPECIALITIES = [
@@ -292,7 +324,7 @@ export const AccountScreen: React.FC = () => {
 
   const toggleSpeciality = (item: string) => {
     if (specialities.includes(item)) {
-      setSpecialities(specialities.filter((s) => s !== item));
+      setSpecialities(specialities.filter(s => s !== item));
     } else {
       if (specialities.length >= 3) {
         Alert.alert('Maximum Limit', 'You can select up to 3 specialities.');
@@ -312,862 +344,1074 @@ export const AccountScreen: React.FC = () => {
     setCaptchaInput('');
   };
 
+  const [toast, setToast] = useState<ToastNotification | null>(null);
+  const [paymentInformationVisible, setPaymentInformationVisible] =
+    useState(false);
+  const showToast = (message: string) => {
+    setToast(previous => ({
+      message,
+      id: (previous?.id || 0) + 1,
+      type: 'error',
+    }));
+  };
+
   const handlePayNow = () => {
+    const requiredFields: [string, string][] = [
+      ['Passport Number', passportNo],
+      ['Institute / Organization', institution],
+      ['Type of Organization', orgType || ''],
+      ['Passport-size Photograph', photoFileName],
+      ['Signature', signatureFileName],
+      ['State Medical Registrar', stateRegistrar],
+      ['Medical Registration Number', registrationNo],
+      ['Registration Certificate', regCertFileName],
+      ['Proposer Membership Number', proposerMembershipNo],
+      ['Proposer Name', proposerName],
+      ['Proposer Mobile', proposerMobile],
+      ['Proposer Email', proposerEmail],
+      ['Seconder Membership Number', seconderMembershipNo],
+      ['Seconder Name', seconderName],
+      ['Seconder Mobile', seconderMobile],
+      ['Seconder Email', seconderEmail],
+      ['Government ID Type', govIdType],
+      ['Government ID Proof', govIdFile],
+    ];
+    const missing = requiredFields.find(([, value]) => !value.trim());
+    if (missing) {
+      showToast(`Please complete ${missing[0]}.`);
+      return;
+    }
+    if (
+      !qualifications.length ||
+      qualifications.some(
+        item =>
+          !item.degree.trim() ||
+          !item.university.trim() ||
+          !item.yearOfPassing.trim() ||
+          !item.fileName.trim(),
+      )
+    ) {
+      showToast(
+        'Please complete every qualification and attach its certificate.',
+      );
+      return;
+    }
+    if (!specialities.length) {
+      showToast('Please select your speciality or None.');
+      return;
+    }
+    if (
+      GO_GREEN_PUBLICATIONS.some(
+        publication => !goGreenSelections[publication.id],
+      )
+    ) {
+      showToast('Please choose a preference for every publication.');
+      return;
+    }
+    if (
+      !mobileConsent ||
+      !emailConsent ||
+      !proposerConsent ||
+      !seconderConsent
+    ) {
+      showToast(
+        'Please complete the mobile and email preferences and accept proposer and seconder consent.',
+      );
+      return;
+    }
+    if (!fbsInterest) {
+      showToast('Please select whether you are interested in FBS AIOS.');
+      return;
+    }
+    if (fbsInterest === 'interested' && !fbsAcknowledgements.every(Boolean)) {
+      showToast('Please acknowledge all three FBS terms.');
+      return;
+    }
+    if (!lifeMemberDeclaration) {
+      showToast('Please accept the Life Member declaration.');
+      return;
+    }
     if (!captchaInput.trim()) {
-      Alert.alert('Captcha Required', 'Please enter the captcha shown above.');
+      showToast('Please enter the captcha shown above.');
       return;
     }
     if (captchaInput.trim().toLowerCase() !== captchaCode.toLowerCase()) {
-      Alert.alert('Incorrect Captcha', 'Please enter the correct characters shown in the image.');
+      showToast('Please enter the correct characters shown in the image.');
       return;
     }
-    Alert.alert(
-      'Proceeding to Payment',
-      'Redirecting to AIOS Secure Payment Gateway for ₹11,030/-',
-      [{ text: 'OK' }]
-    );
+    Keyboard.dismiss();
+    setPaymentInformationVisible(true);
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <ScreenStatusBar />
+      <Toast notification={toast} />
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
-            <Image source={images.logo} style={styles.logoImg} resizeMode="contain" />
+            <Image
+              source={images.logo}
+              style={styles.logoImg}
+              resizeMode="contain"
+            />
           </View>
           <View style={styles.headerTitleCol}>
             <Text style={styles.brandTitle}>My Account</Text>
-            <Text style={styles.brandSubtitle}>All India Ophthalmological Society</Text>
+            <Text style={styles.brandSubtitle}>
+              All India Ophthalmological Society
+            </Text>
           </View>
         </View>
       </View>
-      <ScrollView
+      <View
+        ref={formViewport}
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+        onLayout={updateScrollSpace}
+        collapsable={false}
       >
-        <View style={styles.doctorCardWrapper}>
-          <TouchableOpacity
-            style={styles.doctorCard}
-            activeOpacity={0.85}
-            onPress={() => setIsProfileExpanded((prev) => !prev)}
-          >
-            <View style={styles.doctorAvatarContainer}>
-              {currentAvatarUri ? (
-                <Image
-                  source={{ uri: currentAvatarUri }}
-                  style={styles.doctorCardImg}
-                />
-              ) : (
-                <View style={styles.doctorCardAvatarPlaceholder}>
-                  <PersonIcon size={24} color="#0284C7" />
-                </View>
-              )}
-              {profile ? (
-                <View style={styles.doctorVerifiedCheck}>
-                  <CheckIcon size={10} color="#FFFFFF" />
-                </View>
-              ) : null}
-            </View>
-
-            <View style={styles.doctorDetailsCol}>
-              <View style={styles.doctorNameRow}>
-                <Text style={styles.doctorCardName} numberOfLines={1}>
-                  {currentDoctorName}
-                </Text>
-                {profile && <ShieldCheckIcon size={14} color="#0284C7" />}
-              </View>
-              <Text style={styles.doctorCardSub} numberOfLines={1}>
-                {currentMemberSub}
-              </Text>
-            </View>
-
-            <View style={styles.doctorCardRightActions}>
-              <View
-                style={[
-                  styles.doctorCardChevronBox,
-                  isProfileExpanded && styles.doctorCardChevronRotated,
-                ]}
-              >
-                <ChevronDownIcon size={14} color="#64748B" />
-              </View>
-            </View>
-          </TouchableOpacity>
-
-          {isProfileExpanded && (
-            <View style={styles.doctorExpandedDetails}>
-              <View style={styles.doctorExpandedDivider} />
-              <View style={styles.doctorDetailsHeaderRow}>
-                <Text style={styles.doctorDetailsTitle}>PROFILE DETAILS</Text>
-                {profile?.membershipId ? (
-                  <View style={styles.doctorMemberIdPill}>
-                    <Text style={styles.doctorMemberIdPillText}>
-                      {profile.membershipId}
-                    </Text>
+        <ScrollView
+          ref={formScroll}
+          style={styles.scrollView}
+          contentContainerStyle={[
+            styles.scrollContent,
+            { paddingBottom: 16 + keyboardOverlap },
+          ]}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="none"
+          nestedScrollEnabled
+          onContentSizeChange={() => {
+            if (captchaFocused.current)
+              formScroll.current?.scrollToEnd({ animated: true });
+          }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.doctorCardWrapper}>
+            <TouchableOpacity
+              style={styles.doctorCard}
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('MyProfile')}
+              accessibilityRole="button"
+              accessibilityLabel="View full profile"
+            >
+              <View style={styles.doctorAvatarContainer}>
+                {currentAvatarUri ? (
+                  <Image
+                    source={{ uri: currentAvatarUri }}
+                    style={styles.doctorCardImg}
+                  />
+                ) : (
+                  <View style={styles.doctorCardAvatarPlaceholder}>
+                    <PersonIcon size={24} color="#0284C7" />
+                  </View>
+                )}
+                {profile ? (
+                  <View style={styles.doctorVerifiedCheck}>
+                    <CheckIcon size={10} color="#FFFFFF" />
                   </View>
                 ) : null}
               </View>
 
-              <View style={styles.detailGrid}>
-                <View style={styles.detailGridItem}>
-                  <Text style={styles.detailGridLabel}>Full Name</Text>
-                  <Text style={styles.detailGridVal} numberOfLines={1}>
+              <View style={styles.doctorDetailsCol}>
+                <View style={styles.doctorNameRow}>
+                  <Text style={styles.doctorCardName} numberOfLines={1}>
                     {currentDoctorName}
                   </Text>
+                  {profile && <ShieldCheckIcon size={14} color="#0284C7" />}
                 </View>
-
-                <View style={styles.detailGridItem}>
-                  <Text style={styles.detailGridLabel}>Gender / DOB</Text>
-                  <Text style={styles.detailGridVal} numberOfLines={1}>
-                    {[profile?.gender, profile?.dob].filter(Boolean).join(' • ')}
-                  </Text>
-                </View>
-
-                <View style={styles.detailGridItem}>
-                  <Text style={styles.detailGridLabel}>Email Address</Text>
-                  <Text style={styles.detailGridVal} numberOfLines={1}>
-                    {profile?.email}
-                  </Text>
-                </View>
-
-                <View style={styles.detailGridItem}>
-                  <Text style={styles.detailGridLabel}>Phone Number</Text>
-                  <Text style={styles.detailGridVal} numberOfLines={1}>
-                    {profile?.phone}
-                  </Text>
-                </View>
-
-                <View style={[styles.detailGridItem, { width: '100%' }]}>
-                  <Text style={styles.detailGridLabel}>Address / Location</Text>
-                  <Text style={styles.detailGridVal} numberOfLines={2}>
-                    {[
-                      profile?.houseNo,
-                      profile?.street,
-                      profile?.landmark,
-                      profile?.city,
-                      profile?.state,
-                      profile?.pincode,
-                    ]
-                      .filter(Boolean)
-                      .join(', ')}
-                  </Text>
-                </View>
-              </View>
-
-              <View style={styles.expandedActionButtonsRow}>
-                <TouchableOpacity
-                  style={styles.expandedEditBtn}
-                  activeOpacity={0.8}
-                  onPress={handleOpenEditModal}
-                >
-                  <EditPencilIcon size={13} color="#FFFFFF" />
-                  <Text style={styles.expandedEditBtnText}>Edit Profile</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.expandedViewFullBtn}
-                  activeOpacity={0.8}
-                  onPress={() => navigation.navigate('MyProfile')}
-                >
-                  <Text style={styles.expandedViewFullBtnText}>View Full Profile</Text>
-                  <ArrowRightIcon size={12} color="#0284C7" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>Passport No.</Text>
-            <TextInput
-              style={styles.textInput}
-              value={passportNo}
-              onChangeText={setPassportNo}
-              placeholder="Passport Number (Optional)"
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>* Institution / Organization</Text>
-            <TextInput
-              style={styles.textInput}
-              value={institution}
-              onChangeText={setInstitution}
-              placeholder="ITS"
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>Type of Organization</Text>
-            <View style={styles.radioRow}>
-              <TouchableOpacity
-                style={styles.radioButton}
-                onPress={() => setOrgType('Govt')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.radioOuterCircle}>
-                  {orgType === 'Govt' && <View style={styles.radioInnerCircle} />}
-                </View>
-                <Text style={styles.radioLabel}>Govt.</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.radioButton}
-                onPress={() => setOrgType('Private')}
-                activeOpacity={0.8}
-              >
-                <View style={styles.radioOuterCircle}>
-                  {orgType === 'Private' && <View style={styles.radioInnerCircle} />}
-                </View>
-                <Text style={styles.radioLabel}>Private</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>Upload Passport Size Photograph*</Text>
-            <TouchableOpacity
-              style={styles.fileUploadBox}
-              activeOpacity={0.75}
-              onPress={handlePickPhoto}
-            >
-              <View style={styles.chooseFileBtn} pointerEvents="none">
-                <Text style={styles.chooseFileText}>Choose Files</Text>
-              </View>
-              <Text style={styles.fileNameText} numberOfLines={1} pointerEvents="none">
-                {photoFileName || 'no file selected'}
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.uploadHelperText}>
-              Image size should be 200 x 200 Pixels and not more than 200 KB
-            </Text>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>Upload User Signature*</Text>
-            <TouchableOpacity
-              style={styles.fileUploadBox}
-              activeOpacity={0.75}
-              onPress={handlePickSignature}
-            >
-              <View style={styles.chooseFileBtn} pointerEvents="none">
-                <Text style={styles.chooseFileText}>Choose Files</Text>
-              </View>
-              <Text style={styles.fileNameText} numberOfLines={1} pointerEvents="none">
-                {signatureFileName || 'no file selected'}
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.uploadHelperText}>
-              Image size should be 200 x 200 Pixels and not more than 200 KB
-            </Text>
-          </View>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>Qualifications</Text>
-            <View style={styles.headingUnderline} />
-          </View>
-
-          {qualifications.map((q, index) => (
-            <View
-              key={q.id}
-              style={[
-                styles.qualificationEntryBox,
-                index > 0 && styles.qualificationEntryBoxBorder,
-              ]}
-            >
-              <View style={styles.inputGroup}>
-                <Text style={styles.fieldLabel}>Degree i.e. MBBS, MD*</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={q.degree}
-                  onChangeText={(val) => updateQualification(index, 'degree', val)}
-                  placeholder="Enter Degree"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.fieldLabel}>Full University *</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={q.university}
-                  onChangeText={(val) => updateQualification(index, 'university', val)}
-                  placeholder="Enter University"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.fieldLabel}>Year of Passing *</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={q.yearOfPassing}
-                  onChangeText={(val) => updateQualification(index, 'yearOfPassing', val)}
-                  placeholder="MM/DD/YYYY"
-                  placeholderTextColor="#94A3B8"
-                />
-              </View>
-
-              <View style={styles.inputGroup}>
-                <Text style={styles.fieldLabel}>Copy of Degree *</Text>
-                <TouchableOpacity
-                  style={styles.fileUploadBox}
-                  activeOpacity={0.75}
-                  onPress={() => handlePickDegreeFile(index)}
-                >
-                  <View style={styles.chooseFileBtn} pointerEvents="none">
-                    <Text style={styles.chooseFileText}>Choose Files</Text>
-                  </View>
-                  <Text style={styles.fileNameText} numberOfLines={1} pointerEvents="none">
-                    {q.fileName || 'no file selected'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-
-          <View style={styles.degreeActionsRow}>
-            <TouchableOpacity
-              style={styles.navyPillBtn}
-              activeOpacity={0.8}
-              onPress={handleAddDegree}
-            >
-              <Text style={styles.navyPillBtnText}>+ Add More Degree</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.navyPillBtnSecondary,
-                qualifications.length <= 1 && { opacity: 0.5 },
-              ]}
-              activeOpacity={0.8}
-              onPress={() => handleDeleteDegree()}
-            >
-              <Text style={styles.navyPillBtnSecondaryText}>Delete Degree</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>
-              Sub - Speciality <Text style={styles.subHeadingMuted}>(i.e. Cataract, Refractive Surgery, Vitreo-Retina, Cornea etc)</Text>
-            </Text>
-            <View style={styles.headingUnderline} />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>State Registrar *</Text>
-            <TextInput
-              style={styles.textInput}
-              value={stateRegistrar}
-              onChangeText={setStateRegistrar}
-              placeholder="Enter State Registrar"
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>Registration No. *</Text>
-            <TextInput
-              style={styles.textInput}
-              value={registrationNo}
-              onChangeText={setRegistrationNo}
-              placeholder="Enter Registration No."
-              placeholderTextColor="#94A3B8"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>
-              Upload State Medical Council Registration Certificate *
-            </Text>
-            <TouchableOpacity
-              style={styles.fileUploadBox}
-              activeOpacity={0.75}
-              onPress={handlePickRegCert}
-            >
-              <View style={styles.chooseFileBtn} pointerEvents="none">
-                <Text style={styles.chooseFileText}>Choose Files</Text>
-              </View>
-              <Text style={styles.fileNameText} numberOfLines={1} pointerEvents="none">
-                {regCertFileName || 'no file selected'}
-              </Text>
-            </TouchableOpacity>
-            <Text style={styles.uploadHelperText}>
-              Image size should be 200 x 200 Pixels and not more than 200 KB
-            </Text>
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.fieldLabel}>
-              Speciality <Text style={styles.subHeadingMuted}>(Maximum Three)</Text>
-            </Text>
-            <View style={styles.checkboxList}>
-              {ALL_SPECIALITIES.map((item) => {
-                const isChecked = specialities.includes(item);
-                return (
-                  <TouchableOpacity
-                    key={item}
-                    style={styles.checkboxRow}
-                    activeOpacity={0.8}
-                    onPress={() => toggleSpeciality(item)}
-                  >
-                    <View
-                      style={[
-                        styles.checkboxSquare,
-                        isChecked && styles.checkboxSquareChecked,
-                      ]}
-                    >
-                      {isChecked && <CheckIcon size={12} color="#FFFFFF" />}
-                    </View>
-                    <Text
-                      style={[
-                        styles.checkboxLabel,
-                        isChecked && styles.checkboxLabelChecked,
-                      ]}
-                    >
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-          </View>
-        </View>
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>
-              * AIOS - Go Green Initiative
-            </Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.goGreenTableContainer}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.goGreenTable}>
-                <View style={styles.goGreenTableHeaderRow}>
-                  <View style={styles.goGreenColTitle} />
-                  <View style={styles.goGreenColRadioHeader}>
-                    <Text style={styles.radioHeaderText}>I need hard copy</Text>
-                  </View>
-                  <View style={styles.goGreenColRadioHeader}>
-                    <Text style={styles.radioHeaderText}>Online version</Text>
-                  </View>
-                  <View style={styles.goGreenColRadioHeader}>
-                    <Text style={styles.radioHeaderText}>I need both</Text>
-                  </View>
-                </View>
-
-                {GO_GREEN_PUBLICATIONS.map((pub) => {
-                  const selected = goGreenSelections[pub.id];
-                  return (
-                    <View key={pub.id} style={styles.goGreenTableRow}>
-                      <View style={styles.goGreenColTitle}>
-                        <Text style={styles.pubTitleText}>{pub.title}</Text>
-                      </View>
-
-                      <TouchableOpacity
-                        style={styles.goGreenColRadio}
-                        onPress={() => handleSelectGoGreen(pub.id, 'hard_copy')}
-                        activeOpacity={0.7}
-                      >
-                        <View
-                          style={[
-                            styles.radioCircleSmall,
-                            selected === 'hard_copy' && styles.radioCircleSmallActive,
-                          ]}
-                        >
-                          {selected === 'hard_copy' && (
-                            <View style={styles.radioDotSmall} />
-                          )}
-                        </View>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.goGreenColRadio}
-                        onPress={() => handleSelectGoGreen(pub.id, 'online')}
-                        activeOpacity={0.7}
-                      >
-                        <View
-                          style={[
-                            styles.radioCircleSmall,
-                            selected === 'online' && styles.radioCircleSmallActive,
-                          ]}
-                        >
-                          {selected === 'online' && (
-                            <View style={styles.radioDotSmall} />
-                          )}
-                        </View>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.goGreenColRadio}
-                        onPress={() => handleSelectGoGreen(pub.id, 'both')}
-                        activeOpacity={0.7}
-                      >
-                        <View
-                          style={[
-                            styles.radioCircleSmall,
-                            selected === 'both' && styles.radioCircleSmallActive,
-                          ]}
-                        >
-                          {selected === 'both' && (
-                            <View style={styles.radioDotSmall} />
-                          )}
-                        </View>
-                      </TouchableOpacity>
-                    </View>
-                  );
-                })}
-              </View>
-            </ScrollView>
-          </View>
-        </View>
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>
-              * Use of your mobile number (please tick)
-            </Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.mobileConsentList}>
-            <TouchableOpacity
-              style={styles.mobileConsentRow}
-              onPress={() => setMobileConsent('office_only')}
-              activeOpacity={0.75}
-            >
-              <View
-                style={[
-                  styles.mobileConsentCircle,
-                  mobileConsent === 'office_only' && styles.mobileConsentCircleActive,
-                ]}
-              >
-                {mobileConsent === 'office_only' && (
-                  <View style={styles.mobileConsentDot} />
-                )}
-              </View>
-              <Text style={styles.mobileConsentText}>
-                My <Text style={{ fontWeight: '700' }}>mobile number</Text> should be used only for AIOS Office purpose.
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.mobileConsentRow}
-              onPress={() => setMobileConsent('can_be_shared')}
-              activeOpacity={0.75}
-            >
-              <View
-                style={[
-                  styles.mobileConsentCircle,
-                  mobileConsent === 'can_be_shared' && styles.mobileConsentCircleActive,
-                ]}
-              >
-                {mobileConsent === 'can_be_shared' && (
-                  <View style={styles.mobileConsentDot} />
-                )}
-              </View>
-              <Text style={styles.mobileConsentText}>
-                My <Text style={{ fontWeight: '700' }}>mobile number</Text> can be shared with other (as per office policy) if they ask for it apart from official purpose as well.
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>
-              * Use of your email id (please tick)
-            </Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.mobileConsentList}>
-            <TouchableOpacity
-              style={styles.mobileConsentRow}
-              onPress={() => setEmailConsent('office_only')}
-              activeOpacity={0.75}
-            >
-              <View
-                style={[
-                  styles.mobileConsentCircle,
-                  emailConsent === 'office_only' && styles.mobileConsentCircleActive,
-                ]}
-              >
-                {emailConsent === 'office_only' && (
-                  <View style={styles.mobileConsentDot} />
-                )}
-              </View>
-              <Text style={styles.mobileConsentText}>
-                My <Text style={{ fontWeight: '700' }}>email id</Text> should be used only for AIOS Office purpose.
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.mobileConsentRow}
-              onPress={() => setEmailConsent('can_be_shared')}
-              activeOpacity={0.75}
-            >
-              <View
-                style={[
-                  styles.mobileConsentCircle,
-                  emailConsent === 'can_be_shared' && styles.mobileConsentCircleActive,
-                ]}
-              >
-                {emailConsent === 'can_be_shared' && (
-                  <View style={styles.mobileConsentDot} />
-                )}
-              </View>
-              <Text style={styles.mobileConsentText}>
-                My <Text style={{ fontWeight: '700' }}>email id</Text> can be shared with other (as per office policy) if they ask for it apart from official purpose as well.
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>Proposed by</Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.formGridRow}>
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Membership No *</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Membership No"
-                placeholderTextColor="#94A3B8"
-                value={proposerMembershipNo}
-                onChangeText={setProposerMembershipNo}
-              />
-            </View>
-
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Name*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Proposed By"
-                placeholderTextColor="#94A3B8"
-                value={proposerName}
-                onChangeText={setProposerName}
-              />
-            </View>
-          </View>
-
-          <View style={styles.formGridRow}>
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Mobile No.*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Mobile No"
-                placeholderTextColor="#94A3B8"
-                value={proposerMobile}
-                onChangeText={setProposerMobile}
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Email Id*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Email Id"
-                placeholderTextColor="#94A3B8"
-                value={proposerEmail}
-                onChangeText={setProposerEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.consentCheckboxRow}
-            onPress={() => setProposerConsent(!proposerConsent)}
-            activeOpacity={0.75}
-          >
-            <View style={[styles.checkboxSquare, proposerConsent && styles.checkboxSquareChecked]}>
-              {proposerConsent && <CheckIcon size={12} color="#FFFFFF" />}
-            </View>
-            <Text style={styles.consentCheckboxText}>
-              I have taken consent from Proposer
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>Seconded by</Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.formGridRow}>
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Membership No *</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Membership No"
-                placeholderTextColor="#94A3B8"
-                value={seconderMembershipNo}
-                onChangeText={setSeconderMembershipNo}
-              />
-            </View>
-
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Name*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Seconded By"
-                placeholderTextColor="#94A3B8"
-                value={seconderName}
-                onChangeText={setSeconderName}
-              />
-            </View>
-          </View>
-
-          <View style={styles.formGridRow}>
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Mobile No.*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Mobile No"
-                placeholderTextColor="#94A3B8"
-                value={seconderMobile}
-                onChangeText={setSeconderMobile}
-                keyboardType="phone-pad"
-              />
-            </View>
-
-            <View style={styles.formGridCol}>
-              <Text style={styles.fieldLabel}>Email Id*</Text>
-              <TextInput
-                style={styles.fieldBoxInput}
-                placeholder="Enter Email Id"
-                placeholderTextColor="#94A3B8"
-                value={seconderEmail}
-                onChangeText={setSeconderEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.consentCheckboxRow}
-            onPress={() => setSeconderConsent(!seconderConsent)}
-            activeOpacity={0.75}
-          >
-            <View style={[styles.checkboxSquare, seconderConsent && styles.checkboxSquareChecked]}>
-              {seconderConsent && <CheckIcon size={12} color="#FFFFFF" />}
-            </View>
-            <Text style={styles.consentCheckboxText}>
-              I have taken consent from Seconder
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.formSectionCard}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionOrangeHeading}>Government ID Proofs</Text>
-            <View style={styles.tealAccentBar} />
-          </View>
-
-          <View style={styles.govIdRow}>
-            <View style={styles.govIdCol}>
-              <TouchableOpacity
-                style={styles.dropdownInputBox}
-                onPress={() => setGovIdModalVisible(true)}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.dropdownInputText} numberOfLines={1}>
-                  {govIdType}
+                <Text style={styles.doctorCardSub} numberOfLines={1}>
+                  {currentMemberSub}
                 </Text>
-                <ChevronDownIcon size={14} color="#64748B" />
-              </TouchableOpacity>
-              <Text style={styles.fieldLabelBelow}>
-                Please select id proof which you wish to upload *
-              </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>Passport No.</Text>
+              <TextInput
+                style={styles.textInput}
+                value={passportNo}
+                onChangeText={setPassportNo}
+                placeholder="Enter Passport Number"
+                placeholderTextColor="#94A3B8"
+              />
             </View>
 
-            <View style={styles.govIdCol}>
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                * Institution / Organization
+              </Text>
+              <TextInput
+                style={styles.textInput}
+                value={institution}
+                onChangeText={setInstitution}
+                placeholder="ITS"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>Type of Organization</Text>
+              <View style={styles.radioRow}>
+                <TouchableOpacity
+                  style={styles.radioButton}
+                  onPress={() => setOrgType('Govt')}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.radioOuterCircle}>
+                    {orgType === 'Govt' && (
+                      <View style={styles.radioInnerCircle} />
+                    )}
+                  </View>
+                  <Text style={styles.radioLabel}>Govt.</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.radioButton}
+                  onPress={() => setOrgType('Private')}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.radioOuterCircle}>
+                    {orgType === 'Private' && (
+                      <View style={styles.radioInnerCircle} />
+                    )}
+                  </View>
+                  <Text style={styles.radioLabel}>Private</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                Upload Passport Size Photograph*
+              </Text>
               <TouchableOpacity
                 style={styles.fileUploadBox}
                 activeOpacity={0.75}
-                onPress={handlePickGovIdFile}
+                onPress={handlePickPhoto}
               >
                 <View style={styles.chooseFileBtn} pointerEvents="none">
                   <Text style={styles.chooseFileText}>Choose Files</Text>
                 </View>
-                <Text style={styles.fileNameText} numberOfLines={1} pointerEvents="none">
-                  {govIdFile || 'no files selected'}
+                <Text
+                  style={styles.fileNameText}
+                  numberOfLines={1}
+                  pointerEvents="none"
+                >
+                  {photoFileName || 'no file selected'}
                 </Text>
               </TouchableOpacity>
-              <Text style={styles.fieldLabelBelow}>Upload Certificate *</Text>
+              <Text style={styles.uploadHelperText}>
+                Image size should be 200 x 200 Pixels and not more than 200 KB
+              </Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>Upload User Signature*</Text>
+              <TouchableOpacity
+                style={styles.fileUploadBox}
+                activeOpacity={0.75}
+                onPress={handlePickSignature}
+              >
+                <View style={styles.chooseFileBtn} pointerEvents="none">
+                  <Text style={styles.chooseFileText}>Choose Files</Text>
+                </View>
+                <Text
+                  style={styles.fileNameText}
+                  numberOfLines={1}
+                  pointerEvents="none"
+                >
+                  {signatureFileName || 'no file selected'}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.uploadHelperText}>
+                Image size should be 200 x 200 Pixels and not more than 200 KB
+              </Text>
             </View>
           </View>
-        </View>
 
-        <View style={styles.paymentSummaryCard}>
-          <Text style={styles.paymentTitle}>Payment Summary</Text>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>Qualifications</Text>
+              <View style={styles.headingUnderline} />
+            </View>
 
-          <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Reg. Fee</Text>
-            <Text style={styles.paymentValue}>10700/-</Text>
-          </View>
-
-          <View style={styles.paymentRow}>
-            <Text style={styles.paymentLabel}>Internet Handling Charges</Text>
-            <Text style={styles.paymentValue}>330/-</Text>
-          </View>
-
-          <View style={styles.paymentDivider} />
-
-          <View style={styles.captchaSection}>
-            <Text style={styles.captchaLabel}>* Enter the contents of image</Text>
-            <View style={styles.captchaRow}>
-              <TouchableOpacity
-                style={styles.captchaDisplayBox}
-                onPress={refreshCaptcha}
-                activeOpacity={0.7}
+            {qualifications.map((q, index) => (
+              <View
+                key={q.id}
+                style={[
+                  styles.qualificationEntryBox,
+                  index > 0 && styles.qualificationEntryBoxBorder,
+                ]}
               >
-                <Text style={styles.captchaCodeText}>{captchaCode}</Text>
-                <Text style={styles.captchaRefreshHint}>↻</Text>
+                <View style={styles.inputGroup}>
+                  <Text style={styles.fieldLabel}>Degree i.e. MBBS, MD*</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={q.degree}
+                    onChangeText={val =>
+                      updateQualification(index, 'degree', val)
+                    }
+                    placeholder="Enter Degree"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.fieldLabel}>Full University *</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={q.university}
+                    onChangeText={val =>
+                      updateQualification(index, 'university', val)
+                    }
+                    placeholder="Enter University"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.fieldLabel}>Year of Passing *</Text>
+                  <TextInput
+                    style={styles.textInput}
+                    value={q.yearOfPassing}
+                    onChangeText={val =>
+                      updateQualification(index, 'yearOfPassing', val)
+                    }
+                    placeholder="MM/DD/YYYY"
+                    placeholderTextColor="#94A3B8"
+                  />
+                </View>
+
+                <View style={styles.inputGroup}>
+                  <Text style={styles.fieldLabel}>Copy of Degree *</Text>
+                  <TouchableOpacity
+                    style={styles.fileUploadBox}
+                    activeOpacity={0.75}
+                    onPress={() => handlePickDegreeFile(index)}
+                  >
+                    <View style={styles.chooseFileBtn} pointerEvents="none">
+                      <Text style={styles.chooseFileText}>Choose Files</Text>
+                    </View>
+                    <Text
+                      style={styles.fileNameText}
+                      numberOfLines={1}
+                      pointerEvents="none"
+                    >
+                      {q.fileName || 'no file selected'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+
+            <View style={styles.degreeActionsRow}>
+              <TouchableOpacity
+                style={styles.navyPillBtn}
+                activeOpacity={0.8}
+                onPress={handleAddDegree}
+              >
+                <Text style={styles.navyPillBtnText}>+ Add More Degree</Text>
               </TouchableOpacity>
 
-              <TextInput
-                style={styles.captchaInput}
-                value={captchaInput}
-                onChangeText={setCaptchaInput}
-                placeholder="CAPTCHA"
-                placeholderTextColor="#94A3B8"
-                autoCapitalize="characters"
-              />
+              <TouchableOpacity
+                style={[
+                  styles.navyPillBtnSecondary,
+                  qualifications.length <= 1 && { opacity: 0.5 },
+                ]}
+                activeOpacity={0.8}
+                onPress={() => handleDeleteDegree()}
+              >
+                <Text style={styles.navyPillBtnSecondaryText}>
+                  Delete Degree
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
-          <TouchableOpacity
-            style={styles.payNowBtn}
-            activeOpacity={0.85}
-            onPress={handlePayNow}
-          >
-            <Text style={styles.payNowBtnText}>Pay Now ➔</Text>
-          </TouchableOpacity>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                Sub - Speciality{' '}
+                <Text style={styles.subHeadingMuted}>
+                  (i.e. Cataract, Refractive Surgery, Vitreo-Retina, Cornea etc)
+                </Text>
+              </Text>
+              <View style={styles.headingUnderline} />
+            </View>
 
-          <Text style={styles.paymentDisclaimer}>
-            * Online payment to the society / Member Registration. All transactions are SSL encrypted. Terms & conditions apply.
-          </Text>
-        </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>State Registrar *</Text>
+              <TextInput
+                style={styles.textInput}
+                value={stateRegistrar}
+                onChangeText={setStateRegistrar}
+                placeholder="Enter State Registrar"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
 
-      </ScrollView>
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>Registration No. *</Text>
+              <TextInput
+                style={styles.textInput}
+                value={registrationNo}
+                onChangeText={setRegistrationNo}
+                placeholder="Enter Registration No."
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
 
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                Upload State Medical Council Registration Certificate *
+              </Text>
+              <TouchableOpacity
+                style={styles.fileUploadBox}
+                activeOpacity={0.75}
+                onPress={handlePickRegCert}
+              >
+                <View style={styles.chooseFileBtn} pointerEvents="none">
+                  <Text style={styles.chooseFileText}>Choose Files</Text>
+                </View>
+                <Text
+                  style={styles.fileNameText}
+                  numberOfLines={1}
+                  pointerEvents="none"
+                >
+                  {regCertFileName || 'no file selected'}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.uploadHelperText}>
+                Image size should be 200 x 200 Pixels and not more than 200 KB
+              </Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                Speciality{' '}
+                <Text style={styles.subHeadingMuted}>(Maximum Three)</Text>
+              </Text>
+              <View style={styles.checkboxList}>
+                {ALL_SPECIALITIES.map(item => {
+                  const isChecked = specialities.includes(item);
+                  return (
+                    <TouchableOpacity
+                      key={item}
+                      style={styles.checkboxRow}
+                      activeOpacity={0.8}
+                      onPress={() => toggleSpeciality(item)}
+                    >
+                      <View
+                        style={[
+                          styles.checkboxSquare,
+                          isChecked && styles.checkboxSquareChecked,
+                        ]}
+                      >
+                        {isChecked && <CheckIcon size={12} color="#FFFFFF" />}
+                      </View>
+                      <Text
+                        style={[
+                          styles.checkboxLabel,
+                          isChecked && styles.checkboxLabelChecked,
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * AIOS - Go Green Initiative
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.goGreenTableContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.goGreenTable}>
+                  <View style={styles.goGreenTableHeaderRow}>
+                    <View style={styles.goGreenColTitle} />
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>
+                        I need hard copy
+                      </Text>
+                    </View>
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>Online version</Text>
+                    </View>
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>I need both</Text>
+                    </View>
+                  </View>
+
+                  {GO_GREEN_PUBLICATIONS.map(pub => {
+                    const selected = goGreenSelections[pub.id];
+                    return (
+                      <View key={pub.id} style={styles.goGreenTableRow}>
+                        <View style={styles.goGreenColTitle}>
+                          <Text style={styles.pubTitleText}>{pub.title}</Text>
+                        </View>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() =>
+                            handleSelectGoGreen(pub.id, 'hard_copy')
+                          }
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'hard_copy' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'hard_copy' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() => handleSelectGoGreen(pub.id, 'online')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'online' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'online' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() => handleSelectGoGreen(pub.id, 'both')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'both' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'both' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * Use of your mobile number (please tick)
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.mobileConsentList}>
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setMobileConsent('office_only')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    mobileConsent === 'office_only' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {mobileConsent === 'office_only' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>mobile number</Text>{' '}
+                  should be used only for AIOS Office purpose.
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setMobileConsent('can_be_shared')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    mobileConsent === 'can_be_shared' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {mobileConsent === 'can_be_shared' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>mobile number</Text>{' '}
+                  can be shared with other (as per office policy) if they ask
+                  for it apart from official purpose as well.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * Use of your email id (please tick)
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.mobileConsentList}>
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setEmailConsent('office_only')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    emailConsent === 'office_only' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {emailConsent === 'office_only' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>email id</Text> should
+                  be used only for AIOS Office purpose.
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setEmailConsent('can_be_shared')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    emailConsent === 'can_be_shared' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {emailConsent === 'can_be_shared' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>email id</Text> can be
+                  shared with other (as per office policy) if they ask for it
+                  apart from official purpose as well.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>Proposed by</Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.formGridRow}>
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Membership No *</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Membership No"
+                  placeholderTextColor="#94A3B8"
+                  value={proposerMembershipNo}
+                  onChangeText={setProposerMembershipNo}
+                />
+              </View>
+
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Name*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Proposed By"
+                  placeholderTextColor="#94A3B8"
+                  value={proposerName}
+                  onChangeText={setProposerName}
+                />
+              </View>
+            </View>
+
+            <View style={styles.formGridRow}>
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Mobile No.*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Mobile No"
+                  placeholderTextColor="#94A3B8"
+                  value={proposerMobile}
+                  onChangeText={setProposerMobile}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Email Id*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Email Id"
+                  placeholderTextColor="#94A3B8"
+                  value={proposerEmail}
+                  onChangeText={setProposerEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.consentCheckboxRow}
+              onPress={() => setProposerConsent(!proposerConsent)}
+              activeOpacity={0.75}
+            >
+              <View
+                style={[
+                  styles.checkboxSquare,
+                  proposerConsent && styles.checkboxSquareChecked,
+                ]}
+              >
+                {proposerConsent && <CheckIcon size={12} color="#FFFFFF" />}
+              </View>
+              <Text style={styles.consentCheckboxText}>
+                I have taken consent from Proposer
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>Seconded by</Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.formGridRow}>
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Membership No *</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Membership No"
+                  placeholderTextColor="#94A3B8"
+                  value={seconderMembershipNo}
+                  onChangeText={setSeconderMembershipNo}
+                />
+              </View>
+
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Name*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Seconded By"
+                  placeholderTextColor="#94A3B8"
+                  value={seconderName}
+                  onChangeText={setSeconderName}
+                />
+              </View>
+            </View>
+
+            <View style={styles.formGridRow}>
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Mobile No.*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Mobile No"
+                  placeholderTextColor="#94A3B8"
+                  value={seconderMobile}
+                  onChangeText={setSeconderMobile}
+                  keyboardType="phone-pad"
+                />
+              </View>
+
+              <View style={styles.formGridCol}>
+                <Text style={styles.fieldLabel}>Email Id*</Text>
+                <TextInput
+                  style={styles.fieldBoxInput}
+                  placeholder="Enter Email Id"
+                  placeholderTextColor="#94A3B8"
+                  value={seconderEmail}
+                  onChangeText={setSeconderEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.consentCheckboxRow}
+              onPress={() => setSeconderConsent(!seconderConsent)}
+              activeOpacity={0.75}
+            >
+              <View
+                style={[
+                  styles.checkboxSquare,
+                  seconderConsent && styles.checkboxSquareChecked,
+                ]}
+              >
+                {seconderConsent && <CheckIcon size={12} color="#FFFFFF" />}
+              </View>
+              <Text style={styles.consentCheckboxText}>
+                I have taken consent from Seconder
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                Government ID Proofs
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.govIdRow}>
+              <View style={styles.govIdCol}>
+                <TouchableOpacity
+                  style={styles.dropdownInputBox}
+                  onPress={() => setGovIdModalVisible(true)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.dropdownInputText} numberOfLines={1}>
+                    {govIdType}
+                  </Text>
+                  <ChevronDownIcon size={14} color="#64748B" />
+                </TouchableOpacity>
+                <Text style={styles.fieldLabelBelow}>
+                  Please select id proof which you wish to upload *
+                </Text>
+              </View>
+
+              <View style={styles.govIdCol}>
+                <TouchableOpacity
+                  style={styles.fileUploadBox}
+                  activeOpacity={0.75}
+                  onPress={handlePickGovIdFile}
+                >
+                  <View style={styles.chooseFileBtn} pointerEvents="none">
+                    <Text style={styles.chooseFileText}>Choose Files</Text>
+                  </View>
+                  <Text
+                    style={styles.fileNameText}
+                    numberOfLines={1}
+                    pointerEvents="none"
+                  >
+                    {govIdFile || 'no files selected'}
+                  </Text>
+                </TouchableOpacity>
+                <Text style={styles.fieldLabelBelow}>Upload Certificate *</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.membershipDeclarationCard}>
+            <Text style={styles.fbsTitle}>Wish to join FBS AIOS</Text>
+            <Text style={styles.fbsNote}>
+              Verify the terms &amp; conditions below.
+            </Text>
+            {[
+              'AIOS facilitates a Family Benefit Scheme (AIOS FBS) for benefit of its life members. This is a voluntary scheme in which life members can participate.',
+              'AIOS FBS is an independent registered society and is a separate entity from AIOS. AIOS only acts as a facilitator for members and has no role in the governance of the FBS.',
+              'The FBS is governed by its own set of rules and regulations and AIOS does not take responsibility for the running of the scheme.',
+            ].map((term, index) => (
+              <TouchableOpacity
+                key={term}
+                style={styles.declarationRow}
+                onPress={() =>
+                  setFbsAcknowledgements(current =>
+                    current.map((checked, i) =>
+                      i === index ? !checked : checked,
+                    ),
+                  )
+                }
+                accessibilityRole="checkbox"
+                accessibilityState={{ checked: fbsAcknowledgements[index] }}
+                accessibilityLabel={term}
+              >
+                <View
+                  style={[
+                    styles.checkboxSquare,
+                    styles.declarationCheckbox,
+                    fbsAcknowledgements[index] && styles.checkboxSquareChecked,
+                  ]}
+                >
+                  {fbsAcknowledgements[index] && (
+                    <CheckIcon size={14} color="#FFFFFF" />
+                  )}
+                </View>
+                <Text style={styles.declarationText}>
+                  <Text style={styles.fbsNote}>* </Text>
+                  {term}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <View accessibilityRole="radiogroup">
+              {(['interested', 'not_interested'] as const).map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={styles.fbsRadioRow}
+                  onPress={() => setFbsInterest(option)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: fbsInterest === option }}
+                >
+                  <View
+                    style={[
+                      styles.fbsRadio,
+                      fbsInterest === option && styles.fbsRadioSelected,
+                    ]}
+                  >
+                    {fbsInterest === option && (
+                      <View style={styles.fbsRadioDot} />
+                    )}
+                  </View>
+                  <Text style={styles.fbsChoice}>
+                    {option === 'interested'
+                      ? 'I am interested'
+                      : 'I am not interested'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          <View style={styles.membershipDeclarationCard}>
+            <Text style={styles.membershipAmount}>Amount : INR 10700</Text>
+            <Text style={styles.handlingNote}>
+              An Internet Handling Charges of Rs. 330 will be applied. Details
+              will be shown at the checkout page.
+            </Text>
+            <TouchableOpacity
+              style={styles.declarationRow}
+              onPress={() => setLifeMemberDeclaration(value => !value)}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: lifeMemberDeclaration }}
+              accessibilityLabel="Accept Life Member declaration"
+            >
+              <View
+                style={[
+                  styles.checkboxSquare,
+                  styles.declarationCheckbox,
+                  lifeMemberDeclaration && styles.checkboxSquareChecked,
+                ]}
+              >
+                {lifeMemberDeclaration && (
+                  <CheckIcon size={14} color="#FFFFFF" />
+                )}
+              </View>
+              <Text style={styles.declarationText}>
+                I hereby declare that all the above details are correct. I wish
+                to be a Life member. I have carefully read the instructions. I
+                shall abide by the Rules, Regulations &amp; Bye-Laws of the
+                Society as in force and any subsequent amendment(s) made from
+                time to time.
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.paymentSummaryCard}>
+            <Text style={styles.paymentTitle}>Payment Summary</Text>
+
+            <View style={styles.paymentRow}>
+              <Text style={styles.paymentLabel}>Reg. Fee</Text>
+              <Text style={styles.paymentValue}>10700/-</Text>
+            </View>
+
+            <View style={styles.paymentRow}>
+              <Text style={styles.paymentLabel}>Internet Handling Charges</Text>
+              <Text style={styles.paymentValue}>330/-</Text>
+            </View>
+
+            <View style={styles.paymentDivider} />
+
+            <View style={styles.captchaSection}>
+              <Text style={styles.captchaLabel}>
+                * Enter the contents of image
+              </Text>
+              <View style={styles.captchaRow}>
+                <TouchableOpacity
+                  style={styles.captchaDisplayBox}
+                  onPress={refreshCaptcha}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.captchaCodeText}>{captchaCode}</Text>
+                  <Text style={styles.captchaRefreshHint}>↻</Text>
+                </TouchableOpacity>
+
+                <TextInput
+                  style={styles.captchaInput}
+                  value={captchaInput}
+                  onFocus={() => {
+                    captchaFocused.current = true;
+                    formScroll.current?.scrollToEnd({ animated: true });
+                  }}
+                  onBlur={() => {
+                    captchaFocused.current = false;
+                  }}
+                  onChangeText={setCaptchaInput}
+                  placeholder="CAPTCHA"
+                  placeholderTextColor="#94A3B8"
+                  autoCapitalize="characters"
+                />
+              </View>
+            </View>
+
+            <TouchableOpacity
+              style={styles.payNowBtn}
+              activeOpacity={0.85}
+              onPress={handlePayNow}
+            >
+              <Text style={styles.payNowBtnText}>Pay Now ➔</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.paymentDisclaimer}>
+              * Online payment to the society / Member Registration. All
+              transactions are SSL encrypted. Terms & conditions apply.
+            </Text>
+          </View>
+        </ScrollView>
+      </View>
+
+      <Modal
+        visible={paymentInformationVisible}
+        animationType="slide"
+        onRequestClose={() => setPaymentInformationVisible(false)}
+      >
+        <PaymentInformation
+          amount={10700}
+          transactionCharge={330}
+          subtitle="AIOS · Membership Registration"
+          onBack={() => setPaymentInformationVisible(false)}
+        />
+      </Modal>
       <Modal
         visible={govIdModalVisible}
         transparent
@@ -1190,7 +1434,7 @@ export const AccountScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {GOV_ID_OPTIONS.map((item) => (
+            {GOV_ID_OPTIONS.map(item => (
               <TouchableOpacity
                 key={item}
                 style={styles.modalOptionItem}
@@ -1345,11 +1589,89 @@ export const AccountScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
+  fbsTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  fbsNote: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: '#EA580C',
+  },
+  fbsRadioRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    minHeight: 48,
+  },
+  fbsRadio: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fbsRadioSelected: {
+    borderColor: '#2196F3',
+    backgroundColor: '#2196F3',
+  },
+  fbsRadioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  fbsChoice: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#0F172A',
+    flexShrink: 1,
+  },
+  membershipDeclarationCard: {
+    padding: 18,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    gap: 16,
+  },
+  membershipAmount: {
+    fontSize: 22,
+    lineHeight: 30,
+    fontWeight: '700',
+    color: '#1E293B',
+  },
+  handlingNote: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontWeight: '600',
+    color: '#D97706',
+  },
+  declarationRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 10,
+    paddingVertical: 4,
+  },
+  declarationCheckbox: {
+    marginTop: 3,
+    flexShrink: 0,
+  },
+  declarationText: {
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 24,
+    color: '#334155',
+    includeFontPadding: false,
+  },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',
@@ -1490,7 +1812,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
         shadowOpacity: 0.05,
         shadowRadius: 4,
       },
@@ -1598,7 +1923,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   doctorCardChevronRotated: {
-    transform: [{ rotate: '180deg' }],
+    transform: [
+      {
+        rotate: '180deg',
+      },
+    ],
   },
   doctorExpandedDivider: {
     height: 1,
@@ -1725,7 +2054,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
         shadowOpacity: 0.15,
         shadowRadius: 10,
       },
@@ -1801,7 +2133,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
         shadowOpacity: 0.04,
         shadowRadius: 3,
       },
@@ -2163,7 +2498,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
         shadowOpacity: 0.2,
         shadowRadius: 5,
       },
@@ -2260,7 +2598,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#EA580C',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
         shadowOpacity: 0.3,
         shadowRadius: 4,
       },
@@ -2361,7 +2702,10 @@ const styles = StyleSheet.create({
     padding: 16,
     elevation: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 8,
   },

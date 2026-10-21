@@ -1,9 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -22,9 +18,11 @@ import { colors } from '../theme/colors';
 import { rounded, shadows } from '../theme/spacing';
 
 export const OtpVerificationScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<RootStackParamList, 'OtpVerification'>>();
-  const email = route.params?.email || route.params?.phone || 'doctor@hospital.org';
+  const email =
+    route.params?.email || route.params?.phone || 'doctor@hospital.org';
 
   const [otp, setOtp] = useState<string>('');
   const [otpError, setOtpError] = useState<string | undefined>();
@@ -34,7 +32,7 @@ export const OtpVerificationScreen: React.FC = () => {
     let interval: ReturnType<typeof setInterval> | null = null;
     if (timer > 0) {
       interval = setInterval(() => {
-        setTimer((prev) => (prev > 0 ? prev - 1 : 0));
+        setTimer(prev => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
     return () => {
@@ -67,9 +65,17 @@ export const OtpVerificationScreen: React.FC = () => {
     if (route.params?.from === 'forgot_password') {
       navigation.navigate('ResetPassword', { email });
     } else if (route.params?.phone) {
-      navigation.popTo('Signup', { phoneVerified: true, phone: route.params.phone }, { merge: true });
+      navigation.popTo(
+        'Signup',
+        { phoneVerified: true, phone: route.params.phone },
+        { merge: true },
+      );
     } else {
-      navigation.popTo('Signup', { emailVerified: true, email }, { merge: true });
+      navigation.popTo(
+        'Signup',
+        { emailVerified: true, email },
+        { merge: true },
+      );
     }
   };
 
@@ -78,10 +84,7 @@ export const OtpVerificationScreen: React.FC = () => {
     : `${email} (Registered Mobile/Email)`;
 
   return (
-    <Background
-      scrollable
-      keyboardAvoiding
-    >
+    <Background scrollable keyboardAvoiding>
       <View style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
@@ -147,7 +150,7 @@ export const OtpVerificationScreen: React.FC = () => {
           <PinCodeInput
             length={6}
             value={otp}
-            onChangePin={(val) => {
+            onChangePin={val => {
               setOtp(val);
               if (otpError) setOtpError(undefined);
             }}
@@ -169,7 +172,9 @@ export const OtpVerificationScreen: React.FC = () => {
               weight="bold"
               color={timer > 0 ? colors.textMuted : colors.secondaryBright}
             >
-              {timer > 0 ? `Resend in (${timer < 10 ? '0' : ''}${timer}s)` : 'Resend OTP'}
+              {timer > 0
+                ? `Resend in (${timer < 10 ? '0' : ''}${timer}s)`
+                : 'Resend OTP'}
             </Typography>
           </TouchableOpacity>
         </View>
@@ -184,8 +189,6 @@ export const OtpVerificationScreen: React.FC = () => {
           </Typography>
           <ArrowRightIcon size={16} color={colors.onPrimary} />
         </TouchableOpacity>
-
-
       </View>
     </Background>
   );

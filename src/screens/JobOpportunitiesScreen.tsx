@@ -74,10 +74,11 @@ const JOBS_DATA: JobItem[] = [
     specialty: 'Retina',
     salary: '₹2.8L - ₹3.5L / month (Negotiable)',
     accommodation: 'Furnished residential quarters provided inside campus.',
-    qualifications: 'MS / DNB / MD Ophthalmology + 2-year Vitreo-Retina surgical fellowship.',
-    selectionCriteria: 'Clinical case discussion & surgical video evaluation followed by board interview.',
+    qualifications:
+      'MS / DNB / MD Ophthalmology + 2-year Vitreo-Retina surgical fellowship.',
+    selectionCriteria:
+      'Clinical case discussion & surgical video evaluation followed by board interview.',
   },
-
 ];
 
 const CATEGORIES = [
@@ -91,7 +92,8 @@ const CATEGORIES = [
 
 export const JobOpportunitiesScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All Openings');
@@ -99,13 +101,13 @@ export const JobOpportunitiesScreen: React.FC = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const toggleBookmark = (id: string) => {
-    setBookmarkedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    setBookmarkedIds(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id],
     );
   };
 
   const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    setExpandedId(prev => (prev === id ? null : id));
   };
 
   const handleApply = (job: JobItem) => {
@@ -117,9 +119,8 @@ export const JobOpportunitiesScreen: React.FC = () => {
     }
   };
 
-
   const filteredJobs = useMemo(() => {
-    return JOBS_DATA.filter((job) => {
+    return JOBS_DATA.filter(job => {
       const matchesCategory =
         selectedCategory === 'All Openings' ||
         job.specialty.toLowerCase() === selectedCategory.toLowerCase();
@@ -163,8 +164,7 @@ export const JobOpportunitiesScreen: React.FC = () => {
             onPress={() => toggleBookmark(job.id)}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             activeOpacity={0.7}
-          >
-          </TouchableOpacity>
+          ></TouchableOpacity>
         </View>
 
         <Text style={styles.positionTitle}>{job.positionTitle}</Text>
@@ -192,7 +192,8 @@ export const JobOpportunitiesScreen: React.FC = () => {
             <View style={styles.contactNameRow}>
               <View style={styles.personIconBullet} />
               <Text style={styles.contactLabel}>
-                Contact: <Text style={styles.contactBold}>{job.contactName}</Text>
+                Contact:{' '}
+                <Text style={styles.contactBold}>{job.contactName}</Text>
               </Text>
             </View>
           </View>
@@ -224,7 +225,9 @@ export const JobOpportunitiesScreen: React.FC = () => {
             )}
             {job.qualifications && (
               <View style={styles.detailRow}>
-                <Text style={styles.detailTitle}>Eligibility & Qualifications:</Text>
+                <Text style={styles.detailTitle}>
+                  Eligibility & Qualifications:
+                </Text>
                 <Text style={styles.detailVal}>{job.qualifications}</Text>
               </View>
             )}
@@ -277,14 +280,17 @@ export const JobOpportunitiesScreen: React.FC = () => {
       <FlatList
         horizontal
         data={CATEGORIES}
-        keyExtractor={(item) => item}
+        keyExtractor={item => item}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoryScroll}
         renderItem={({ item: category }) => {
           const isActive = selectedCategory === category;
           return (
             <TouchableOpacity
-              style={[styles.categoryPill, isActive && styles.categoryPillActive]}
+              style={[
+                styles.categoryPill,
+                isActive && styles.categoryPillActive,
+              ]}
               onPress={() => setSelectedCategory(category)}
               activeOpacity={0.8}
             >
@@ -335,14 +341,11 @@ export const JobOpportunitiesScreen: React.FC = () => {
             <Text style={styles.brandTitle}>Job Opportunities</Text>
           </View>
         </View>
-
-
       </View>
-
 
       <FlatList
         data={filteredJobs}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         renderItem={renderJobCard}
         ListHeaderComponent={renderHeader}
         ListEmptyComponent={renderEmptyComponent}
@@ -526,7 +529,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {
+          width: 0,
+          height: 1,
+        },
         shadowOpacity: 0.04,
         shadowRadius: 2,
       },
@@ -606,7 +612,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
         shadowOpacity: 0.05,
         shadowRadius: 4,
       },
@@ -806,7 +815,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0B63F6',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
         shadowOpacity: 0.25,
         shadowRadius: 4,
       },
@@ -833,7 +845,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
+        shadowOffset: {
+          width: 0,
+          height: 3,
+        },
         shadowOpacity: 0.2,
         shadowRadius: 4,
       },

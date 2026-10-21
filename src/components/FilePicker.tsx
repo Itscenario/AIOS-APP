@@ -49,14 +49,19 @@ export const pickDocumentFile = async (): Promise<FilePickerResult | null> => {
       (isErrorWithCode(err) && err.code === errorCodes.OPERATION_CANCELED) ||
       err?.code === 'OPERATION_CANCELED' ||
       err?.code === 'DOCUMENT_PICKER_CANCELED' ||
-      String(err?.message || '').toLowerCase().includes('cancel');
+      String(err?.message || '')
+        .toLowerCase()
+        .includes('cancel');
 
     if (isUserCanceled) {
       return null;
     }
 
     console.warn('Document picker error:', err);
-    Alert.alert('Notice', 'Unable to open document picker. Please check file permissions.');
+    Alert.alert(
+      'Notice',
+      'Unable to open document picker. Please check file permissions.',
+    );
     return null;
   }
 };

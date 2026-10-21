@@ -1,552 +1,735 @@
-import { formatProfileName } from '../utils/profileName';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-  Image,
+  Alert,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  ScrollView,
   StyleSheet,
+  Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { RootStackParamList } from '../navigation/types';
-import { useAppSelector } from '../store';
-import { colors } from '../theme/colors';
-import { rounded, shadows, spacing } from '../theme/spacing';
+import { useAppDispatch, useAppSelector } from '../store';
+import { updateProfile, UserProfile } from '../store/slices/authSlice';
 import {
   ArrowBackIcon,
-  Background,
-  CalendarIcon,
-  CheckIcon,
-  PersonIcon,
-  Typography,
-  VerifiedBadgeIcon,
+  CalendarPickerModal,
+  ProfileImagePicker,
 } from '../components';
+import { ScreenStatusBar } from '../components/ScreenStatusBar';
+import { formatProfileName } from '../utils/profileName';
+import {
+  pick,
+  types,
+  isErrorWithCode,
+  errorCodes,
+} from '@react-native-documents/picker';
+
+const OPTIONS = {
+  title: ['Dr.', 'Prof.'],
+  gender: ['Male', 'Female', 'Other'],
+  memberType: ['Life Member', 'Associate Member', 'International Member'],
+  organizationType: ['Government', 'Private', 'Other'],
+};
+type PickerField = keyof typeof OPTIONS;
+const SPECIALITIES = [
+  'Glaucoma',
+  'Retina & Vitreous',
+  'Cornea',
+  'Comprehensive Ophthalmology',
+  'Uvea',
+  'Cataract/Phaco',
+  'Pediatric Ophthalmology & Strabismus',
+  'Oculoplastic Surgery',
+  'Refractive Surgery',
+  'Neurophthalmology',
+  'Ocular Pathology',
+  'Microbiology',
+  'None',
+];
+const countWords = (value: string) =>
+  value.trim() ? value.trim().split(/\s+/).length : 0;
 
 export const MyProfileScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
-  const savedProfile = useAppSelector((state) => state.auth.profile);
-  const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
-    ? { ...savedProfile, membershipId: undefined }
-    : savedProfile;
-
-  const fullName = formatProfileName(profile?.name || [profile?.title, profile?.firstName, profile?.surname].filter(Boolean).join(' '));
-
+  const dispatch = useAppDispatch();
+  const profile = useAppSelector(state => state.auth.profile);
+  const [form, setForm] = useState<UserProfile>(() => ({ ...profile }));
+  const [picker, setPicker] = useState<PickerField | null>(null);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
+  const viewportRef = useRef<React.ElementRef<typeof View>>(null);
+  const keyboardTop = useRef<number | null>(null);
+  const [keyboardOverlap, setKeyboardOverlap] = useState(0);
+  const measureKeyboardOverlap = () => {
+    if (Platform.OS !== 'android') return;
+    viewportRef.current?.measureInWindow((_x, y, _width, height) => {
+      setKeyboardOverlap(
+        keyboardTop.current === null
+          ? 0
+          : Math.max(0, y + height - keyboardTop.current),
+      );
+    });
+  };
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', event => {
+      keyboardTop.current = event.endCoordinates.screenY;
+      requestAnimationFrame(measureKeyboardOverlap);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => {
+      keyboardTop.current = null;
+      setKeyboardOverlap(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  const choosePhotograph = async () => {
+    try {
+      const [file] = await pick({
+        mode: 'import',
+        type: [types.allFiles],
+        allowMultiSelection: false,
+      });
+      if (!file?.uri) return;
+      const isImage =
+        file.type?.startsWith('image/') ||
+        /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || '');
+      if (!isImage) {
+        Alert.alert(
+          'Select a photograph',
+          'Please choose an image file for your passport-size photograph.',
+        );
+        return;
+      }
+      setForm(current => ({
+        ...current,
+        avatar: file.uri,
+        photographName: file.name || 'Passport photograph',
+      }));
+    } catch (error) {
+      if (
+        isErrorWithCode(error) &&
+        error.code === errorCodes.OPERATION_CANCELED
+      )
+        return;
+      Alert.alert(
+        'File picker unavailable',
+        'Unable to open files. Please try again.',
+      );
+    }
+  };
+  const selectedSpecialities =
+    form.specialities ||
+    (form.speciality
+      ? form.speciality
+          .split(',')
+          .map(value => value.trim())
+          .filter(Boolean)
+      : ['None']);
+  const toggleSpeciality = (option: string) => {
+    let next: string[];
+    if (option === 'None') {
+      next = ['None'];
+    } else if (selectedSpecialities.includes(option)) {
+      next = selectedSpecialities.filter(value => value !== option);
+      if (!next.length) next = ['None'];
+    } else {
+      const current = selectedSpecialities.filter(value => value !== 'None');
+      if (current.length >= 3) {
+        Alert.alert(
+          'Maximum three specialities',
+          'Please deselect a speciality before choosing another.',
+        );
+        return;
+      }
+      next = [...current, option];
+    }
+    setForm(current => ({
+      ...current,
+      specialities: next,
+      speciality: next.join(', '),
+    }));
+  };
+  const setField = (field: keyof UserProfile, value: string | null) => {
+    setForm(current => ({ ...current, [field]: value }));
+  };
+  const field = (
+    label: string,
+    key: keyof UserProfile,
+    options: {
+      readonly?: boolean;
+      optional?: boolean;
+      phone?: boolean;
+      multiline?: boolean;
+    } = {},
+  ) => (
+    <View style={styles.field} key={key}>
+      <Text style={styles.label}>
+        {label}
+        {options.optional ? ' (Optional)' : ''}
+      </Text>
+      <TextInput
+        style={[
+          styles.input,
+          options.readonly && styles.readonly,
+          options.multiline && styles.multiline,
+        ]}
+        value={String(form[key] || '')}
+        onChangeText={value => setField(key, value)}
+        editable={!options.readonly}
+        placeholder={
+          options.readonly ? 'Not provided' : `Enter ${label.toLowerCase()}`
+        }
+        placeholderTextColor="#94A3B8"
+        keyboardType={options.phone ? 'phone-pad' : 'default'}
+        multiline={options.multiline}
+        accessibilityLabel={label}
+      />
+    </View>
+  );
+  const dropdown = (label: string, key: PickerField) => (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <TouchableOpacity
+        style={styles.select}
+        onPress={() => setPicker(key)}
+        accessibilityRole="button"
+        accessibilityLabel={`Select ${label}`}
+      >
+        <Text style={styles.value}>
+          {form[key] || `Select ${label.toLowerCase()}`}
+        </Text>
+        <Text style={styles.chevron}>⌄</Text>
+      </TouchableOpacity>
+    </View>
+  );
+  const save = () => {
+    if (countWords(form.biodata || '') > 300) {
+      Alert.alert(
+        'Biodata too long',
+        'Please keep your biodata within 300 words.',
+      );
+      return;
+    }
+    dispatch(
+      updateProfile({
+        ...form,
+        firstName: profile?.firstName,
+        surname: profile?.surname,
+        email: profile?.email,
+        name: formatProfileName(
+          [
+            form.title,
+            profile?.firstName ||
+              profile?.name?.replace(
+                /^(Dr\.?|Prof\.?|Mr\.?|Mrs\.?|Ms\.?)\s+/i,
+                '',
+              ),
+            profile?.firstName ? profile?.surname : '',
+          ]
+            .filter(Boolean)
+            .join(' '),
+        ),
+      }),
+    );
+    Alert.alert('Profile saved', 'Your profile details have been updated.');
+  };
 
   return (
-    <Background
-      scrollable
-      contentContainerStyle={[styles.scrollContent, { paddingTop: insets.top + 8 }]}
-    >
-      <View style={styles.topHeader}>
+    <View style={styles.screen}>
+      <ScreenStatusBar />
+      <View
+        style={[styles.header, { paddingTop: insets.top + 12 }]}
+        onLayout={({ nativeEvent }) =>
+          setHeaderHeight(nativeEvent.layout.height)
+        }
+      >
         <TouchableOpacity
-          style={styles.backButton}
+          style={styles.back}
           onPress={() => navigation.goBack()}
-          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
         >
-          <ArrowBackIcon size={20} color={colors.white} />
+          <ArrowBackIcon size={20} color="#FFFFFF" />
         </TouchableOpacity>
-        <View style={styles.headerTitleContainer}>
-          <Typography variant="headlineSm" weight="bold" color={colors.white}>
-            My Profile
-          </Typography>
+        <View>
+          <Text style={styles.headerTitle}>My Profile</Text>
+          <Text style={styles.subtitle}>Manage your personal details</Text>
         </View>
-        {profile?.membershipId ? (
-          <View style={styles.verifiedBadgeTop}>
-            <VerifiedBadgeIcon size={14} color={colors.tertiarySaffron} />
-            <Typography variant="labelSm" weight="bold" color={colors.tertiarySaffron}>
-              {profile.membershipId}
-            </Typography>
-          </View>
-        ) : null}
       </View>
-
-      <View style={styles.cardContainer}>
-        <View style={styles.avatarSection}>
-          <View style={styles.avatarWrapper}>
-            {profile?.avatar ? (
-              <Image
-                source={{ uri: profile.avatar }}
-                style={styles.avatarImage}
-                resizeMode="cover"
-              />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <PersonIcon size={46} color={colors.secondaryRoyal} />
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        enabled={Platform.OS === 'ios'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}
+      >
+        <View
+          ref={viewportRef}
+          style={styles.flex}
+          onLayout={measureKeyboardOverlap}
+          collapsable={false}
+        >
+          <ScrollView
+            style={styles.flex}
+            contentContainerStyle={[
+              styles.content,
+              { paddingBottom: Math.max(insets.bottom, 16) + keyboardOverlap },
+            ]}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="none"
+            nestedScrollEnabled
+            showsVerticalScrollIndicator
+          >
+            <View style={styles.card}>
+              <View style={styles.photo}>
+                <ProfileImagePicker
+                  imageUri={form.avatar}
+                  onImageSelected={uri => setField('avatar', uri)}
+                  onImageRemoved={() => setField('avatar', null)}
+                />
               </View>
-            )}
-          </View>
-          {fullName ? (
-            <Typography
-              variant="headlineSm"
-              weight="bold"
-              color={colors.primaryNavy}
-              style={styles.doctorName}
-            >
-              {fullName}
-            </Typography>
-          ) : null}
-          <Typography variant="bodySm" color={colors.tertiarySaffron} weight="semibold">
-            All India Ophthalmological Society
-          </Typography>
-        </View>
-
-        <View style={styles.divider} />
-        <View style={styles.sectionHeader}>
-          <Typography
-            variant="title"
-            weight="bold"
-            color={colors.tertiarySaffron}
-            style={styles.sectionTitle}
-          >
-            PERSONAL INFORMATION
-          </Typography>
-          <View style={styles.orangeAccentBar} />
-        </View>
-        <View style={styles.row2Col}>
-          <View style={styles.titleCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Title
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.title || ''}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.flex1Col}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Surname
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.surname || ''}
-              </Typography>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            First Name
-          </Typography>
-          <View style={styles.displayBox}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.firstName || ''}
-            </Typography>
-          </View>
-        </View>
-        <View style={styles.row2Col}>
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Gender
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.gender || ''}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Date of Birth
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.dob || ''}
-              </Typography>
-              {profile?.dob ? <CalendarIcon size={18} color={colors.secondaryRoyal} /> : null}
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            Phone No.
-          </Typography>
-          <View style={styles.displayBox}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.phone || ''}
-            </Typography>
-          </View>
-        </View>
-
-        <View style={[styles.sectionHeader, styles.sectionSpacing]}>
-          <Typography
-            variant="title"
-            weight="bold"
-            color={colors.tertiarySaffron}
-            style={styles.sectionTitle}
-          >
-            ADDRESS
-          </Typography>
-          <View style={styles.orangeAccentBar} />
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            House No/ Flat No
-          </Typography>
-          <View style={styles.displayBox}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.houseNo || ''}
-            </Typography>
-          </View>
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            Street/Locality
-          </Typography>
-          <View style={styles.displayBox}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.street || ''}
-            </Typography>
-          </View>
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            Landmark
-          </Typography>
-          <View style={styles.displayBox}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.landmark || ''}
-            </Typography>
-          </View>
-        </View>
-        <View style={styles.row2Col}>
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Country
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.country || ''}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              State
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.state || ''}
-              </Typography>
-            </View>
-          </View>
-        </View>
-        <View style={styles.row2Col}>
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              City
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.city || ''}
-              </Typography>
-            </View>
-          </View>
-
-          <View style={styles.halfCol}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-              Pin Code
-            </Typography>
-            <View style={styles.displayBox}>
-              <Typography variant="bodyMd" color={colors.textPrimary}>
-                {profile?.pincode || ''}
-              </Typography>
-            </View>
-          </View>
-        </View>
-
-        <View style={[styles.sectionHeader, styles.sectionSpacing]}>
-          <Typography
-            variant="title"
-            weight="bold"
-            color={colors.tertiarySaffron}
-            style={styles.sectionTitle}
-          >
-            ACCOUNT DETAILS
-          </Typography>
-          <View style={styles.orangeAccentBar} />
-        </View>
-
-        <View style={styles.fullWidthField}>
-          <Typography variant="labelMd" weight="bold" color={colors.textPrimary} style={styles.labelAbove}>
-            Email Address
-          </Typography>
-          <View style={[styles.displayBox, styles.emailDisplayBox]}>
-            <Typography variant="bodyMd" color={colors.textPrimary}>
-              {profile?.email || ''}
-            </Typography>
-            {profile?.email ? (
-              <View style={styles.verifiedBadge}>
-                <CheckIcon size={12} color={colors.success} />
-                <Typography
-                  variant="labelSm"
-                  weight="bold"
-                  color={colors.success}
-                  style={styles.verifiedBadgeText}
+              <Text style={styles.section}>Personal information</Text>
+              {dropdown('Title', 'title')}
+              {field('First Name', 'firstName', { readonly: true })}
+              {dropdown('Gender', 'gender')}
+              <View style={styles.field}>
+                <Text style={styles.label}>Date of Birth</Text>
+                <TouchableOpacity
+                  style={styles.select}
+                  onPress={() => setCalendarOpen(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Select date of birth"
                 >
-                  Verified
-                </Typography>
+                  <Text style={styles.value}>
+                    {form.dob || 'Select date of birth'}
+                  </Text>
+                  <Text style={styles.chevron}>⌄</Text>
+                </TouchableOpacity>
               </View>
-            ) : null}
+              {field('Email', 'email', { readonly: true })}
+              {field('Mobile Number', 'phone', { phone: true })}
+              {field('Nationality', 'nationality')}
+              {field('Passport Number', 'passportNo', { optional: true })}
+              {dropdown('Member Type', 'memberType')}
+            </View>
+            <View style={styles.card}>
+              <View style={styles.field}>
+                <Text style={styles.organizationLabel}>
+                  Upload Passport Size Photograph*
+                </Text>
+                <View style={styles.uploadRow}>
+                  <TouchableOpacity
+                    style={styles.uploadButton}
+                    onPress={choosePhotograph}
+                    accessibilityRole="button"
+                    accessibilityLabel="Choose passport size photograph"
+                  >
+                    <Text style={styles.uploadButtonText}>Choose Files</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.uploadFileName} numberOfLines={2}>
+                    {form.photographName ||
+                      (form.avatar
+                        ? 'Photograph selected'
+                        : 'no files selected')}
+                  </Text>
+                </View>
+              </View>
+              <Text style={styles.section}>Professional details</Text>
+              {field('Institute / Organization', 'institution')}
+              <View style={styles.field}>
+                <Text style={styles.organizationLabel}>
+                  *Speciality{' '}
+                  <Text style={styles.specialityHint}>(Maximum Three)</Text>
+                </Text>
+                {SPECIALITIES.map(option => {
+                  const selected = selectedSpecialities.includes(option);
+                  return (
+                    <TouchableOpacity
+                      key={option}
+                      style={styles.radioOption}
+                      onPress={() => toggleSpeciality(option)}
+                      accessibilityRole="checkbox"
+                      accessibilityState={{ checked: selected }}
+                      accessibilityLabel={option}
+                    >
+                      <View
+                        style={[
+                          styles.checkbox,
+                          selected && styles.radioSelected,
+                        ]}
+                      >
+                        {selected && <Text style={styles.checkmark}>✓</Text>}
+                      </View>
+                      <Text style={[styles.radioText, styles.specialityText]}>
+                        {option}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              <View style={styles.field}>
+                <Text style={styles.organizationLabel}>
+                  Type of Organization
+                </Text>
+                <View accessibilityRole="radiogroup">
+                  {['Govt.', 'Private'].map(option => {
+                    const selected =
+                      form.organizationType === option ||
+                      (option === 'Govt.' &&
+                        form.organizationType === 'Government');
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        style={styles.radioOption}
+                        onPress={() => setField('organizationType', option)}
+                        accessibilityRole="radio"
+                        accessibilityState={{ checked: selected }}
+                        accessibilityLabel={option}
+                      >
+                        <View
+                          style={[
+                            styles.radioCircle,
+                            selected && styles.radioSelected,
+                          ]}
+                        >
+                          {selected && <View style={styles.radioDot} />}
+                        </View>
+                        <Text style={styles.radioText}>{option}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.section}>Address</Text>
+              {field('House / Flat Number', 'houseNo')}
+              {field('Street / Locality', 'street')}
+              {field('Landmark', 'landmark')}
+              {field('Country', 'country')}
+              {field('State', 'state')}
+              {field('City', 'city')}
+              {field('PIN Code', 'pincode')}
+            </View>
+            <View style={styles.card}>
+              <Text style={styles.section}>Biodata</Text>
+              <TextInput
+                style={[styles.input, styles.multiline]}
+                value={form.biodata || ''}
+                onChangeText={value => {
+                  if (countWords(value) <= 300) setField('biodata', value);
+                }}
+                multiline
+                scrollEnabled={false}
+                placeholder="Tell us about your experience and interests"
+                placeholderTextColor="#94A3B8"
+                accessibilityLabel="Biodata, maximum 300 words"
+              />
+              <Text style={styles.wordCount}>
+                {countWords(form.biodata || '')} / 300 words
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.save}
+              onPress={save}
+              accessibilityRole="button"
+            >
+              <Text style={styles.saveText}>Save Changes</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+      </KeyboardAvoidingView>
+      <CalendarPickerModal
+        visible={calendarOpen}
+        value={form.dob}
+        onClose={() => setCalendarOpen(false)}
+        onSelectDate={value => {
+          setField('dob', value);
+          setCalendarOpen(false);
+        }}
+      />
+      <Modal
+        visible={picker !== null}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setPicker(null)}
+      >
+        <View style={styles.overlay}>
+          <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.section}>Select an option</Text>
+              <TouchableOpacity
+                onPress={() => setPicker(null)}
+                accessibilityRole="button"
+              >
+                <Text style={styles.cancel}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            {picker &&
+              OPTIONS[picker].map(option => (
+                <TouchableOpacity
+                  key={option}
+                  style={styles.option}
+                  onPress={() => {
+                    setField(picker, option);
+                    setPicker(null);
+                  }}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.value}>{option}</Text>
+                  {form[picker] === option && (
+                    <Text style={styles.cancel}>✓</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
           </View>
         </View>
-      </View>
-    </Background>
+      </Modal>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: 24,
+  screen: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
   },
-  topHeader: {
-    height: 56,
-    flexDirection: 'row',
-    alignItems: 'center',
+  flex: {
+    flex: 1,
+  },
+  header: {
+    backgroundColor: '#0B1728',
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  backButton: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 8,
-  },
-  headerTitleContainer: {
-    flex: 1,
-  },
-  verifiedBadgeTop: {
+    paddingBottom: 18,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(217, 119, 6, 0.15)',
-    borderWidth: 1,
-    borderColor: 'rgba(217, 119, 6, 0.35)',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: rounded.full,
+    gap: 12,
   },
-
-  cardContainer: {
-    backgroundColor: colors.surfaceContainerLowest,
+  back: {
+    width: 42,
+    height: 42,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.borderNeutral,
-    marginHorizontal: 12,
-    marginTop: 12,
-    marginBottom: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 18,
-    ...shadows.level1,
-  },
-
-  avatarSection: {
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  avatarWrapper: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: colors.surfaceContainerLow,
-    borderWidth: 2.5,
-    borderColor: colors.borderNeutral,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 10,
-    ...shadows.level1,
-  },
-  avatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-  avatarPlaceholder: {
-    width: '100%',
-    height: '100%',
+    backgroundColor: '#1C2C42',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  doctorName: {
-    marginBottom: 2,
-    textAlign: 'center',
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: colors.borderNeutral,
-    marginVertical: 16,
-  },
-
-  sectionHeader: {
-    marginBottom: 14,
-  },
-  sectionSpacing: {
-    marginTop: 18,
-  },
-  sectionTitle: {
-    fontSize: 14,
-    letterSpacing: 0.5,
-    marginBottom: 4,
-  },
-  orangeAccentBar: {
-    width: 50,
-    height: 2.5,
-    backgroundColor: colors.tertiarySaffron,
-    borderRadius: 1,
-  },
-
-  row2Col: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 12,
-  },
-  titleCol: {
-    width: 100,
-  },
-  flex1Col: {
-    flex: 1,
-  },
-  halfCol: {
-    flex: 1,
-  },
-  fullWidthField: {
-    width: '100%',
-    marginBottom: 12,
-  },
-
-  labelAbove: {
-    marginBottom: 6,
-    fontSize: 13,
-  },
-  displayBox: {
-    height: 46,
-    borderWidth: 1,
-    borderColor: colors.borderField,
-    borderRadius: 6,
-    backgroundColor: colors.surfaceContainerLowest,
-    paddingHorizontal: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  emailDisplayBox: {
-    paddingRight: 10,
-  },
-  verifiedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    gap: 4,
-  },
-  verifiedBadgeText: {
-    fontSize: 12,
+  headerTitle: {
+    color: '#FFFFFF',
+    fontSize: 22,
     fontWeight: '700',
   },
-
-  /* Qualification Card */
-  qualificationCard: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    padding: 12,
-    marginBottom: 10,
-  },
-  qualificationCardSpacing: {
+  subtitle: {
+    color: '#B8C7DB',
+    fontSize: 12,
     marginTop: 4,
   },
-  qualificationHeaderRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
+  content: {
+    padding: 16,
+    gap: 16,
   },
-  degreeIndexBadge: {
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
+  card: {
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 18,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#E2E8F0',
   },
-  deleteDegreeSingleBtn: {
+  photo: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  uploadRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    backgroundColor: '#FEF2F2',
+    gap: 10,
   },
-  textInputField: {
-    height: 44,
-    borderWidth: 1,
-    borderColor: colors.borderField,
-    borderRadius: 6,
-    backgroundColor: colors.surfaceContainerLowest,
+  uploadButton: {
+    minHeight: 44,
     paddingHorizontal: 12,
-    fontSize: 14,
-    color: colors.textPrimary,
-  },
-  fileUploadBox: {
-    height: 44,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceContainerLowest,
-    borderWidth: 1,
-    borderColor: colors.borderField,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-  },
-  chooseFileBtn: {
-    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#CBD5E1',
-    borderRadius: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginRight: 10,
+    borderRadius: 8,
+    backgroundColor: '#F8FAFC',
   },
-  fileNameText: {
+  uploadButtonText: {
+    fontSize: 15,
+    color: '#0F172A',
+  },
+  uploadFileName: {
     flex: 1,
-    fontSize: 12,
+    fontSize: 14,
+    lineHeight: 20,
+    color: '#475569',
   },
-  degreeActionsRow: {
+  section: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#0F294A',
+    marginBottom: 16,
+  },
+  field: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 13,
+    color: '#334155',
+    fontWeight: '600',
+    marginBottom: 7,
+  },
+  organizationLabel: {
+    fontSize: 16,
+    color: '#0F172A',
+    fontWeight: '700',
+    marginBottom: 12,
+  },
+  radioOption: {
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 10,
-    marginTop: 6,
-    marginBottom: 4,
+    minHeight: 48,
   },
-  addDegreeBtn: {
-    flex: 1,
-    backgroundColor: colors.primaryNavy,
-    borderRadius: 20,
-    paddingVertical: 10,
+  radioCircle: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  deleteDegreeBtn: {
+  radioSelected: {
+    backgroundColor: '#2196F3',
+    borderColor: '#2196F3',
+  },
+  radioDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  radioText: {
+    fontSize: 17,
+    color: '#0F172A',
+  },
+  specialityHint: {
+    fontWeight: '400',
+    fontSize: 14,
+  },
+  specialityText: {
     flex: 1,
-    backgroundColor: colors.primaryNavy,
-    borderRadius: 20,
-    paddingVertical: 10,
+    lineHeight: 24,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  checkmark: {
+    fontSize: 17,
+    lineHeight: 20,
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  input: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    color: '#0F172A',
+    backgroundColor: '#FFFFFF',
+    fontSize: 15,
+  },
+  readonly: {
+    backgroundColor: '#F1F5F9',
+    color: '#64748B',
+  },
+  select: {
+    minHeight: 48,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  value: {
+    fontSize: 15,
+    color: '#0F172A',
+    flexShrink: 1,
+  },
+  chevron: {
+    fontSize: 20,
+    color: '#64748B',
+  },
+  multiline: {
+    minHeight: 150,
+    textAlignVertical: 'top',
+  },
+  wordCount: {
+    textAlign: 'right',
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 8,
+  },
+  save: {
+    backgroundColor: '#0F294A',
+    borderRadius: 12,
+    minHeight: 52,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  saveText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: '#FFFFFF',
+    padding: 22,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cancel: {
+    color: '#0284C7',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  option: {
+    paddingVertical: 18,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 

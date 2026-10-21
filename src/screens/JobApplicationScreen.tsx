@@ -35,7 +35,8 @@ type JobApplicationRouteProp = RouteProp<RootStackParamList, 'JobApplication'>;
 
 export const JobApplicationScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const route = useRoute<JobApplicationRouteProp>();
   const job = route.params?.job;
 
@@ -51,10 +52,12 @@ export const JobApplicationScreen: React.FC = () => {
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
   useEffect(() => {
-    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const showEvent =
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent =
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
 
-    const showSub = Keyboard.addListener(showEvent, (e) => {
+    const showSub = Keyboard.addListener(showEvent, e => {
       setKeyboardHeight(e?.endCoordinates?.height ?? 280);
     });
     const hideSub = Keyboard.addListener(hideEvent, () => {
@@ -92,7 +95,10 @@ export const JobApplicationScreen: React.FC = () => {
         clearFieldError('cv');
       }
     } catch {
-      Alert.alert('File Selection', 'Unable to pick document. Please try again.');
+      Alert.alert(
+        'File Selection',
+        'Unable to pick document. Please try again.',
+      );
     }
   };
 
@@ -157,19 +163,50 @@ export const JobApplicationScreen: React.FC = () => {
 
   const handleWhatsApp = () => {
     if (!job) return;
-    const text = `Hello, I am applying for the position of "${job.positionTitle}" at "${job.hospitalName}".\nName: ${fullName || 'Applicant'}\nPhone: ${phone || 'N/A'}\nEmail: ${email || 'N/A'}\nCity of Employment: ${cityOfEmployment || 'N/A'}`;
-    Linking.openURL(`https://wa.me/91${job.whatsappNumber || job.phone}?text=${encodeURIComponent(text)}`);
+    const text = `Hello, I am applying for the position of "${
+      job.positionTitle
+    }" at "${job.hospitalName}".\nName: ${fullName || 'Applicant'}\nPhone: ${
+      phone || 'N/A'
+    }\nEmail: ${email || 'N/A'}\nCity of Employment: ${
+      cityOfEmployment || 'N/A'
+    }`;
+    Linking.openURL(
+      `https://wa.me/91${
+        job.whatsappNumber || job.phone
+      }?text=${encodeURIComponent(text)}`,
+    );
   };
 
   const handleEmail = () => {
     if (!job) return;
-    const subject = `Job Application: ${job.positionTitle} - ${fullName || 'Applicant'}`;
-    const body = `Respected Medical Director / HR,\n\nI am applying for the ${job.positionTitle} opening at ${job.hospitalName}.\n\nName: ${fullName || 'Applicant'}\nEmail: ${email || 'N/A'}\nPhone: ${phone || 'N/A'}\nCity of Employment: ${cityOfEmployment || 'N/A'}\n\nComment / Note:\n${comment || 'None'}\n\nPlease find my resume attached.\n\nWarm regards,\n${fullName || 'Applicant'}`;
-    Linking.openURL(`mailto:${job.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`);
+    const subject = `Job Application: ${job.positionTitle} - ${
+      fullName || 'Applicant'
+    }`;
+    const body = `Respected Medical Director / HR,\n\nI am applying for the ${
+      job.positionTitle
+    } opening at ${job.hospitalName}.\n\nName: ${
+      fullName || 'Applicant'
+    }\nEmail: ${email || 'N/A'}\nPhone: ${
+      phone || 'N/A'
+    }\nCity of Employment: ${cityOfEmployment || 'N/A'}\n\nComment / Note:\n${
+      comment || 'None'
+    }\n\nPlease find my resume attached.\n\nWarm regards,\n${
+      fullName || 'Applicant'
+    }`;
+    Linking.openURL(
+      `mailto:${job.email}?subject=${encodeURIComponent(
+        subject,
+      )}&body=${encodeURIComponent(body)}`,
+    );
   };
 
   return (
-    <View style={[styles.container, { paddingLeft: insets.left, paddingRight: insets.right }]}>
+    <View
+      style={[
+        styles.container,
+        { paddingLeft: insets.left, paddingRight: insets.right },
+      ]}
+    >
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           style={styles.backButton}
@@ -224,7 +261,8 @@ export const JobApplicationScreen: React.FC = () => {
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingBottom: keyboardHeight > 0 ? keyboardHeight + 10 : insets.bottom + 20,
+            paddingBottom:
+              keyboardHeight > 0 ? keyboardHeight + 10 : insets.bottom + 20,
           },
         ]}
         showsVerticalScrollIndicator={false}
@@ -245,7 +283,7 @@ export const JobApplicationScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={fullName}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setFullName(text);
                 clearFieldError('fullName');
               }}
@@ -266,7 +304,7 @@ export const JobApplicationScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={email}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setEmail(text);
                 clearFieldError('email');
               }}
@@ -290,7 +328,7 @@ export const JobApplicationScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={phone}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setPhone(text);
                 clearFieldError('phone');
               }}
@@ -313,7 +351,7 @@ export const JobApplicationScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={cityOfEmployment}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setCityOfEmployment(text);
                 clearFieldError('cityOfEmployment');
               }}
@@ -329,7 +367,8 @@ export const JobApplicationScreen: React.FC = () => {
 
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>
-              Curriculum Vitae (CV) <Text style={styles.requiredAsterisk}>*</Text>
+              Curriculum Vitae (CV){' '}
+              <Text style={styles.requiredAsterisk}>*</Text>
             </Text>
             {cvFile ? (
               <View style={styles.cvAttachedCard}>
@@ -346,7 +385,9 @@ export const JobApplicationScreen: React.FC = () => {
                       {cvFile.name}
                     </Text>
                     <Text style={styles.resumeFileSize}>
-                      {cvFile.size ? `${formatFileSize(cvFile.size)} • Tap to open` : 'Tap to open document'}
+                      {cvFile.size
+                        ? `${formatFileSize(cvFile.size)} • Tap to open`
+                        : 'Tap to open document'}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -458,9 +499,7 @@ export const JobApplicationScreen: React.FC = () => {
               <Text style={styles.successDetailText}>
                 • Applicant: {fullName}
               </Text>
-              <Text style={styles.successDetailText}>
-                • Phone: {phone}
-              </Text>
+              <Text style={styles.successDetailText}>• Phone: {phone}</Text>
               <Text style={styles.successDetailText}>
                 • City: {cityOfEmployment}
               </Text>
@@ -564,7 +603,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
@@ -635,7 +677,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
     shadowOpacity: 0.04,
     shadowRadius: 4,
     elevation: 2,
@@ -756,7 +801,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: 8,
     shadowColor: '#1D4ED8',
-    shadowOffset: { width: 0, height: 3 },
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
@@ -819,7 +867,10 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 8,

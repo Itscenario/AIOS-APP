@@ -51,8 +51,18 @@ export interface DelegateItem {
 }
 
 const DEFAULT_DELEGATES: DelegateItem[] = [
-  { id: 'apao-faculty', name: 'Dr. Rajesh Sharma, MS', memberId: 'APAO2500025', category: 'Faculty' },
-  { id: 'apao-delegate', name: 'Dr. Rajesh Sharma, MS', memberId: 'APAO2500025', category: 'Delegate' },
+  {
+    id: 'apao-faculty',
+    name: 'Dr. Rajesh Sharma, MS',
+    memberId: 'APAO2500025',
+    category: 'Faculty',
+  },
+  {
+    id: 'apao-delegate',
+    name: 'Dr. Rajesh Sharma, MS',
+    memberId: 'APAO2500025',
+    category: 'Delegate',
+  },
 ];
 
 const CONFERENCE_DELEGATES: { [conferenceId: string]: DelegateItem[] } = {
@@ -117,12 +127,18 @@ const PARTICIPATION_CERTIFICATES: CertificateItem[] = [
 
 export const CertificatesScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const profile = useAppSelector((state) => state.auth.profile);
+  const profile = useAppSelector(state => state.auth.profile);
 
-  const [activeFilter, setActiveFilter] = useState<'All' | 'Annual' | 'Mid-term'>('All');
-  const [selectedConferenceId, setSelectedConferenceId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<
+    'All' | 'Annual' | 'Mid-term'
+  >('All');
+  const [selectedConferenceId, setSelectedConferenceId] = useState<
+    string | null
+  >(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<'All' | 'Faculty' | 'Delegate'>('All');
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<
+    'All' | 'Faculty' | 'Delegate'
+  >('All');
 
   const [previewModalVisible, setPreviewModalVisible] = useState(false);
   const [selectedCert, setSelectedCert] = useState<{
@@ -147,12 +163,18 @@ export const CertificatesScreen: React.FC = () => {
   const [downloadCertTitle, setDownloadCertTitle] = useState('');
 
   const memberName = profile
-    ? (profile.name || [profile.title, profile.firstName, profile.surname].filter(Boolean).join(' ') || 'DR. AIOS MEMBER').toUpperCase()
+    ? (
+        profile.name ||
+        [profile.title, profile.firstName, profile.surname]
+          .filter(Boolean)
+          .join(' ') ||
+        'DR. AIOS MEMBER'
+      ).toUpperCase()
     : 'DR. AIOS MEMBER';
 
   const memberId = profile?.membershipId || 'LM-12849';
 
-  const filteredCerts = PARTICIPATION_CERTIFICATES.filter((cert) => {
+  const filteredCerts = PARTICIPATION_CERTIFICATES.filter(cert => {
     if (activeFilter === 'Annual') return cert.type === 'Annual Conference';
     if (activeFilter === 'Mid-term') return cert.type === 'Mid-term Conference';
     return true;
@@ -176,7 +198,7 @@ export const CertificatesScreen: React.FC = () => {
 
     if (selectedCategoryFilter !== 'All') {
       filtered = filtered.filter(
-        (d) => d.category.toLowerCase() === selectedCategoryFilter.toLowerCase(),
+        d => d.category.toLowerCase() === selectedCategoryFilter.toLowerCase(),
       );
     }
 
@@ -185,7 +207,7 @@ export const CertificatesScreen: React.FC = () => {
     }
     const q = searchQuery.toLowerCase().trim();
     return filtered.filter(
-      (d) =>
+      d =>
         d.name.toLowerCase().includes(q) ||
         d.memberId.toLowerCase().includes(q) ||
         (d.regNo ? d.regNo.toLowerCase().includes(q) : false) ||
@@ -244,7 +266,7 @@ export const CertificatesScreen: React.FC = () => {
     setDownloadModalVisible(true);
 
     const interval = setInterval(() => {
-      setDownloadProgress((prev) => {
+      setDownloadProgress(prev => {
         if (prev >= 85) return prev;
         return prev + 25;
       });
@@ -268,7 +290,10 @@ export const CertificatesScreen: React.FC = () => {
     } catch (e: any) {
       clearInterval(interval);
       setDownloadModalVisible(false);
-      Alert.alert('Download Error', e?.message || 'Could not download certificate.');
+      Alert.alert(
+        'Download Error',
+        e?.message || 'Could not download certificate.',
+      );
     }
   };
 
@@ -280,7 +305,11 @@ export const CertificatesScreen: React.FC = () => {
         <View style={styles.headerTopRow}>
           <View style={styles.headerLeft}>
             <View style={styles.logoBadge}>
-              <Image source={images.logo} style={styles.logoImg} resizeMode="contain" />
+              <Image
+                source={images.logo}
+                style={styles.logoImg}
+                resizeMode="contain"
+              />
             </View>
             <View style={styles.headerTitleCol}>
               <View style={styles.headerBrandRow}>
@@ -299,14 +328,16 @@ export const CertificatesScreen: React.FC = () => {
 
       <FlatList
         data={filteredCerts}
-        keyExtractor={(item) => item.id}
+        keyExtractor={item => item.id}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         extraData={`${selectedConferenceId}-${searchQuery}`}
         renderItem={({ item: cert }) => {
           const isAnnual = cert.type === 'Annual Conference';
           const isSelected = selectedConferenceId === cert.id;
-          const delegates = isSelected ? getDelegatesForConference(cert.id) : [];
+          const delegates = isSelected
+            ? getDelegatesForConference(cert.id)
+            : [];
 
           return (
             <View
@@ -316,10 +347,7 @@ export const CertificatesScreen: React.FC = () => {
               ]}
             >
               <TouchableOpacity
-                style={[
-                  styles.certCard,
-                  isSelected && styles.certCardActive,
-                ]}
+                style={[styles.certCard, isSelected && styles.certCardActive]}
                 activeOpacity={0.8}
                 onPress={() => handleSelectConference(cert.id)}
               >
@@ -418,7 +446,7 @@ export const CertificatesScreen: React.FC = () => {
 
                   {/* Condition filter chips: All / Faculty / Delegate */}
                   <View style={styles.categoryFilterRow}>
-                    {(['All', 'Faculty', 'Delegate'] as const).map((cat) => {
+                    {(['All', 'Faculty', 'Delegate'] as const).map(cat => {
                       const isCatActive = selectedCategoryFilter === cat;
                       return (
                         <TouchableOpacity
@@ -436,7 +464,8 @@ export const CertificatesScreen: React.FC = () => {
                           <Text
                             style={[
                               styles.categoryFilterChipText,
-                              isCatActive && styles.categoryFilterChipTextActive,
+                              isCatActive &&
+                                styles.categoryFilterChipTextActive,
                             ]}
                           >
                             {cat}
@@ -449,7 +478,7 @@ export const CertificatesScreen: React.FC = () => {
                   <View style={styles.delegatesListContainer}>
                     <View style={styles.delegatesCountRow} />
 
-                    {delegates.map((delegate) => {
+                    {delegates.map(delegate => {
                       const isFaculty = delegate.category === 'Faculty';
                       return (
                         <TouchableOpacity
@@ -483,7 +512,10 @@ export const CertificatesScreen: React.FC = () => {
                           </View>
                           <View style={styles.delegateDetailsCol}>
                             <View style={styles.delegateNameRow}>
-                              <Text style={styles.delegateNameText} numberOfLines={1}>
+                              <Text
+                                style={styles.delegateNameText}
+                                numberOfLines={1}
+                              >
                                 {delegate.name}
                               </Text>
                               <View
@@ -508,7 +540,9 @@ export const CertificatesScreen: React.FC = () => {
                             </View>
                             <Text style={styles.delegateSubText}>
                               {delegate.memberId}
-                              {delegate.regNo ? ` • Reg: ${delegate.regNo}` : ''}
+                              {delegate.regNo
+                                ? ` • Reg: ${delegate.regNo}`
+                                : ''}
                             </Text>
                           </View>
                           <View
@@ -609,8 +643,12 @@ export const CertificatesScreen: React.FC = () => {
                   </Text>
                 ) : selectedCert?.category === 'Faculty' ? (
                   <Text style={styles.certAwardBody}>
-                    in grateful appreciation for distinguished contribution and valuable service as{' '}
-                    <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>Faculty</Text> in the{' '}
+                    in grateful appreciation for distinguished contribution and
+                    valuable service as{' '}
+                    <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>
+                      Faculty
+                    </Text>{' '}
+                    in the{' '}
                     <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>
                       {selectedCert?.title}
                     </Text>{' '}
@@ -619,7 +657,10 @@ export const CertificatesScreen: React.FC = () => {
                 ) : (
                   <Text style={styles.certAwardBody}>
                     for active and distinguished participation as a{' '}
-                    <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>Delegate</Text> in the{' '}
+                    <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>
+                      Delegate
+                    </Text>{' '}
+                    in the{' '}
                     <Text style={{ fontWeight: '800', color: '#0A1E3F' }}>
                       {selectedCert?.title}
                     </Text>{' '}
@@ -651,7 +692,9 @@ export const CertificatesScreen: React.FC = () => {
                 <View style={styles.certBottomVerifyRow}>
                   <QrCodeIcon size={16} color="#059669" />
                   <Text style={styles.certBottomVerifyText}>
-                    Document ID: AIOS-VERIFIED-{selectedCert?.recipientId || memberId}-{selectedCert?.year || '2025'}
+                    Document ID: AIOS-VERIFIED-
+                    {selectedCert?.recipientId || memberId}-
+                    {selectedCert?.year || '2025'}
                   </Text>
                 </View>
               </View>
@@ -897,7 +940,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0F172A',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
         shadowOpacity: 0.04,
         shadowRadius: 4,
       },
@@ -1036,7 +1082,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#0284C7',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
         shadowOpacity: 0.1,
         shadowRadius: 8,
       },
@@ -1234,7 +1283,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
+        shadowOffset: {
+          width: 0,
+          height: 8,
+        },
         shadowOpacity: 0.25,
         shadowRadius: 16,
       },
@@ -1452,7 +1504,10 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 8 },
+        shadowOffset: {
+          width: 0,
+          height: 8,
+        },
         shadowOpacity: 0.25,
         shadowRadius: 16,
       },

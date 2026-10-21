@@ -34,7 +34,9 @@ const RequirementItem: React.FC<RequirementItemProps> = ({ label, isMet }) => (
     <View
       style={[
         styles.requirementIndicator,
-        isMet ? styles.requirementIndicatorMet : styles.requirementIndicatorUnmet,
+        isMet
+          ? styles.requirementIndicatorMet
+          : styles.requirementIndicatorUnmet,
       ]}
     >
       {isMet ? (
@@ -55,20 +57,29 @@ const RequirementItem: React.FC<RequirementItemProps> = ({ label, isMet }) => (
 );
 
 export const ChangePasswordScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
 
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [confirmPassword, setConfirmPassword] = useState<string>('');
 
-  const [showCurrentPassword, setShowCurrentPassword] = useState<boolean>(false);
+  const [showCurrentPassword, setShowCurrentPassword] =
+    useState<boolean>(false);
   const [showNewPassword, setShowNewPassword] = useState<boolean>(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] =
+    useState<boolean>(false);
 
-  const [currentPasswordError, setCurrentPasswordError] = useState<string | undefined>();
-  const [newPasswordError, setNewPasswordError] = useState<string | undefined>();
-  const [confirmPasswordError, setConfirmPasswordError] = useState<string | undefined>();
+  const [currentPasswordError, setCurrentPasswordError] = useState<
+    string | undefined
+  >();
+  const [newPasswordError, setNewPasswordError] = useState<
+    string | undefined
+  >();
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | undefined
+  >();
 
   const [touched, setTouched] = useState<{
     current?: boolean;
@@ -95,7 +106,8 @@ export const ChangePasswordScreen: React.FC = () => {
     if (!newPassword) return null;
     let score = 0;
     if (newPasswordChecks.minLength) score += 1;
-    if (newPasswordChecks.hasUppercase && newPasswordChecks.hasLowercase) score += 1;
+    if (newPasswordChecks.hasUppercase && newPasswordChecks.hasLowercase)
+      score += 1;
     if (newPasswordChecks.hasNumber) score += 1;
     if (newPasswordChecks.hasSpecialChar) score += 1;
 
@@ -123,7 +135,9 @@ export const ChangePasswordScreen: React.FC = () => {
       setCurrentPasswordError('Current password is required.');
       isValid = false;
     } else if (currentPassword.length < 6) {
-      setCurrentPasswordError('Current password must be at least 6 characters.');
+      setCurrentPasswordError(
+        'Current password must be at least 6 characters.',
+      );
       isValid = false;
     } else {
       setCurrentPasswordError(undefined);
@@ -137,19 +151,27 @@ export const ChangePasswordScreen: React.FC = () => {
       setNewPasswordError('Password must be at least 8 characters long.');
       isValid = false;
     } else if (!newPasswordChecks.hasUppercase) {
-      setNewPasswordError('Password must include at least one uppercase letter (A-Z).');
+      setNewPasswordError(
+        'Password must include at least one uppercase letter (A-Z).',
+      );
       isValid = false;
     } else if (!newPasswordChecks.hasLowercase) {
-      setNewPasswordError('Password must include at least one lowercase letter (a-z).');
+      setNewPasswordError(
+        'Password must include at least one lowercase letter (a-z).',
+      );
       isValid = false;
     } else if (!newPasswordChecks.hasNumber) {
       setNewPasswordError('Password must include at least one number (0-9).');
       isValid = false;
     } else if (!newPasswordChecks.hasSpecialChar) {
-      setNewPasswordError('Password must include at least one special character (!@#$%^&*).');
+      setNewPasswordError(
+        'Password must include at least one special character (!@#$%^&*).',
+      );
       isValid = false;
     } else if (newPassword === currentPassword) {
-      setNewPasswordError('New password cannot be the same as your current password.');
+      setNewPasswordError(
+        'New password cannot be the same as your current password.',
+      );
       isValid = false;
     } else {
       setNewPasswordError(undefined);
@@ -260,13 +282,16 @@ export const ChangePasswordScreen: React.FC = () => {
           >
             Update Your Password
           </Typography>
-
         </View>
 
         {/* 1. Current Password Field */}
         <View style={styles.fieldGroup}>
           <View style={styles.labelRow}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+            >
               Current Password
             </Typography>
             <Typography color={colors.error}> *</Typography>
@@ -275,7 +300,9 @@ export const ChangePasswordScreen: React.FC = () => {
           <View
             style={[
               styles.inputContainer,
-              currentPasswordError && touched.current && styles.inputErrorBorder,
+              currentPasswordError &&
+                touched.current &&
+                styles.inputErrorBorder,
             ]}
           >
             <View style={styles.inputLeftIcon}>
@@ -285,12 +312,12 @@ export const ChangePasswordScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={currentPassword}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setCurrentPassword(text);
                 if (currentPasswordError) setCurrentPasswordError(undefined);
               }}
               onBlur={() => {
-                setTouched((prev) => ({ ...prev, current: true }));
+                setTouched(prev => ({ ...prev, current: true }));
                 if (!currentPassword.trim()) {
                   setCurrentPasswordError('Current password is required.');
                 }
@@ -308,7 +335,11 @@ export const ChangePasswordScreen: React.FC = () => {
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <EyeIcon size={20} color={colors.textMuted} visible={showCurrentPassword} />
+              <EyeIcon
+                size={20}
+                color={colors.textMuted}
+                visible={showCurrentPassword}
+              />
             </TouchableOpacity>
           </View>
 
@@ -329,7 +360,11 @@ export const ChangePasswordScreen: React.FC = () => {
         {/* 2. New Password Field */}
         <View style={styles.fieldGroup}>
           <View style={styles.labelRow}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+            >
               New Password
             </Typography>
             <Typography color={colors.error}> *</Typography>
@@ -348,7 +383,7 @@ export const ChangePasswordScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={newPassword}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setNewPassword(text);
                 if (newPasswordError) setNewPasswordError(undefined);
                 if (confirmPassword && text !== confirmPassword) {
@@ -358,7 +393,7 @@ export const ChangePasswordScreen: React.FC = () => {
                 }
               }}
               onBlur={() => {
-                setTouched((prev) => ({ ...prev, new: true }));
+                setTouched(prev => ({ ...prev, new: true }));
                 if (!newPassword.trim()) {
                   setNewPasswordError('New password is required.');
                 }
@@ -376,7 +411,11 @@ export const ChangePasswordScreen: React.FC = () => {
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <EyeIcon size={20} color={colors.textMuted} visible={showNewPassword} />
+              <EyeIcon
+                size={20}
+                color={colors.textMuted}
+                visible={showNewPassword}
+              />
             </TouchableOpacity>
           </View>
 
@@ -428,7 +467,11 @@ export const ChangePasswordScreen: React.FC = () => {
         {/* 3. Confirm New Password Field */}
         <View style={styles.fieldGroup}>
           <View style={styles.labelRow}>
-            <Typography variant="labelMd" weight="bold" color={colors.textPrimary}>
+            <Typography
+              variant="labelMd"
+              weight="bold"
+              color={colors.textPrimary}
+            >
               Confirm New Password
             </Typography>
             <Typography color={colors.error}> *</Typography>
@@ -437,7 +480,9 @@ export const ChangePasswordScreen: React.FC = () => {
           <View
             style={[
               styles.inputContainer,
-              confirmPasswordError && touched.confirm && styles.inputErrorBorder,
+              confirmPasswordError &&
+                touched.confirm &&
+                styles.inputErrorBorder,
               isConfirmMatching && styles.inputSuccessBorder,
             ]}
           >
@@ -448,7 +493,7 @@ export const ChangePasswordScreen: React.FC = () => {
             <TextInput
               style={styles.textInput}
               value={confirmPassword}
-              onChangeText={(text) => {
+              onChangeText={text => {
                 setConfirmPassword(text);
                 if (newPassword && text === newPassword) {
                   setConfirmPasswordError(undefined);
@@ -459,7 +504,7 @@ export const ChangePasswordScreen: React.FC = () => {
                 }
               }}
               onBlur={() => {
-                setTouched((prev) => ({ ...prev, confirm: true }));
+                setTouched(prev => ({ ...prev, confirm: true }));
                 if (!confirmPassword.trim()) {
                   setConfirmPasswordError('Please confirm your new password.');
                 } else if (confirmPassword !== newPassword) {
@@ -481,7 +526,11 @@ export const ChangePasswordScreen: React.FC = () => {
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <EyeIcon size={20} color={colors.textMuted} visible={showConfirmPassword} />
+              <EyeIcon
+                size={20}
+                color={colors.textMuted}
+                visible={showConfirmPassword}
+              />
             </TouchableOpacity>
           </View>
 
@@ -537,8 +586,6 @@ export const ChangePasswordScreen: React.FC = () => {
             </View>
           )}
         </TouchableOpacity>
-
-
       </View>
 
       {/* Success Modal */}
@@ -592,7 +639,7 @@ export const ChangePasswordScreen: React.FC = () => {
           </View>
         </View>
       </Modal>
-    </Background >
+    </Background>
   );
 };
 

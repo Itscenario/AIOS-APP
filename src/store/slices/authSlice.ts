@@ -4,6 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 export interface UserProfile {
   id?: string;
   avatar?: string | null;
+  photographName?: string;
   title?: string;
   surname?: string;
   firstName?: string;
@@ -20,6 +21,18 @@ export interface UserProfile {
   pincode?: string;
   email?: string;
   membershipId?: string;
+  // Set to active only after membership payment is verified by the server.
+  membershipStatus?: 'pending' | 'active' | 'expired';
+  // Conference registration completion is independent of society membership.
+  conferenceRegistrations?: Record<string, 'pending' | 'completed'>;
+  nationality?: string;
+  passportNo?: string;
+  memberType?: string;
+  institution?: string;
+  speciality?: string;
+  specialities?: string[];
+  organizationType?: string;
+  biodata?: string;
 }
 
 export type User = UserProfile;

@@ -68,7 +68,9 @@ export const Input: React.FC<InputProps> = ({
           inputContainerStyle,
         ]}
       >
-        {leftIcon ? <View style={styles.leftIconContainer}>{leftIcon}</View> : null}
+        {leftIcon ? (
+          <View style={styles.leftIconContainer}>{leftIcon}</View>
+        ) : null}
         <TextInput
           style={[styles.input, style]}
           placeholderTextColor={placeholderTextColor}
@@ -76,7 +78,9 @@ export const Input: React.FC<InputProps> = ({
           onBlur={handleBlur}
           {...rest}
         />
-        {rightIcon ? <View style={styles.rightIconContainer}>{rightIcon}</View> : null}
+        {rightIcon ? (
+          <View style={styles.rightIconContainer}>{rightIcon}</View>
+        ) : null}
       </View>
 
       {error ? (

@@ -48,12 +48,12 @@ const SPECIALITY_OPTIONS = [
   'Uvea & Ocular Immunology',
   'Oculoplasty & Facial Aesthetics',
   'Comprehensive Ophthalmology',
-  "Cataract/Phaco",
-  "Refractive Surgery",
-  "Neurophthalmology",
-  "Ocular Pathology",
-  "Microbiology",
-  "None"
+  'Cataract/Phaco',
+  'Refractive Surgery',
+  'Neurophthalmology',
+  'Ocular Pathology',
+  'Microbiology',
+  'None',
 ];
 
 interface GoGreenPublication {
@@ -81,7 +81,8 @@ const GOV_ID_OPTIONS = [
 ];
 
 export const BecomeMemberScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
 
   // Basic Organization details
@@ -107,17 +108,25 @@ export const BecomeMemberScreen: React.FC = () => {
 
   const [stateRegistered, setStateRegistered] = useState<string>('');
   const [registrationNo, setRegistrationNo] = useState<string>('');
-  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([]);
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>(
+    [],
+  );
 
   const [stateModalVisible, setStateModalVisible] = useState<boolean>(false);
   const [stateSearch, setStateSearch] = useState<string>('');
-  const indianStates = State.getStatesOfCountry('IN').map((s) => s.name);
+  const indianStates = State.getStatesOfCountry('IN').map(s => s.name);
 
-  const [goGreenSelections, setGoGreenSelections] = useState<Record<string, GoGreenOption>>({});
+  const [goGreenSelections, setGoGreenSelections] = useState<
+    Record<string, GoGreenOption>
+  >({});
 
-  const [mobileConsent, setMobileConsent] = useState<'office_only' | 'can_be_shared' | ''>('office_only');
+  const [mobileConsent, setMobileConsent] = useState<
+    'office_only' | 'can_be_shared' | ''
+  >('office_only');
 
-  const [emailConsent, setEmailConsent] = useState<'office_only' | 'can_be_shared' | ''>('office_only');
+  const [emailConsent, setEmailConsent] = useState<
+    'office_only' | 'can_be_shared' | ''
+  >('office_only');
 
   const [proposerMembershipNo, setProposerMembershipNo] = useState<string>('');
   const [proposerName, setProposerName] = useState<string>('');
@@ -137,12 +146,15 @@ export const BecomeMemberScreen: React.FC = () => {
   const [fbsTerms1, setFbsTerms1] = useState<boolean>(false);
   const [fbsTerms2, setFbsTerms2] = useState<boolean>(false);
   const [fbsTerms3, setFbsTerms3] = useState<boolean>(false);
-  const [fbsInterest, setFbsInterest] = useState<'interested' | 'not_interested' | ''>('not_interested');
+  const [fbsInterest, setFbsInterest] = useState<
+    'interested' | 'not_interested' | ''
+  >('not_interested');
 
-  const [declarationAccepted, setDeclarationAccepted] = useState<boolean>(false);
+  const [declarationAccepted, setDeclarationAccepted] =
+    useState<boolean>(false);
 
   const handleSelectGoGreen = (pubId: string, option: GoGreenOption) => {
-    setGoGreenSelections((prev) => ({
+    setGoGreenSelections(prev => ({
       ...prev,
       [pubId]: prev[pubId] === option ? ('' as any) : option,
     }));
@@ -166,7 +178,7 @@ export const BecomeMemberScreen: React.FC = () => {
 
   const handleAddDegree = () => {
     const newId = (qualifications.length + 1).toString();
-    setQualifications((prev) => [
+    setQualifications(prev => [
       ...prev,
       {
         id: newId,
@@ -184,9 +196,9 @@ export const BecomeMemberScreen: React.FC = () => {
       return;
     }
     if (typeof indexToRemove === 'number') {
-      setQualifications((prev) => prev.filter((_, i) => i !== indexToRemove));
+      setQualifications(prev => prev.filter((_, i) => i !== indexToRemove));
     } else {
-      setQualifications((prev) => prev.slice(0, prev.length - 1));
+      setQualifications(prev => prev.slice(0, prev.length - 1));
     }
   };
 
@@ -195,7 +207,7 @@ export const BecomeMemberScreen: React.FC = () => {
     field: keyof QualificationRow,
     value: string,
   ) => {
-    setQualifications((prev) => {
+    setQualifications(prev => {
       const copy = [...prev];
       copy[index] = { ...copy[index], [field]: value };
       return copy;
@@ -204,13 +216,16 @@ export const BecomeMemberScreen: React.FC = () => {
 
   const toggleSpeciality = (item: string) => {
     if (selectedSpecialities.includes(item)) {
-      setSelectedSpecialities((prev) => prev.filter((s) => s !== item));
+      setSelectedSpecialities(prev => prev.filter(s => s !== item));
     } else {
       if (selectedSpecialities.length >= 3) {
-        Alert.alert('Limit Reached', 'You can select a maximum of three specialities.');
+        Alert.alert(
+          'Limit Reached',
+          'You can select a maximum of three specialities.',
+        );
         return;
       }
-      setSelectedSpecialities((prev) => [...prev, item]);
+      setSelectedSpecialities(prev => [...prev, item]);
     }
   };
 
@@ -236,7 +251,10 @@ export const BecomeMemberScreen: React.FC = () => {
       return;
     }
     if (captchaInput.trim().toLowerCase() !== captchaCode.toLowerCase()) {
-      Alert.alert('Invalid Captcha', 'Please enter the correct captcha code shown.');
+      Alert.alert(
+        'Invalid Captcha',
+        'Please enter the correct captcha code shown.',
+      );
       return;
     }
 
@@ -259,7 +277,7 @@ export const BecomeMemberScreen: React.FC = () => {
     );
   };
 
-  const filteredStates = indianStates.filter((s) =>
+  const filteredStates = indianStates.filter(s =>
     s.toLowerCase().includes(stateSearch.toLowerCase()),
   );
 
@@ -278,21 +296,36 @@ export const BecomeMemberScreen: React.FC = () => {
           <ArrowBackIcon size={20} color={colors.white} />
         </TouchableOpacity>
         <View style={styles.headerTitleContainer}>
-          <Typography variant="headlineSm" weight="bold" color={colors.white} numberOfLines={1}>
+          <Typography
+            variant="headlineSm"
+            weight="bold"
+            color={colors.white}
+            numberOfLines={1}
+          >
             Become a AIOS Member
           </Typography>
         </View>
       </View>
       <View style={styles.mainCard}>
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Organization Details
           </Typography>
           <View style={styles.orangeAccentBar} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Passport No.
           </Typography>
           <TextInput
@@ -305,7 +338,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             * Institution / Organization
           </Typography>
           <TextInput
@@ -318,7 +356,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Type of Organization
           </Typography>
           <View style={styles.radioRow}>
@@ -327,10 +370,19 @@ export const BecomeMemberScreen: React.FC = () => {
               onPress={() => setOrgType('Govt.')}
               activeOpacity={0.75}
             >
-              <View style={[styles.radioCircle, orgType === 'Govt.' && styles.radioCircleActive]}>
+              <View
+                style={[
+                  styles.radioCircle,
+                  orgType === 'Govt.' && styles.radioCircleActive,
+                ]}
+              >
                 {orgType === 'Govt.' && <View style={styles.radioDot} />}
               </View>
-              <Typography variant="bodyMd" weight={orgType === 'Govt.' ? 'bold' : 'regular'} color={colors.textPrimary}>
+              <Typography
+                variant="bodyMd"
+                weight={orgType === 'Govt.' ? 'bold' : 'regular'}
+                color={colors.textPrimary}
+              >
                 Govt.
               </Typography>
             </TouchableOpacity>
@@ -340,10 +392,19 @@ export const BecomeMemberScreen: React.FC = () => {
               onPress={() => setOrgType('Private')}
               activeOpacity={0.75}
             >
-              <View style={[styles.radioCircle, orgType === 'Private' && styles.radioCircleActive]}>
+              <View
+                style={[
+                  styles.radioCircle,
+                  orgType === 'Private' && styles.radioCircleActive,
+                ]}
+              >
                 {orgType === 'Private' && <View style={styles.radioDot} />}
               </View>
-              <Typography variant="bodyMd" weight={orgType === 'Private' ? 'bold' : 'regular'} color={colors.textPrimary}>
+              <Typography
+                variant="bodyMd"
+                weight={orgType === 'Private' ? 'bold' : 'regular'}
+                color={colors.textPrimary}
+              >
                 Private
               </Typography>
             </TouchableOpacity>
@@ -351,23 +412,34 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.uploadCard}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.uploadTitle}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.uploadTitle}
+          >
             Upload Passport Size Photograph*
           </Typography>
           <View style={styles.fileActionRow}>
             <TouchableOpacity
               style={styles.chooseFileButton}
-              onPress={() => handlePickFile((name) => setPassportPhotoName(name))}
+              onPress={() => handlePickFile(name => setPassportPhotoName(name))}
               activeOpacity={0.8}
             >
-              <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Choose Files
               </Typography>
             </TouchableOpacity>
             <View style={styles.fileSelectedBox}>
               <Typography
                 variant="bodySm"
-                color={passportPhotoName ? colors.primaryNavy : colors.textMuted}
+                color={
+                  passportPhotoName ? colors.primaryNavy : colors.textMuted
+                }
                 numberOfLines={1}
                 weight={passportPhotoName ? 'medium' : 'regular'}
                 style={styles.fileSelectedText}
@@ -376,29 +448,46 @@ export const BecomeMemberScreen: React.FC = () => {
               </Typography>
             </View>
           </View>
-          <Typography variant="caption" color={colors.textMuted} style={styles.helperNotice}>
+          <Typography
+            variant="caption"
+            color={colors.textMuted}
+            style={styles.helperNotice}
+          >
             Image size should be 600 X 400 Pixels and not more than 200KB.
           </Typography>
         </View>
 
         <View style={styles.uploadCard}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.uploadTitle}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.uploadTitle}
+          >
             Upload User Signature*
           </Typography>
           <View style={styles.fileActionRow}>
             <TouchableOpacity
               style={styles.chooseFileButton}
-              onPress={() => handlePickFile((name) => setSignaturePhotoName(name))}
+              onPress={() =>
+                handlePickFile(name => setSignaturePhotoName(name))
+              }
               activeOpacity={0.8}
             >
-              <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Choose Files
               </Typography>
             </TouchableOpacity>
             <View style={styles.fileSelectedBox}>
               <Typography
                 variant="bodySm"
-                color={signaturePhotoName ? colors.primaryNavy : colors.textMuted}
+                color={
+                  signaturePhotoName ? colors.primaryNavy : colors.textMuted
+                }
                 numberOfLines={1}
                 weight={signaturePhotoName ? 'medium' : 'regular'}
                 style={styles.fileSelectedText}
@@ -407,14 +496,23 @@ export const BecomeMemberScreen: React.FC = () => {
               </Typography>
             </View>
           </View>
-          <Typography variant="caption" color={colors.textMuted} style={styles.helperNotice}>
+          <Typography
+            variant="caption"
+            color={colors.textMuted}
+            style={styles.helperNotice}
+          >
             Image size should be 131 X 60 Pixels and not more than 200KB.
           </Typography>
         </View>
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Qualifications
           </Typography>
           <View style={styles.orangeAccentBar} />
@@ -423,7 +521,12 @@ export const BecomeMemberScreen: React.FC = () => {
         {qualifications.map((q, index) => (
           <View key={q.id} style={styles.qualificationBox}>
             <View style={styles.fieldGroup}>
-              <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+              <Typography
+                variant="labelSm"
+                weight="bold"
+                color={colors.textPrimary}
+                style={styles.fieldLabel}
+              >
                 Degree (i.e. MBBS, MD)*
               </Typography>
               <TextInput
@@ -431,12 +534,17 @@ export const BecomeMemberScreen: React.FC = () => {
                 placeholder="Enter Degree"
                 placeholderTextColor={colors.textMuted}
                 value={q.degree}
-                onChangeText={(val) => updateQualification(index, 'degree', val)}
+                onChangeText={val => updateQualification(index, 'degree', val)}
               />
             </View>
 
             <View style={styles.fieldGroup}>
-              <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+              <Typography
+                variant="labelSm"
+                weight="bold"
+                color={colors.textPrimary}
+                style={styles.fieldLabel}
+              >
                 Full University *
               </Typography>
               <TextInput
@@ -444,12 +552,19 @@ export const BecomeMemberScreen: React.FC = () => {
                 placeholder="Enter University"
                 placeholderTextColor={colors.textMuted}
                 value={q.university}
-                onChangeText={(val) => updateQualification(index, 'university', val)}
+                onChangeText={val =>
+                  updateQualification(index, 'university', val)
+                }
               />
             </View>
 
             <View style={styles.fieldGroup}>
-              <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+              <Typography
+                variant="labelSm"
+                weight="bold"
+                color={colors.textPrimary}
+                style={styles.fieldLabel}
+              >
                 Year of Passing *
               </Typography>
               <TextInput
@@ -457,23 +572,36 @@ export const BecomeMemberScreen: React.FC = () => {
                 placeholder="MM/DD/YYYY"
                 placeholderTextColor={colors.textMuted}
                 value={q.yearOfPassing}
-                onChangeText={(val) => updateQualification(index, 'yearOfPassing', val)}
+                onChangeText={val =>
+                  updateQualification(index, 'yearOfPassing', val)
+                }
               />
             </View>
 
             <View style={styles.fieldGroup}>
-              <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+              <Typography
+                variant="labelSm"
+                weight="bold"
+                color={colors.textPrimary}
+                style={styles.fieldLabel}
+              >
                 Copy of Degree *
               </Typography>
               <View style={styles.fileActionRow}>
                 <TouchableOpacity
                   style={styles.chooseFileButton}
                   onPress={() =>
-                    handlePickFile((name) => updateQualification(index, 'copyName', name))
+                    handlePickFile(name =>
+                      updateQualification(index, 'copyName', name),
+                    )
                   }
                   activeOpacity={0.8}
                 >
-                  <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+                  <Typography
+                    variant="bodySm"
+                    weight="bold"
+                    color={colors.primaryNavy}
+                  >
                     Choose Files
                   </Typography>
                 </TouchableOpacity>
@@ -520,17 +648,31 @@ export const BecomeMemberScreen: React.FC = () => {
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Sub - Speciality
           </Typography>
-          <Typography variant="caption" color={colors.textSecondary} style={styles.sectionSubtitle}>
+          <Typography
+            variant="caption"
+            color={colors.textSecondary}
+            style={styles.sectionSubtitle}
+          >
             (i. e. Cataract, Refractive Surgery, Vitreo-Retina, Cornea etc)
           </Typography>
           <View style={styles.orangeAccentBar} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             State Registered *
           </Typography>
           <TouchableOpacity
@@ -554,7 +696,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Registration No. *
           </Typography>
           <TextInput
@@ -567,16 +714,25 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.uploadCard}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.uploadTitle}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.uploadTitle}
+          >
             Upload Certificate*
           </Typography>
           <View style={styles.fileActionRow}>
             <TouchableOpacity
               style={styles.chooseFileButton}
-              onPress={() => handlePickFile((name) => setCertificateName(name))}
+              onPress={() => handlePickFile(name => setCertificateName(name))}
               activeOpacity={0.8}
             >
-              <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Choose Files
               </Typography>
             </TouchableOpacity>
@@ -595,25 +751,38 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.specialityHeaderBox}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+          >
             *Speciality (Maximum Three)
           </Typography>
           <Typography variant="caption" color={colors.textMuted}>
-            Select up to 3 sub-specialities ({selectedSpecialities.length}/3 selected)
+            Select up to 3 sub-specialities ({selectedSpecialities.length}/3
+            selected)
           </Typography>
         </View>
 
         <View style={styles.specialityList}>
-          {SPECIALITY_OPTIONS.map((item) => {
+          {SPECIALITY_OPTIONS.map(item => {
             const isChecked = selectedSpecialities.includes(item);
             return (
               <TouchableOpacity
                 key={item}
-                style={[styles.specialityItem, isChecked && styles.specialityItemActive]}
+                style={[
+                  styles.specialityItem,
+                  isChecked && styles.specialityItemActive,
+                ]}
                 onPress={() => toggleSpeciality(item)}
                 activeOpacity={0.75}
               >
-                <View style={[styles.checkboxSquare, isChecked && styles.checkboxSquareActive]}>
+                <View
+                  style={[
+                    styles.checkboxSquare,
+                    isChecked && styles.checkboxSquareActive,
+                  ]}
+                >
                   {isChecked && <CheckIcon size={11} color={colors.white} />}
                 </View>
                 <Typography
@@ -631,14 +800,24 @@ export const BecomeMemberScreen: React.FC = () => {
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Proposed by
           </Typography>
           <View style={styles.tealAccentBar} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Membership No *
           </Typography>
           <TextInput
@@ -651,7 +830,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Name*
           </Typography>
           <TextInput
@@ -664,7 +848,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Mobile No.*
           </Typography>
           <TextInput
@@ -678,7 +867,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Email Id*
           </Typography>
           <TextInput
@@ -697,24 +891,43 @@ export const BecomeMemberScreen: React.FC = () => {
           onPress={() => setProposerConsent(!proposerConsent)}
           activeOpacity={0.75}
         >
-          <View style={[styles.checkboxSquare, proposerConsent && styles.checkboxSquareActive]}>
+          <View
+            style={[
+              styles.checkboxSquare,
+              proposerConsent && styles.checkboxSquareActive,
+            ]}
+          >
             {proposerConsent && <CheckIcon size={11} color={colors.white} />}
           </View>
-          <Typography variant="bodySm" weight={proposerConsent ? 'bold' : 'regular'} color={colors.textPrimary}>
+          <Typography
+            variant="bodySm"
+            weight={proposerConsent ? 'bold' : 'regular'}
+            color={colors.textPrimary}
+          >
             I have taken consent from Proposer
           </Typography>
         </TouchableOpacity>
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Seconded by
           </Typography>
           <View style={styles.tealAccentBar} />
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Membership No *
           </Typography>
           <TextInput
@@ -727,7 +940,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Name*
           </Typography>
           <TextInput
@@ -740,7 +958,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Mobile No.*
           </Typography>
           <TextInput
@@ -754,7 +977,12 @@ export const BecomeMemberScreen: React.FC = () => {
         </View>
 
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Email Id*
           </Typography>
           <TextInput
@@ -773,23 +1001,42 @@ export const BecomeMemberScreen: React.FC = () => {
           onPress={() => setSeconderConsent(!seconderConsent)}
           activeOpacity={0.75}
         >
-          <View style={[styles.checkboxSquare, seconderConsent && styles.checkboxSquareActive]}>
+          <View
+            style={[
+              styles.checkboxSquare,
+              seconderConsent && styles.checkboxSquareActive,
+            ]}
+          >
             {seconderConsent && <CheckIcon size={11} color={colors.white} />}
           </View>
-          <Typography variant="bodySm" weight={seconderConsent ? 'bold' : 'regular'} color={colors.textPrimary}>
+          <Typography
+            variant="bodySm"
+            weight={seconderConsent ? 'bold' : 'regular'}
+            color={colors.textPrimary}
+          >
             I have taken consent from Seconder
           </Typography>
         </TouchableOpacity>
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             Government ID Proofs
           </Typography>
           <View style={styles.tealAccentBar} />
         </View>
         <View style={styles.fieldGroup}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.fieldLabel}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fieldLabel}
+          >
             Please select id proof which you wish to upload *
           </Typography>
           <TouchableOpacity
@@ -797,23 +1044,36 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setGovIdModalVisible(true)}
             activeOpacity={0.8}
           >
-            <Typography variant="bodyMd" color={colors.textPrimary} style={styles.dropdownText}>
+            <Typography
+              variant="bodyMd"
+              color={colors.textPrimary}
+              style={styles.dropdownText}
+            >
               {govIdType}
             </Typography>
             <ChevronDownIcon size={14} color={colors.textMuted} />
           </TouchableOpacity>
         </View>
         <View style={styles.uploadCard}>
-          <Typography variant="labelSm" weight="bold" color={colors.textPrimary} style={styles.uploadTitle}>
+          <Typography
+            variant="labelSm"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.uploadTitle}
+          >
             Upload Certificate *
           </Typography>
           <View style={styles.fileActionRow}>
             <TouchableOpacity
               style={styles.chooseFileButton}
-              onPress={() => handlePickFile((name) => setGovIdFile(name))}
+              onPress={() => handlePickFile(name => setGovIdFile(name))}
               activeOpacity={0.8}
             >
-              <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Choose Files
               </Typography>
             </TouchableOpacity>
@@ -833,7 +1093,12 @@ export const BecomeMemberScreen: React.FC = () => {
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             * AIOS - Go Green Initiative
           </Typography>
           <View style={styles.tealAccentBar} />
@@ -843,31 +1108,49 @@ export const BecomeMemberScreen: React.FC = () => {
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View style={styles.goGreenTable}>
               <View style={styles.goGreenTableHeaderRow}>
-                <View style={styles.goGreenColTitle}>
-                </View>
+                <View style={styles.goGreenColTitle}></View>
                 <View style={styles.goGreenColRadioHeader}>
-                  <Typography variant="caption" weight="bold" color={colors.textPrimary} style={styles.radioHeaderText}>
+                  <Typography
+                    variant="caption"
+                    weight="bold"
+                    color={colors.textPrimary}
+                    style={styles.radioHeaderText}
+                  >
                     I need hard copy
                   </Typography>
                 </View>
                 <View style={styles.goGreenColRadioHeader}>
-                  <Typography variant="caption" weight="bold" color={colors.textPrimary} style={styles.radioHeaderText}>
+                  <Typography
+                    variant="caption"
+                    weight="bold"
+                    color={colors.textPrimary}
+                    style={styles.radioHeaderText}
+                  >
                     Online version
                   </Typography>
                 </View>
                 <View style={styles.goGreenColRadioHeader}>
-                  <Typography variant="caption" weight="bold" color={colors.textPrimary} style={styles.radioHeaderText}>
+                  <Typography
+                    variant="caption"
+                    weight="bold"
+                    color={colors.textPrimary}
+                    style={styles.radioHeaderText}
+                  >
                     I need both
                   </Typography>
                 </View>
               </View>
 
-              {GO_GREEN_PUBLICATIONS.map((pub) => {
+              {GO_GREEN_PUBLICATIONS.map(pub => {
                 const selected = goGreenSelections[pub.id];
                 return (
                   <View key={pub.id} style={styles.goGreenTableRow}>
                     <View style={styles.goGreenColTitle}>
-                      <Typography variant="bodySm" color={colors.textPrimary} style={styles.pubTitleText}>
+                      <Typography
+                        variant="bodySm"
+                        color={colors.textPrimary}
+                        style={styles.pubTitleText}
+                      >
                         {pub.title}
                       </Typography>
                     </View>
@@ -876,8 +1159,16 @@ export const BecomeMemberScreen: React.FC = () => {
                       onPress={() => handleSelectGoGreen(pub.id, 'hard_copy')}
                       activeOpacity={0.7}
                     >
-                      <View style={[styles.radioCircleSmall, selected === 'hard_copy' && styles.radioCircleSmallActive]}>
-                        {selected === 'hard_copy' && <View style={styles.radioDotSmall} />}
+                      <View
+                        style={[
+                          styles.radioCircleSmall,
+                          selected === 'hard_copy' &&
+                            styles.radioCircleSmallActive,
+                        ]}
+                      >
+                        {selected === 'hard_copy' && (
+                          <View style={styles.radioDotSmall} />
+                        )}
                       </View>
                     </TouchableOpacity>
 
@@ -886,8 +1177,16 @@ export const BecomeMemberScreen: React.FC = () => {
                       onPress={() => handleSelectGoGreen(pub.id, 'online')}
                       activeOpacity={0.7}
                     >
-                      <View style={[styles.radioCircleSmall, selected === 'online' && styles.radioCircleSmallActive]}>
-                        {selected === 'online' && <View style={styles.radioDotSmall} />}
+                      <View
+                        style={[
+                          styles.radioCircleSmall,
+                          selected === 'online' &&
+                            styles.radioCircleSmallActive,
+                        ]}
+                      >
+                        {selected === 'online' && (
+                          <View style={styles.radioDotSmall} />
+                        )}
                       </View>
                     </TouchableOpacity>
 
@@ -896,8 +1195,15 @@ export const BecomeMemberScreen: React.FC = () => {
                       onPress={() => handleSelectGoGreen(pub.id, 'both')}
                       activeOpacity={0.7}
                     >
-                      <View style={[styles.radioCircleSmall, selected === 'both' && styles.radioCircleSmallActive]}>
-                        {selected === 'both' && <View style={styles.radioDotSmall} />}
+                      <View
+                        style={[
+                          styles.radioCircleSmall,
+                          selected === 'both' && styles.radioCircleSmallActive,
+                        ]}
+                      >
+                        {selected === 'both' && (
+                          <View style={styles.radioDotSmall} />
+                        )}
                       </View>
                     </TouchableOpacity>
                   </View>
@@ -909,7 +1215,12 @@ export const BecomeMemberScreen: React.FC = () => {
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             * Use of your mobile number (please tick)
           </Typography>
           <View style={styles.tealAccentBar} />
@@ -921,11 +1232,30 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setMobileConsent('office_only')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, mobileConsent === 'office_only' && styles.radioCircleActive]}>
-              {mobileConsent === 'office_only' && <View style={styles.radioDot} />}
+            <View
+              style={[
+                styles.radioCircle,
+                mobileConsent === 'office_only' && styles.radioCircleActive,
+              ]}
+            >
+              {mobileConsent === 'office_only' && (
+                <View style={styles.radioDot} />
+              )}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.mobileConsentText}>
-              My <Typography variant="bodySm" weight="bold" color={colors.textPrimary}>mobile number</Typography> should be used only for AIOS Office purpose.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.mobileConsentText}
+            >
+              My{' '}
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.textPrimary}
+              >
+                mobile number
+              </Typography>{' '}
+              should be used only for AIOS Office purpose.
             </Typography>
           </TouchableOpacity>
           <TouchableOpacity
@@ -933,18 +1263,43 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setMobileConsent('can_be_shared')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, mobileConsent === 'can_be_shared' && styles.radioCircleActive]}>
-              {mobileConsent === 'can_be_shared' && <View style={styles.radioDot} />}
+            <View
+              style={[
+                styles.radioCircle,
+                mobileConsent === 'can_be_shared' && styles.radioCircleActive,
+              ]}
+            >
+              {mobileConsent === 'can_be_shared' && (
+                <View style={styles.radioDot} />
+              )}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.mobileConsentText}>
-              My <Typography variant="bodySm" weight="bold" color={colors.textPrimary}>mobile number</Typography> can be shared with other (as per office policy) if they ask for it apart from official purpose as well.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.mobileConsentText}
+            >
+              My{' '}
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.textPrimary}
+              >
+                mobile number
+              </Typography>{' '}
+              can be shared with other (as per office policy) if they ask for it
+              apart from official purpose as well.
             </Typography>
           </TouchableOpacity>
         </View>
 
         <View style={styles.divider} />
         <View style={styles.sectionHeader}>
-          <Typography variant="title" weight="bold" color={colors.tertiarySaffron} style={styles.sectionTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.sectionTitle}
+          >
             * Use of your email id (please tick)
           </Typography>
           <View style={styles.tealAccentBar} />
@@ -956,11 +1311,30 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setEmailConsent('office_only')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, emailConsent === 'office_only' && styles.radioCircleActive]}>
-              {emailConsent === 'office_only' && <View style={styles.radioDot} />}
+            <View
+              style={[
+                styles.radioCircle,
+                emailConsent === 'office_only' && styles.radioCircleActive,
+              ]}
+            >
+              {emailConsent === 'office_only' && (
+                <View style={styles.radioDot} />
+              )}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.mobileConsentText}>
-              My <Typography variant="bodySm" weight="bold" color={colors.textPrimary}>email id</Typography> should be used only for AIOS Office purpose.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.mobileConsentText}
+            >
+              My{' '}
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.textPrimary}
+              >
+                email id
+              </Typography>{' '}
+              should be used only for AIOS Office purpose.
             </Typography>
           </TouchableOpacity>
 
@@ -969,20 +1343,49 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setEmailConsent('can_be_shared')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, emailConsent === 'can_be_shared' && styles.radioCircleActive]}>
-              {emailConsent === 'can_be_shared' && <View style={styles.radioDot} />}
+            <View
+              style={[
+                styles.radioCircle,
+                emailConsent === 'can_be_shared' && styles.radioCircleActive,
+              ]}
+            >
+              {emailConsent === 'can_be_shared' && (
+                <View style={styles.radioDot} />
+              )}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.mobileConsentText}>
-              My <Typography variant="bodySm" weight="bold" color={colors.textPrimary}>email id</Typography> can be shared with other (as per office policy) if they ask for it apart from official purpose as well.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.mobileConsentText}
+            >
+              My{' '}
+              <Typography
+                variant="bodySm"
+                weight="bold"
+                color={colors.textPrimary}
+              >
+                email id
+              </Typography>{' '}
+              can be shared with other (as per office policy) if they ask for it
+              apart from official purpose as well.
             </Typography>
           </TouchableOpacity>
         </View>
 
         <View style={styles.divider} />
         <View style={styles.fbsHeaderRow}>
-          <Typography variant="title" weight="bold" color={colors.textPrimary} style={styles.fbsTitle}>
+          <Typography
+            variant="title"
+            weight="bold"
+            color={colors.textPrimary}
+            style={styles.fbsTitle}
+          >
             Wish to join FBS AIOS{' '}
-            <Typography variant="caption" color={colors.error} style={styles.fbsSubtitle}>
+            <Typography
+              variant="caption"
+              color={colors.error}
+              style={styles.fbsSubtitle}
+            >
               Verify the terms & conditions by clicking the button
             </Typography>
           </Typography>
@@ -996,12 +1399,25 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setFbsTerms1(!fbsTerms1)}
             activeOpacity={0.75}
           >
-            <View style={[styles.checkboxSquare, fbsTerms1 && styles.checkboxSquareActive]}>
+            <View
+              style={[
+                styles.checkboxSquare,
+                fbsTerms1 && styles.checkboxSquareActive,
+              ]}
+            >
               {fbsTerms1 && <CheckIcon size={11} color={colors.white} />}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.fbsTermText}>
-              <Typography variant="bodySm" color={colors.error}>* </Typography>
-              AIOS facilitates a Family Benefit Scheme (AIOS FBS) for benefit of its life members. This is a voluntary scheme in which life members can participate.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.fbsTermText}
+            >
+              <Typography variant="bodySm" color={colors.error}>
+                *{' '}
+              </Typography>
+              AIOS facilitates a Family Benefit Scheme (AIOS FBS) for benefit of
+              its life members. This is a voluntary scheme in which life members
+              can participate.
             </Typography>
           </TouchableOpacity>
 
@@ -1011,12 +1427,25 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setFbsTerms2(!fbsTerms2)}
             activeOpacity={0.75}
           >
-            <View style={[styles.checkboxSquare, fbsTerms2 && styles.checkboxSquareActive]}>
+            <View
+              style={[
+                styles.checkboxSquare,
+                fbsTerms2 && styles.checkboxSquareActive,
+              ]}
+            >
               {fbsTerms2 && <CheckIcon size={11} color={colors.white} />}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.fbsTermText}>
-              <Typography variant="bodySm" color={colors.error}>* </Typography>
-              AIOS FBS is an independent registered society and is a separate entity from AIOS. AIOS only acts as a facilitator for members and has no role in the governance of the FBS.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.fbsTermText}
+            >
+              <Typography variant="bodySm" color={colors.error}>
+                *{' '}
+              </Typography>
+              AIOS FBS is an independent registered society and is a separate
+              entity from AIOS. AIOS only acts as a facilitator for members and
+              has no role in the governance of the FBS.
             </Typography>
           </TouchableOpacity>
 
@@ -1026,12 +1455,24 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setFbsTerms3(!fbsTerms3)}
             activeOpacity={0.75}
           >
-            <View style={[styles.checkboxSquare, fbsTerms3 && styles.checkboxSquareActive]}>
+            <View
+              style={[
+                styles.checkboxSquare,
+                fbsTerms3 && styles.checkboxSquareActive,
+              ]}
+            >
               {fbsTerms3 && <CheckIcon size={11} color={colors.white} />}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.fbsTermText}>
-              <Typography variant="bodySm" color={colors.error}>* </Typography>
-              The FBS is governed by its own set of rules and regulations and AIOS does not take responsibility for the running of the scheme.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.fbsTermText}
+            >
+              <Typography variant="bodySm" color={colors.error}>
+                *{' '}
+              </Typography>
+              The FBS is governed by its own set of rules and regulations and
+              AIOS does not take responsibility for the running of the scheme.
             </Typography>
           </TouchableOpacity>
         </View>
@@ -1044,10 +1485,19 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setFbsInterest('interested')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, fbsInterest === 'interested' && styles.radioCircleActive]}>
+            <View
+              style={[
+                styles.radioCircle,
+                fbsInterest === 'interested' && styles.radioCircleActive,
+              ]}
+            >
               {fbsInterest === 'interested' && <View style={styles.radioDot} />}
             </View>
-            <Typography variant="bodyMd" weight="bold" color={colors.textPrimary}>
+            <Typography
+              variant="bodyMd"
+              weight="bold"
+              color={colors.textPrimary}
+            >
               I am interested
             </Typography>
           </TouchableOpacity>
@@ -1058,10 +1508,21 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setFbsInterest('not_interested')}
             activeOpacity={0.75}
           >
-            <View style={[styles.radioCircle, fbsInterest === 'not_interested' && styles.radioCircleActive]}>
-              {fbsInterest === 'not_interested' && <View style={styles.radioDot} />}
+            <View
+              style={[
+                styles.radioCircle,
+                fbsInterest === 'not_interested' && styles.radioCircleActive,
+              ]}
+            >
+              {fbsInterest === 'not_interested' && (
+                <View style={styles.radioDot} />
+              )}
             </View>
-            <Typography variant="bodyMd" weight="bold" color={colors.textPrimary}>
+            <Typography
+              variant="bodyMd"
+              weight="bold"
+              color={colors.textPrimary}
+            >
               I am not interested
             </Typography>
           </TouchableOpacity>
@@ -1073,12 +1534,23 @@ export const BecomeMemberScreen: React.FC = () => {
         {/* SECTION 8: AMOUNT & DECLARATION */}
         {/* ========================================================= */}
         <View style={styles.amountDeclarationSection}>
-          <Typography variant="headlineLg" weight="bold" color={colors.primaryNavy} style={styles.amountTitle}>
+          <Typography
+            variant="headlineLg"
+            weight="bold"
+            color={colors.primaryNavy}
+            style={styles.amountTitle}
+          >
             Amount : INR 10700
           </Typography>
 
-          <Typography variant="bodySm" weight="bold" color={colors.tertiarySaffron} style={styles.handlingNotice}>
-            An Internet Handling Charges of Rs. 330 will be applied. Details will be shown at the checkout page.
+          <Typography
+            variant="bodySm"
+            weight="bold"
+            color={colors.tertiarySaffron}
+            style={styles.handlingNotice}
+          >
+            An Internet Handling Charges of Rs. 330 will be applied. Details
+            will be shown at the checkout page.
           </Typography>
 
           {/* Final Life Member Declaration Checkbox */}
@@ -1087,11 +1559,25 @@ export const BecomeMemberScreen: React.FC = () => {
             onPress={() => setDeclarationAccepted(!declarationAccepted)}
             activeOpacity={0.75}
           >
-            <View style={[styles.checkboxSquare, declarationAccepted && styles.checkboxSquareActive]}>
-              {declarationAccepted && <CheckIcon size={11} color={colors.white} />}
+            <View
+              style={[
+                styles.checkboxSquare,
+                declarationAccepted && styles.checkboxSquareActive,
+              ]}
+            >
+              {declarationAccepted && (
+                <CheckIcon size={11} color={colors.white} />
+              )}
             </View>
-            <Typography variant="bodySm" color={colors.textPrimary} style={styles.declarationText}>
-              I hereby declare that all the above details are correct. I wish to be a Life member. I have carefully read the instructions. I shall abide by the Rules, Regulations & Bye-Laws of the Society as in force and any subsequent amendment(s) made from time to time.
+            <Typography
+              variant="bodySm"
+              color={colors.textPrimary}
+              style={styles.declarationText}
+            >
+              I hereby declare that all the above details are correct. I wish to
+              be a Life member. I have carefully read the instructions. I shall
+              abide by the Rules, Regulations & Bye-Laws of the Society as in
+              force and any subsequent amendment(s) made from time to time.
             </Typography>
           </TouchableOpacity>
         </View>
@@ -1099,7 +1585,12 @@ export const BecomeMemberScreen: React.FC = () => {
         <View style={styles.paymentSummaryCard}>
           <View style={styles.paymentCardHeader}>
             <DocumentIcon size={18} color={colors.white} />
-            <Typography variant="headlineSm" weight="bold" color={colors.white} style={styles.paymentCardTitle}>
+            <Typography
+              variant="headlineSm"
+              weight="bold"
+              color={colors.white}
+              style={styles.paymentCardTitle}
+            >
               Payment Summary
             </Typography>
           </View>
@@ -1129,17 +1620,29 @@ export const BecomeMemberScreen: React.FC = () => {
 
             {/* Total Row */}
             <View style={styles.paymentLineRow}>
-              <Typography variant="bodyMd" weight="bold" color={colors.tertiarySaffron}>
+              <Typography
+                variant="bodyMd"
+                weight="bold"
+                color={colors.tertiarySaffron}
+              >
                 Total Amount
               </Typography>
-              <Typography variant="headlineSm" weight="bold" color={colors.tertiarySaffron}>
+              <Typography
+                variant="headlineSm"
+                weight="bold"
+                color={colors.tertiarySaffron}
+              >
                 ₹ 11,030/-
               </Typography>
             </View>
 
             {/* Captcha Section */}
             <View style={styles.captchaSection}>
-              <Typography variant="caption" color="rgba(255, 255, 255, 0.9)" style={styles.captchaPrompt}>
+              <Typography
+                variant="caption"
+                color="rgba(255, 255, 255, 0.9)"
+                style={styles.captchaPrompt}
+              >
                 Enter the contents of image :
               </Typography>
 
@@ -1150,7 +1653,12 @@ export const BecomeMemberScreen: React.FC = () => {
                   onPress={handleRefreshCaptcha}
                   activeOpacity={0.7}
                 >
-                  <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy} style={styles.captchaBadgeText}>
+                  <Typography
+                    variant="headlineSm"
+                    weight="bold"
+                    color={colors.primaryNavy}
+                    style={styles.captchaBadgeText}
+                  >
                     {captchaCode}
                   </Typography>
                 </TouchableOpacity>
@@ -1190,7 +1698,11 @@ export const BecomeMemberScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="headlineSm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Select State
               </Typography>
               <TouchableOpacity
@@ -1211,7 +1723,7 @@ export const BecomeMemberScreen: React.FC = () => {
 
             <FlatList
               data={filteredStates}
-              keyExtractor={(item) => item}
+              keyExtractor={item => item}
               showsVerticalScrollIndicator
               renderItem={({ item }) => (
                 <TouchableOpacity
@@ -1242,7 +1754,11 @@ export const BecomeMemberScreen: React.FC = () => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="headlineSm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Select ID Proof
               </Typography>
               <TouchableOpacity
@@ -1253,7 +1769,7 @@ export const BecomeMemberScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {GOV_ID_OPTIONS.map((item) => (
+            {GOV_ID_OPTIONS.map(item => (
               <TouchableOpacity
                 key={item}
                 style={styles.modalOptionItem}
@@ -1266,7 +1782,11 @@ export const BecomeMemberScreen: React.FC = () => {
                 <Typography
                   variant="bodyMd"
                   weight={govIdType === item ? 'bold' : 'regular'}
-                  color={govIdType === item ? colors.secondaryRoyal : colors.textPrimary}
+                  color={
+                    govIdType === item
+                      ? colors.secondaryRoyal
+                      : colors.textPrimary
+                  }
                 >
                   {item}
                 </Typography>

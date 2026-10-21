@@ -9,6 +9,14 @@ export type BottomTabParamList = {
 };
 
 export type DrawerParamList = {
+  Home: undefined;
+  AboutAIOS: undefined;
+  GoverningCouncil: undefined;
+  OfficeBearersSubCommittee: undefined;
+  OfficeBearers: undefined;
+  PastPresidents: undefined;
+  AIOSThemeSong: undefined;
+  PresidentAIOS: undefined;
   Portal: NavigatorScreenParams<BottomTabParamList> | undefined;
 };
 

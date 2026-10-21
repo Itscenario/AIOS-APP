@@ -54,8 +54,8 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
   const allCountries = useMemo<CountryItem[]>(() => {
     const rawCountries = Country.getAllCountries();
     const formatted: CountryItem[] = rawCountries
-      .filter((c) => Boolean(c.phonecode))
-      .map((c) => ({
+      .filter(c => Boolean(c.phonecode))
+      .map(c => ({
         name: c.name,
         isoCode: c.isoCode,
         flag: c.flag || '🏳️',
@@ -63,8 +63,8 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
       }));
 
     // Prioritize India at the top
-    const india = formatted.find((c) => c.isoCode.toUpperCase() === 'IN');
-    const others = formatted.filter((c) => c.isoCode.toUpperCase() !== 'IN');
+    const india = formatted.find(c => c.isoCode.toUpperCase() === 'IN');
+    const others = formatted.filter(c => c.isoCode.toUpperCase() !== 'IN');
     return india ? [india, ...others] : formatted;
   }, []);
 
@@ -72,7 +72,7 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
   const [internalCountry, setInternalCountry] = useState<CountryItem>(() => {
     if (selectedCountry) return selectedCountry;
     const initial = allCountries.find(
-      (c) => c.isoCode.toUpperCase() === defaultCountryCode.toUpperCase(),
+      c => c.isoCode.toUpperCase() === defaultCountryCode.toUpperCase(),
     );
     return initial || DEFAULT_COUNTRY;
   });
@@ -87,7 +87,7 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
     const q = searchQuery.toLowerCase().trim();
     const cleanQ = q.replace(/^\+/, '');
     return allCountries.filter(
-      (c) =>
+      c =>
         c.name.toLowerCase().includes(q) ||
         c.isoCode.toLowerCase().includes(q) ||
         c.phonecode.includes(cleanQ),
@@ -129,7 +129,11 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
         ) : null}
 
         {showArrow ? (
-          <Typography variant="caption" color={colors.textMuted} style={styles.arrowIcon}>
+          <Typography
+            variant="caption"
+            color={colors.textMuted}
+            style={styles.arrowIcon}
+          >
             ▼
           </Typography>
         ) : null}
@@ -150,11 +154,15 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
           <TouchableOpacity
             style={styles.modalContainer}
             activeOpacity={1}
-            onPress={(e) => e.stopPropagation()}
+            onPress={e => e.stopPropagation()}
           >
             {/* Modal Header */}
             <View style={styles.modalHeader}>
-              <Typography variant="headlineSm" weight="bold" color={colors.primaryNavy}>
+              <Typography
+                variant="headlineSm"
+                weight="bold"
+                color={colors.primaryNavy}
+              >
                 Select Country Code
               </Typography>
               <TouchableOpacity
@@ -187,7 +195,7 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
             {/* Countries List */}
             <FlatList
               data={filteredCountries}
-              keyExtractor={(item) => `${item.isoCode}-${item.phonecode}`}
+              keyExtractor={item => `${item.isoCode}-${item.phonecode}`}
               keyboardShouldPersistTaps="handled"
               initialNumToRender={20}
               maxToRenderPerBatch={25}
@@ -209,7 +217,11 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
                       <Typography
                         variant="bodyMd"
                         weight={isSelected ? 'bold' : 'medium'}
-                        color={isSelected ? colors.secondaryRoyal : colors.textPrimary}
+                        color={
+                          isSelected
+                            ? colors.secondaryRoyal
+                            : colors.textPrimary
+                        }
                         numberOfLines={1}
                       >
                         {item.name}
@@ -238,7 +250,11 @@ export const CountryCodePicker: React.FC<CountryCodePickerProps> = ({
               ItemSeparatorComponent={() => <View style={styles.separator} />}
               ListEmptyComponent={() => (
                 <View style={styles.emptyContainer}>
-                  <Typography variant="bodyMd" color={colors.textMuted} align="center">
+                  <Typography
+                    variant="bodyMd"
+                    color={colors.textMuted}
+                    align="center"
+                  >
                     No country found for "{searchQuery}"
                   </Typography>
                 </View>

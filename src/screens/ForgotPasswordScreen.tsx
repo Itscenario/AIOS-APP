@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../navigation/types';
@@ -22,7 +18,8 @@ import { colors } from '../theme/colors';
 import { shadows } from '../theme/spacing';
 
 export const ForgotPasswordScreen: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [identifier, setIdentifier] = useState<string>('');
   const [emailError, setEmailError] = useState<string | undefined>();
 
@@ -51,10 +48,7 @@ export const ForgotPasswordScreen: React.FC = () => {
   };
 
   return (
-    <Background
-      scrollable
-      keyboardAvoiding
-    >
+    <Background scrollable keyboardAvoiding>
       <View style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
@@ -103,7 +97,7 @@ export const ForgotPasswordScreen: React.FC = () => {
           <MembershipOrEmailInput
             label="Membership No./Email"
             value={identifier}
-            onChangeText={(text) => {
+            onChangeText={text => {
               setIdentifier(text);
               if (emailError) setEmailError(undefined);
             }}
@@ -123,7 +117,12 @@ export const ForgotPasswordScreen: React.FC = () => {
           onPress={handleSendOtp}
           activeOpacity={0.8}
         >
-          <Typography variant="labelLg" weight="bold" color={colors.onPrimary} style={styles.buttonText}>
+          <Typography
+            variant="labelLg"
+            weight="bold"
+            color={colors.onPrimary}
+            style={styles.buttonText}
+          >
             Send Verification Code
           </Typography>
           <ArrowRightIcon size={16} color={colors.onPrimary} />
