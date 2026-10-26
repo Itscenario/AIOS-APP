@@ -743,7 +743,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   inputErrorBorder: {
-    borderColor: colors.error,
+    borderColor: colors.borderField,
     backgroundColor: '#FEF2F2',
   },
   inputSuccessBorder: {

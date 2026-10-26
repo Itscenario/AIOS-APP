@@ -3,18 +3,12 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
   Background,
   Button,
-  CheckIcon,
-  EmailInput,
-  EyeIcon,
-  IdCardIcon,
   Image,
   images,
-  Input,
   LockIcon,
   MembershipOrEmailInput,
   PasswordInput,
   Typography,
-  VerifiedBadgeIcon,
 } from '../components';
 import { validateMembershipOrEmail, validatePassword } from '../utils';
 import { useNavigation } from '@react-navigation/native';

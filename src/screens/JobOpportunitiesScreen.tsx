@@ -1,3 +1,4 @@
+import { HeaderBackButton } from '../components/HeaderBackButton';
 import React, { useState, useMemo } from 'react';
 import {
   View,
@@ -330,6 +331,7 @@ export const JobOpportunitiesScreen: React.FC = () => {
       <ScreenStatusBar barStyle="dark-content" />
       <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
         <View style={styles.headerLeft}>
+          <HeaderBackButton />
           <View style={styles.logoBadge}>
             <Image
               source={images.logo}

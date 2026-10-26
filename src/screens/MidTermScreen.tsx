@@ -1,3 +1,4 @@
+import { HeaderBackButton } from '../components/HeaderBackButton';
 import { PaymentInformation } from '../components/PaymentInformation';
 import { CertificateArchive } from '../components/CertificateArchive';
 import { formatProfileName } from '../utils/profileName';
@@ -23,9 +24,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ScreenStatusBar } from '../components/ScreenStatusBar';
+import { CalendarPickerModal } from '../components/CalendarPickerModal';
 import { colors } from '../theme/colors';
 import { Typography } from '../components/Typography';
 import {
+  ArrowBackIcon,
   CalendarIcon,
   LocationPinIcon,
   WhatsAppIcon,
@@ -406,11 +409,16 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
 
   const [institution, setInstitution] = useState('');
   const [orgType, setOrgType] = useState<'Govt' | 'Private' | ''>('Private');
-  const [dob, setDob] = useState('');
+  const [dob, setDob] = useState(() => profile?.dob || '');
+  const [dobPickerVisible, setDobPickerVisible] = useState(false);
   const [nationality, setNationality] = useState('');
   const [passportNo, setPassportNo] = useState('');
   const [passportExpiry, setPassportExpiry] = useState('');
-  const [mobileNo, setMobileNo] = useState('');
+  const [mobileNo, setMobileNo] = useState(() => profile?.phone || '');
+  useEffect(() => {
+    if (profile?.dob) setDob(current => current || profile.dob || '');
+    if (profile?.phone) setMobileNo(current => current || profile.phone || '');
+  }, [profile?.dob, profile?.phone]);
   const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>(
     ['None'],
   );
@@ -629,6 +637,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
         ]}
       >
         <View style={styles.headerLeft}>
+          <HeaderBackButton />
           <View style={styles.logoBadge}>
             <Image
               source={images.logo}
@@ -949,15 +958,16 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
             <View style={styles.aiocFormNav}>
               <TouchableOpacity
                 style={styles.backToDashboardBtn}
+                accessibilityRole="button"
+                accessibilityLabel="Back to conference"
                 onPress={() => {
                   setAiocRegistrationModalVisible(false);
                   setPaymentCompleted(false);
                 }}
               >
-                <Text style={styles.backToDashboardText}>
-                  ← Back to Dashboard
-                </Text>
+                <ArrowBackIcon size={20} color="#FFFFFF" />
               </TouchableOpacity>
+              <Text style={styles.registrationHeaderTitle}>Annual Registration</Text>
 
               <View style={styles.aiocBadge}>
                 <Text style={styles.aiocBadgeText}>AIOC 2027</Text>
@@ -1006,13 +1016,18 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                         <Text style={styles.aiocFieldLabel}>
                           * Date of Birth
                         </Text>
-                        <TextInput
-                          style={styles.aiocTextInput}
-                          value={dob}
-                          onChangeText={setDob}
-                          placeholder="DD/MM/YYYY"
-                          placeholderTextColor="#94A3B8"
-                        />
+                        <TouchableOpacity
+                          style={[styles.aiocTextInput, styles.dobPickerField]}
+                          onPress={() => {
+                            Keyboard.dismiss();
+                            setDobPickerVisible(true);
+                          }}
+                          accessibilityRole="button"
+                          accessibilityLabel="Select date of birth"
+                        >
+                          <Text style={styles.dobPickerValue}>{dob || 'DD/MM/YYYY'}</Text>
+                          <CalendarIcon size={18} color="#64748B" />
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.formCol}>
                         <Text style={styles.aiocFieldLabel}>*Nationality</Text>
@@ -1869,6 +1884,16 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                 </View>
               )}
             </ScrollView>
+            <CalendarPickerModal
+              visible={dobPickerVisible}
+              value={dob}
+              maximumDate={new Date()}
+              onClose={() => setDobPickerVisible(false)}
+              onSelectDate={value => {
+                setDob(value);
+                setDobPickerVisible(false);
+              }}
+            />
           </KeyboardAvoidingView>
         )}
       </Modal>
@@ -2667,6 +2692,17 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
 };
 
 const styles = StyleSheet.create({
+  dobPickerField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  dobPickerValue: {
+    flex: 1,
+    color: '#334155',
+    fontSize: 14,
+  },
   registrationClosedCard: {
     marginTop: 16,
     marginBottom: 16,
@@ -3226,13 +3262,20 @@ const styles = StyleSheet.create({
     borderBottomColor: '#162C54',
   },
   backToDashboardBtn: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#1C2C42',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  backToDashboardText: {
-    color: '#60A5FA',
-    fontSize: 13,
+  registrationHeaderTitle: {
+    flex: 1,
+    marginHorizontal: 12,
+    fontSize: 17,
+    lineHeight: 24,
     fontWeight: '700',
+    color: '#FFFFFF',
   },
   aiocBadge: {
     backgroundColor: '#D97706',

@@ -1,4 +1,3 @@
-// Source: https://aios.org/article-29-past-presidents-aios.php
 export const PAST_PRESIDENTS = [
   {
     "name": "Dr. B.G.S. Acharya",

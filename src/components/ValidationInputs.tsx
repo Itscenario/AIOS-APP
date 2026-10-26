@@ -196,9 +196,6 @@ export const EmailInput: React.FC<EmailInputProps> = ({
   );
 };
 
-// ============================================================================
-// 1b. Membership No. / Email Validation Input
-// ============================================================================
 export interface MembershipOrEmailInputProps extends BaseValidationInputProps {
   customErrorMessage?: string;
   requiredErrorMessage?: string;
@@ -355,9 +352,6 @@ export const MembershipOrEmailInput: React.FC<MembershipOrEmailInputProps> = ({
   );
 };
 
-// ============================================================================
-// 2. Password Validation Input
-// ============================================================================
 export interface PasswordInputProps
   extends BaseValidationInputProps,
     PasswordValidationOptions {

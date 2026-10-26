@@ -29,6 +29,7 @@ import {
   LogoutIcon,
   PersonIcon,
   CloseIcon,
+  LockIcon,
 } from '../components/Icons';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -82,6 +83,7 @@ const menuOptions = [
   { label: 'AIOS Wings', Icon: MidTermTabIcon },
   { label: 'AIOS FAICO', Icon: CertificatesTabIcon },
   { label: 'Public Awareness', Icon: PersonIcon },
+  { label: 'Change Password', Icon: LockIcon },
 ];
 
 const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
@@ -181,6 +183,10 @@ const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
             icon={({ color }) => <View style={[styles.menuIcon, selectedMenu === label && styles.menuIconActive]}><Icon size={20} color={color} /></View>}
             onPress={() => {
               setSelectedMenu(label);
+              if (label === 'Change Password') {
+                props.navigation.closeDrawer();
+                props.navigation.getParent()?.navigate('ChangePassword');
+              }
               if (label === 'AIOS FAICO') {
                 setFaicoExpanded(value => !value);
               }
