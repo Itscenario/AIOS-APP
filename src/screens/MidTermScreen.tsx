@@ -1,3 +1,4 @@
+import LinearGradient from 'react-native-linear-gradient';
 import { HeaderBackButton } from '../components/HeaderBackButton';
 import { PaymentInformation } from '../components/PaymentInformation';
 import { CertificateArchive } from '../components/CertificateArchive';
@@ -45,12 +46,11 @@ import {
 import { images } from '../constants/images';
 import { useAppSelector } from '../store';
 import { downloadCertificate } from '../services/CertificateDownloader';
-
 // Custom icons matching the user's screenshot
-const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 20,
-  color = '#EA580C',
-}) => (
+const PrinterIcon: React.FC<{
+  size?: number;
+  color?: string;
+}> = ({ size = 20, color = '#EA580C' }) => (
   <View
     style={{
       width: size,
@@ -104,11 +104,10 @@ const PrinterIcon: React.FC<{ size?: number; color?: string }> = ({
     />
   </View>
 );
-
-const BedIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 20,
-  color = '#EA580C',
-}) => (
+const BedIcon: React.FC<{
+  size?: number;
+  color?: string;
+}> = ({ size = 20, color = '#EA580C' }) => (
   <View style={{ width: size, height: size, justifyContent: 'center' }}>
     <View
       style={{
@@ -156,11 +155,10 @@ const BedIcon: React.FC<{ size?: number; color?: string }> = ({
     </View>
   </View>
 );
-
-const RupeeIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 22,
-  color = '#EA580C',
-}) => (
+const RupeeIcon: React.FC<{
+  size?: number;
+  color?: string;
+}> = ({ size = 22, color = '#EA580C' }) => (
   <View
     style={{
       width: size,
@@ -181,8 +179,9 @@ const RupeeIcon: React.FC<{ size?: number; color?: string }> = ({
     </Text>
   </View>
 );
-
-const PencilBadgeIcon: React.FC<{ size?: number }> = ({ size = 22 }) => (
+const PencilBadgeIcon: React.FC<{
+  size?: number;
+}> = ({ size = 22 }) => (
   <View
     style={{
       width: size,
@@ -196,11 +195,10 @@ const PencilBadgeIcon: React.FC<{ size?: number }> = ({ size = 22 }) => (
     <EditPencilIcon size={size * 0.62} color="#FFFFFF" />
   </View>
 );
-
-const SelectArrowsIcon: React.FC<{ size?: number; color?: string }> = ({
-  size = 11,
-  color = '#64748B',
-}) => (
+const SelectArrowsIcon: React.FC<{
+  size?: number;
+  color?: string;
+}> = ({ size = 11, color = '#64748B' }) => (
   <View
     style={{
       width: size,
@@ -231,18 +229,14 @@ const SelectArrowsIcon: React.FC<{ size?: number; color?: string }> = ({
     </Text>
   </View>
 );
-
 const DELEGATE_CATEGORIES = [
   'AIOS Member',
   'Non - AIOS Member',
   'International Delegate',
   'Trade Delegate',
 ];
-
 const DELEGATE_TYPES = ['Ophthalmologist', 'Resident / Trainee', 'Exhibitor'];
-
 const ACCOMPANYING_OPTIONS = ['0', '1', '2', '3', '4'];
-
 interface MidtermCertificateItem {
   id: string;
   title: string;
@@ -251,12 +245,10 @@ interface MidtermCertificateItem {
   dates: string;
   theme: string;
 }
-
 interface PersonCertificateItem extends MidtermCertificateItem {
   recipientName: string;
   memberId: string;
 }
-
 const MIDTERM_CERTIFICATES: MidtermCertificateItem[] = [
   {
     id: 'mt-2026',
@@ -283,7 +275,6 @@ const MIDTERM_CERTIFICATES: MidtermCertificateItem[] = [
     theme: 'Glaucoma & Pediatric Ophthalmology',
   },
 ];
-
 const SPECIALITY_OPTIONS = [
   'Glaucoma',
   'Retina & Vitreous',
@@ -299,7 +290,6 @@ const SPECIALITY_OPTIONS = [
   'Microbiology',
   'None',
 ];
-
 const SCIENTIFIC_COURSES = {
   SSTC: [
     'Phacoemulsification with foldable intraocular lens implantation',
@@ -339,41 +329,26 @@ const SCIENTIFIC_COURSES = {
     'Next-Gen IOLs & Digital Centration: From Pre-Op AI to OR Execution',
   ],
 };
-
-export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
-  variant = 'midterm',
-}) => {
-  const isAnnual = variant === 'annual';
-  const bannerSource = isAnnual
-    ? images.aioc2027Banner
-    : images.conferenceBanner;
+export const MidTermScreen: React.FC = () => {
+  const bannerSource = images.conferenceBanner;
   const bannerDimensions = Image.resolveAssetSource(bannerSource);
   const bannerAspectRatio =
     bannerDimensions?.width && bannerDimensions?.height
       ? bannerDimensions.width / bannerDimensions.height
-      : isAnnual
-      ? 998 / 316
       : 1003 / 212;
-  const conferenceTitle = isAnnual
-    ? '85th Annual Conference of AIOS'
-    : '5th AIOS Mid-Term Conference 2026';
-  const conferenceLocation = isAnnual
-    ? 'Mahatma Mandir Convention and Exhibition Centre, Gandhinagar, Gujarat'
-    : 'Hotel Chanakya BNR, Ranchi';
-  const conferenceDates = isAnnual
-    ? 'February 18 - 21, 2027'
-    : 'September 25 - 27, 2026';
-  const conferenceYear = isAnnual ? '2027' : '2026';
+  const conferenceTitle = '5th AIOS Mid-Term Conference 2026';
+  const conferenceLocation = 'Hotel Chanakya BNR, Ranchi';
+  const conferenceDates = 'September 25 - 27, 2026';
+  const conferenceYear = '2026';
   const insets = useSafeAreaInsets();
   const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
     ? { ...savedProfile, membershipId: undefined }
     : savedProfile;
   const isMember = Boolean(profile?.membershipId?.trim());
-  const registrationKey = isAnnual ? 'annual-2027' : 'midterm-2026';
+  const registrationKey = 'midterm-2026';
   const isRegistered =
     profile?.conferenceRegistrations?.[registrationKey] === 'completed';
-
   const doctorName = profile
     ? formatProfileName(
         profile.name ||
@@ -385,7 +360,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     : 'AIOS Member';
   const memberId = profile?.membershipId || 'Not available';
   const regNo = 'AIOC27-REG-10492';
-
   const [aiocRegistrationModalVisible, setAiocRegistrationModalVisible] =
     useState(false);
   const [paymentModalVisible, setPaymentModalVisible] = useState(false);
@@ -398,7 +372,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
   ] = useState(false);
   const [invitationLetterModalVisible, setInvitationLetterModalVisible] =
     useState(false);
-
   const [certModalVisible, setCertModalVisible] = useState(false);
   const [selectedCert, setSelectedCert] =
     useState<PersonCertificateItem | null>(null);
@@ -406,7 +379,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
   const [certCategory, setCertCategory] = useState<'Faculty' | 'Delegate'>(
     'Faculty',
   );
-
   const [institution, setInstitution] = useState('');
   const [orgType, setOrgType] = useState<'Govt' | 'Private' | ''>('Private');
   const [dob, setDob] = useState(() => profile?.dob || '');
@@ -419,10 +391,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     if (profile?.dob) setDob(current => current || profile.dob || '');
     if (profile?.phone) setMobileNo(current => current || profile.phone || '');
   }, [profile?.dob, profile?.phone]);
-  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>(
-    ['None'],
-  );
-
+  const [selectedSpecialities, setSelectedSpecialities] = useState<string[]>([
+    'None',
+  ]);
   const [delegateCategory, setDelegateCategory] = useState<string>('');
   const [delegateType, setDelegateType] = useState<string>('');
   const [noOfAccompanying, setNoOfAccompanying] = useState<number>(0);
@@ -445,7 +416,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
   const [activePicker, setActivePicker] = useState<
     'category' | 'type' | 'accompanying' | null
   >(null);
-
   const [paymentMode, setPaymentMode] = useState<'Online' | 'Offline'>(
     'Online',
   );
@@ -464,7 +434,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     });
     return () => listener.remove();
   }, []);
-
   const refreshCaptcha = () => {
     const chars = '23456789abcdefghkmnpqrstuvwxyz';
     let res = '';
@@ -473,10 +442,8 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     }
     setCaptchaCode(res);
   };
-
   const [paymentReviewVisible, setPaymentReviewVisible] = useState(false);
   const [paymentCompleted, setPaymentCompleted] = useState<boolean>(false);
-
   const archiveConferences: MidtermCertificateItem[] = [
     {
       id: 'annual-2025',
@@ -513,9 +480,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
       theme: '',
     },
   ];
-
   const regCategory = delegateCategory || delegateType || 'AIOS Member';
-
   const getBaseFee = () => {
     if (!delegateCategory && !delegateType) return 0;
     if (delegateCategory === 'Non - AIOS Member') {
@@ -526,7 +491,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     if (delegateType === 'Resident / Trainee') return 5500;
     return 8500;
   };
-
   const accompanyingFee = noOfAccompanying * 4000;
   const sstcActivityFee = selectedCourses.SSTC.length * 1000;
   const dstcActivityFee = selectedCourses.DSTC.length * 1000;
@@ -535,7 +499,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     sstcActivityFee + dstcActivityFee + tstcActivityFee;
   const totalPayable = getBaseFee() + accompanyingFee + extraActivitiesFee;
   const gstAmount = Math.round(totalPayable * 0.18);
-
   const handleToggleSpeciality = (spec: string) => {
     if (spec === 'None') {
       setSelectedSpecialities(['None']);
@@ -556,18 +519,15 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
       setSelectedSpecialities([...current, spec]);
     }
   };
-
   const handleWhatsApp = () => {
     Linking.openURL(
       'https://wa.me/919697692000?text=Inquiry%20regarding%20AIOS%20Conferences',
     );
   };
-
   const handleOpenCertificate = (cert: PersonCertificateItem) => {
     setSelectedCert(cert);
     setCertModalVisible(true);
   };
-
   const handleDownloadSelectedCertificate = async () => {
     if (!selectedCert || certificateDownloading) return;
     setCertificateDownloading(true);
@@ -602,7 +562,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
       setCertificateDownloading(false);
     }
   };
-
   const handleDownloadDoc = async (title: string, subName?: string) => {
     try {
       const res = await downloadCertificate({
@@ -617,7 +576,6 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
       Alert.alert('Download Error', e?.message || 'Could not download PDF.');
     }
   };
-
   const handleShareDoc = (title: string, extra?: string) => {
     Share.share({
       title: title,
@@ -626,10 +584,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
       }`,
     });
   };
-
   return (
     <View style={styles.container}>
-      <ScreenStatusBar barStyle="dark-content" />
+      <ScreenStatusBar />
       <View
         style={[
           styles.header,
@@ -646,16 +603,14 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
             />
           </View>
           <View style={styles.headerTitleWrap}>
-            <Text style={styles.headerTitle}>
-              {isAnnual ? 'AIOS Annual Conference' : 'AIOC & Mid-Term'}
-            </Text>
+            <Text style={styles.headerTitle}>{'Mid-Term Conference'}</Text>
             <Text style={styles.headerSubtitle}>
               Conference Portal & Registration
             </Text>
           </View>
         </View>
         <View style={styles.statusBadge}>
-          <Text style={styles.statusBadgeText}>AIOC 2027</Text>
+          <Text style={styles.statusBadgeText}>{'Mid-Term 2026'}</Text>
         </View>
       </View>
 
@@ -673,180 +628,55 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
             resizeMode="contain"
           />
         </View>
+        <LinearGradient colors={['#373082', '#4257A5', '#257C87']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.conferenceOverview}>
+          <Text style={styles.overviewEyebrow}>5TH AIOS MID-TERM CONFERENCE</Text>
+          <Text style={styles.overviewTitle}>Connect in Ranchi.</Text>
+          <View style={styles.overviewMeta}><CalendarIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceDates}</Text></View>
+          <View style={styles.overviewMeta}><LocationPinIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceLocation}</Text></View>
+        </LinearGradient>
+        <View style={styles.portalSectionHeading}><Text style={styles.portalEyebrow}>YOUR CONFERENCE TOOLKIT</Text><Text style={styles.portalSectionTitle}>Manage your visit</Text></View>
         {!isMember && !isRegistered ? (
           <TouchableOpacity
             style={styles.registrationClosedCard}
             activeOpacity={0.85}
-            disabled={!isAnnual}
+            disabled={true}
             onPress={() => setAiocRegistrationModalVisible(true)}
-            accessibilityRole={isAnnual ? 'button' : 'text'}
-            accessibilityLabel={
-              isAnnual
-                ? 'AIOC Registration 2027. Open registration form'
-                : 'Mid-term 2026 Registration Closed'
-            }
+            accessibilityRole={'text'}
+            accessibilityLabel={'Mid-term 2026 Registration Closed'}
           >
-            <View style={styles.registrationClosedIcon}>
-              <EditPencilIcon size={28} color="#1689BE" />
+            <View style={styles.registrationClosedIcon}><EditPencilIcon size={26} color="#A87743" /></View>
+            <View style={styles.registrationCopy}>
+              <Text style={styles.registrationEyebrow}>MID-TERM 2026</Text>
+              <Text style={styles.registrationClosedText}>Registration closed</Text>
+              <Text style={styles.registrationCaption}>Registration is no longer available</Text>
             </View>
-            <Text style={styles.registrationClosedText}>
-              {isAnnual
-                ? 'AIOC Registration\n2027'
-                : 'Mid-term 2026\nRegistration Closed'}
-            </Text>
+            <View style={styles.registrationArrowBadge}><Text style={styles.registrationArrow}>−</Text></View>
           </TouchableOpacity>
         ) : (
-          <>
-            {!isAnnual && (
-              <TouchableOpacity
-                style={styles.aiocHeroBtn}
-                activeOpacity={0.85}
-                onPress={() => setAiocRegistrationModalVisible(true)}
-              >
-                <View style={styles.aiocHeroIconBadge}>
-                  <EditPencilIcon size={26} color="#FFFFFF" />
-                </View>
-                <View style={styles.aiocHeroTextCol}>
-                  <Text style={styles.aiocHeroTitle}>AIOC Registration</Text>
-                  <Text style={styles.aiocHeroYear}>2027</Text>
-                </View>
-                <View style={styles.aiocHeroActionTag}>
-                  <Text style={styles.aiocHeroActionText}>Register Now ➔</Text>
-                </View>
+          <FlatList
+            scrollEnabled={false}
+            numColumns={2}
+            style={styles.actionGridContainer}
+            columnWrapperStyle={styles.actionGridRow}
+            data={[
+              { id: 'registration', title: 'Mid-Term Registration 2026', caption: 'Your conference registration', icon: <PencilBadgeIcon size={24} />, onPress: () => setAiocRegistrationModalVisible(true) },
+              { id: 'payment', title: 'Payment Details', caption: 'Review your payments', icon: <RupeeIcon size={24} color="#BA7B48" />, onPress: () => setPaymentModalVisible(true) },
+              { id: 'print', title: 'Print Registration Detail', caption: 'Your registration record', icon: <PrinterIcon size={24} color="#3F8F76" />, onPress: () => setPrintRegModalVisible(true) },
+              { id: 'accommodation', title: 'Accommodation Booking Closed', caption: 'Accommodation information', icon: <BedIcon size={24} color="#4C87B3" />, onPress: () => setAccommodationInfoModalVisible(true) },
+              { id: 'receipt', title: 'Accommodation Payment Receipt', caption: 'Your accommodation record', icon: <PrinterIcon size={24} color="#AC6B9C" />, onPress: () => setAccommodationReceiptModalVisible(true) },
+              { id: 'invitation', title: 'Print Invitation Letter', caption: 'Your conference invite', icon: <PrinterIcon size={24} color="#6251B7" />, onPress: () => setInvitationLetterModalVisible(true) },
+            ].filter(item => item.id === 'registration' || isRegistered)}
+            keyExtractor={item => item.id}
+            renderItem={({ item, index }) => (
+              <TouchableOpacity style={[styles.annualActionBtn, { backgroundColor: ['#EDEAFE', '#FFF0E7', '#E3F5EF', '#E7F3FB', '#F6EAF5', '#EDEAFE'][index], borderColor: ['#DCD5F8', '#F5DDCB', '#CBE9DC', '#CFE4F3', '#EBD4E7', '#DCD5F8'][index] }]} onPress={item.onPress} activeOpacity={0.8}>
+                <View style={styles.portalActionTop}><View style={styles.portalIcon}>{item.icon}</View><Text style={styles.portalArrow}>↗</Text></View>
+                <Text style={styles.actionBtnText}>{item.title}</Text><Text style={styles.portalActionCaption}>{item.caption}</Text>
               </TouchableOpacity>
             )}
-            {isAnnual ? (
-              <FlatList
-                scrollEnabled={false}
-                numColumns={2}
-                style={styles.actionGridContainer}
-                columnWrapperStyle={styles.actionGridRow}
-                data={[
-                  {
-                    id: 'registration',
-                    title: 'AIOC Registration 2027',
-                    icon: <PencilBadgeIcon size={24} />,
-                    onPress: () => setAiocRegistrationModalVisible(true),
-                  },
-                  {
-                    id: 'payment',
-                    title: 'Payment Details',
-                    icon: <RupeeIcon size={24} color="#F59E0B" />,
-                    onPress: () => setPaymentModalVisible(true),
-                  },
-                  {
-                    id: 'print',
-                    title: 'Print Registration Detail',
-                    icon: <PrinterIcon size={24} color="#F59E0B" />,
-                    onPress: () => setPrintRegModalVisible(true),
-                  },
-                  {
-                    id: 'invitation',
-                    title: 'Print Invitation Letter',
-                    icon: <PrinterIcon size={24} color="#F59E0B" />,
-                    onPress: () => setInvitationLetterModalVisible(true),
-                  },
-                  {
-                    id: 'accommodation',
-                    title: 'Accommodation Booking',
-                    icon: <BedIcon size={24} color="#F59E0B" />,
-                    onPress: () => setAccommodationInfoModalVisible(true),
-                  },
-                ].filter(item => item.id === 'registration' || isRegistered)}
-                keyExtractor={item => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={styles.annualActionBtn}
-                    onPress={item.onPress}
-                    activeOpacity={0.8}
-                  >
-                    {item.icon}
-                    <Text style={styles.actionBtnText}>{item.title}</Text>
-                  </TouchableOpacity>
-                )}
-              />
-            ) : (
-              <View style={styles.actionGridContainer}>
-                <View style={styles.actionGridRow}>
-                  <TouchableOpacity
-                    style={styles.actionBtn}
-                    activeOpacity={0.8}
-                    onPress={() => setAiocRegistrationModalVisible(true)}
-                  >
-                    <PencilBadgeIcon size={24} />
-                    <Text style={styles.actionBtnText}>
-                      {'AIOC Registration\n2027'}
-                    </Text>
-                  </TouchableOpacity>
-                  {isRegistered && (
-                    <TouchableOpacity
-                      style={styles.actionBtn}
-                      activeOpacity={0.8}
-                      onPress={() => setPaymentModalVisible(true)}
-                    >
-                      <RupeeIcon size={22} color="#EA580C" />
-                      <Text style={styles.actionBtnText}>
-                        {'Payment\nDetails'}
-                      </Text>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                {isRegistered && (
-                  <>
-                    <View style={styles.actionGridRow}>
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        activeOpacity={0.8}
-                        onPress={() => setPrintRegModalVisible(true)}
-                      >
-                        <PrinterIcon size={22} color="#EA580C" />
-                        <Text style={styles.actionBtnText}>
-                          {'Print Registration\nDetail'}
-                        </Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        activeOpacity={0.8}
-                        onPress={() => setAccommodationInfoModalVisible(true)}
-                      >
-                        <BedIcon size={22} color="#EA580C" />
-                        <Text style={styles.actionBtnText}>
-                          {'Accommodation Booking\nClosed'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.actionGridRow}>
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        activeOpacity={0.8}
-                        onPress={() =>
-                          setAccommodationReceiptModalVisible(true)
-                        }
-                      >
-                        <PrinterIcon size={22} color="#EA580C" />
-                        <Text style={styles.actionBtnText}>
-                          {'Accommodation Booking\nPayment Receipt'}
-                        </Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity
-                        style={styles.actionBtn}
-                        activeOpacity={0.8}
-                        onPress={() => setInvitationLetterModalVisible(true)}
-                      >
-                        <PrinterIcon size={22} color="#EA580C" />
-                        <Text style={styles.actionBtnText}>
-                          {'Print Invitation\nLetter'}
-                        </Text>
-                      </TouchableOpacity>
-                    </View>
-                  </>
-                )}
-              </View>
-            )}
-          </>
+          />
         )}
         <CertificateArchive
+          modern
           conferences={archiveConferences}
           onOpen={(conference, person) => {
             setCertCategory(person.memberType);
@@ -867,9 +697,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                 color="#1E293B"
                 style={{ marginBottom: 12 }}
               >
-                {isAnnual
-                  ? 'AIOC 2027 Conference Details'
-                  : '5th Mid-Term Conference Details'}
+                {'5th Mid-Term Conference Details'}
               </Typography>
 
               <View style={styles.infoRow}>
@@ -898,9 +726,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                     {conferenceLocation}
                   </Typography>
                   <Typography variant="caption" color="#64748B">
-                    {isAnnual
-                      ? 'Organised by All Gujarat Ophthalmological Society'
-                      : 'Under the aegis of Jharkhand Ophthalmological Society'}
+                    {'Under the aegis of Jharkhand Ophthalmological Society'}
                   </Typography>
                 </View>
               </View>
@@ -967,10 +793,12 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
               >
                 <ArrowBackIcon size={20} color="#FFFFFF" />
               </TouchableOpacity>
-              <Text style={styles.registrationHeaderTitle}>Annual Registration</Text>
+              <Text style={styles.registrationHeaderTitle}>
+                {'Mid-Term Registration'}
+              </Text>
 
               <View style={styles.aiocBadge}>
-                <Text style={styles.aiocBadgeText}>AIOC 2027</Text>
+                <Text style={styles.aiocBadgeText}>{'Mid-Term 2026'}</Text>
               </View>
             </View>
 
@@ -1025,7 +853,9 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                           accessibilityRole="button"
                           accessibilityLabel="Select date of birth"
                         >
-                          <Text style={styles.dobPickerValue}>{dob || 'DD/MM/YYYY'}</Text>
+                          <Text style={styles.dobPickerValue}>
+                            {dob || 'DD/MM/YYYY'}
+                          </Text>
                           <CalendarIcon size={18} color="#64748B" />
                         </TouchableOpacity>
                       </View>
@@ -1872,7 +1702,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                       style={styles.successShareBtn}
                       onPress={() =>
                         handleShareDoc(
-                          'AIOC 2027 Registration Confirmed',
+                          'Mid-Term 2026 Registration Confirmed',
                           `Reg ID: ${regNo} | Amount: ₹ ${totalPayable}`,
                         )
                       }
@@ -2055,9 +1885,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                       ALL INDIA OPHTHALMOLOGICAL SOCIETY
                     </Text>
                     <Text style={styles.slipConfTitle}>
-                      {isAnnual
-                        ? 'AIOC 2027 Annual Conference'
-                        : 'AIOC & Mid-Term Conference Portal'}
+                      {'AIOS Mid-Term Conference Portal'}
                     </Text>
                   </View>
                 </View>
@@ -2569,7 +2397,7 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
                 </View>
 
                 <Text style={styles.certDocId}>
-                  Document ID: AIOS-{isAnnual ? 'ANNUAL' : 'MIDTERM'}-
+                  Document ID: AIOS-{'MIDTERM'}-
                   {selectedCert?.year || conferenceYear}-
                   {selectedCert?.memberId}
                 </Text>
@@ -2690,8 +2518,19 @@ export const MidTermScreen: React.FC<{ variant?: 'midterm' | 'annual' }> = ({
     </View>
   );
 };
-
 const styles = StyleSheet.create({
+  conferenceOverview: { backgroundColor: '#253D68', padding: 22, borderRadius: 24, marginBottom: 24 },
+  overviewEyebrow: { color: '#D4E7FF', fontSize: 8, fontWeight: '800', letterSpacing: 1.4 },
+  overviewTitle: { color: '#FFFFFF', fontSize: 24, lineHeight: 32, fontWeight: '700', marginTop: 10, marginBottom: 14 },
+  overviewMeta: { flexDirection: 'row', gap: 9, alignItems: 'flex-start', marginTop: 9 },
+  overviewMetaText: { flex: 1, color: '#E2EDFF', fontSize: 12, lineHeight: 19 },
+  portalSectionHeading: { marginBottom: 16 },
+  portalEyebrow: { color: '#8A9AB3', fontSize: 8, fontWeight: '800', letterSpacing: 1.3, marginBottom: 5 },
+  portalSectionTitle: { color: '#17233E', fontSize: 21, fontWeight: '700' },
+  portalActionTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  portalIcon: { backgroundColor: '#FFFFFF', borderRadius: 13, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
+  portalActionCaption: { color: '#8791A9', fontSize: 10, lineHeight: 16, marginTop: 5 },
+  portalArrow: { color: '#8496AF', fontSize: 19 },
   dobPickerField: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2704,31 +2543,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   registrationClosedCard: {
-    marginTop: 16,
-    marginBottom: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    borderRadius: 6,
-    backgroundColor: '#1689BE',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
+    marginBottom: 20, padding: 20, borderRadius: 24,
+    backgroundColor: '#FFF2E6', borderWidth: 1, borderColor: '#F0DCC7',
+    flexDirection: 'row', alignItems: 'center', gap: 14,
+    shadowColor: '#835A35', shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06, shadowRadius: 10, elevation: 2,
   },
-  registrationClosedIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#F5A021',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  registrationClosedText: {
-    flex: 1,
-    fontSize: 22,
-    lineHeight: 25,
-    fontWeight: '400',
-    color: '#FFFFFF',
-  },
+  registrationClosedIcon: { width: 52, height: 52, borderRadius: 17, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' },
+  registrationCopy: { flex: 1 },
+  registrationEyebrow: { color: '#AE8D6C', fontSize: 9, fontWeight: '800', letterSpacing: 1.1, marginBottom: 6 },
+  registrationClosedText: { fontSize: 17, lineHeight: 24, fontWeight: '700', color: '#835A35' },
+  registrationCaption: { color: '#AE8D6C', fontSize: 11, lineHeight: 18, marginTop: 6 },
+  registrationArrowBadge: { width: 30, height: 30, borderRadius: 11, backgroundColor: '#F5E2CE', alignItems: 'center', justifyContent: 'center' },
+  registrationArrow: { color: '#835A35', fontSize: 20 },
   facultyCard: {
     backgroundColor: '#FFFFFF',
     borderColor: '#E2E8F0',
@@ -2829,14 +2656,17 @@ const styles = StyleSheet.create({
   },
   annualActionBtn: {
     width: '48%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#168BC1',
-    borderRadius: 10,
-    padding: 14,
-    minHeight: 76,
-    marginBottom: 10,
+    borderRadius: 20,
+    padding: 16,
+    minHeight: 154,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.8)',
+    shadowColor: '#46416F',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 2,
   },
   certificateNameFilter: {
     flex: 1,
@@ -2908,9 +2738,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 14,
-    backgroundColor: colors.white,
+    backgroundColor: '#0B1728',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#20314B',
   },
   headerLeft: {
     flexDirection: 'row',
@@ -2940,30 +2770,33 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: colors.primaryNavy,
+    color: '#FFFFFF',
   },
   headerSubtitle: {
     fontSize: 11,
-    color: colors.textMuted,
+    color: '#AFC3DE',
     marginTop: 2,
   },
   statusBadge: {
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 12,
-    backgroundColor: '#EFF6FF',
+    backgroundColor: '#1F3553',
     borderWidth: 1,
-    borderColor: '#DBEAFE',
+    borderColor: '#345072',
   },
   statusBadgeText: {
     fontSize: 11,
     fontWeight: '800',
-    color: '#0284C7',
+    color: '#B8D8FF',
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
+    width: '100%',
+    maxWidth: 640,
+    alignSelf: 'center',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 8,
@@ -2990,7 +2823,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'contain',
   },
-
   /* Prominent Hero AIOC Registration Button (Matching Image 1) */
   aiocHeroBtn: {
     flexDirection: 'row',
@@ -3044,7 +2876,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#FFFFFF',
   },
-
   /* 6 Buttons Grid */
   actionGridContainer: {
     marginBottom: 16,
@@ -3074,13 +2905,12 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   actionBtnText: {
-    flex: 1,
-    color: '#FFFFFF',
-    fontSize: 11,
+    color: '#253D60',
+    fontSize: 13,
     fontWeight: '700',
-    lineHeight: 14.5,
+    lineHeight: 20,
+    marginTop: 12,
   },
-
   /* Midterm Certificates Card */
   certCard: {
     backgroundColor: colors.white,
@@ -3194,7 +3024,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#FFFFFF',
   },
-
   /* Info & Support */
   infoCard: {
     backgroundColor: colors.white,
@@ -3294,7 +3123,6 @@ const styles = StyleSheet.create({
   aiocFormScrollContent: {
     padding: 16,
   },
-
   /* Member Summary Strip */
   memberSummaryStrip: {
     flexDirection: 'row',
@@ -3337,7 +3165,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#059669',
   },
-
   /* Section Cards */
   aiocSectionCard: {
     backgroundColor: '#FFFFFF',
@@ -3396,7 +3223,6 @@ const styles = StyleSheet.create({
     minHeight: 38,
     width: '100%',
   },
-
   /* Select Box Dropdown (Matching Native Select) */
   selectBox: {
     backgroundColor: '#FFFFFF',
@@ -3420,14 +3246,12 @@ const styles = StyleSheet.create({
   selectBoxPlaceholder: {
     color: '#64748B',
   },
-
   /* Form Section Divider */
   formSectionDivider: {
     height: 1,
     backgroundColor: '#E2E8F0',
     marginVertical: 14,
   },
-
   /* Accompanying Persons Box */
   accompanyingContainer: {
     marginBottom: 4,
@@ -3481,7 +3305,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0F172A',
   },
-
   /* Extra Scientific Activities */
   extraActivityTitle: {
     fontSize: 12.5,
@@ -3598,14 +3421,12 @@ const styles = StyleSheet.create({
   extraActivityTextActive: {
     color: '#FFFFFF',
   },
-
   /* Radio Group Vertical */
   radioGroupVertical: {
     gap: 8,
     marginTop: 4,
     marginBottom: 8,
   },
-
   /* Generic Picker Modal */
   pickerModalOverlay: {
     flex: 1,
@@ -3670,7 +3491,6 @@ const styles = StyleSheet.create({
     color: '#0284C7',
     fontWeight: '700',
   },
-
   /* Radio Buttons */
   radioGroupRow: {
     flexDirection: 'row',
@@ -3706,7 +3526,6 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     fontWeight: '600',
   },
-
   /* Speciality Checkboxes */
   specialityHeaderRow: {
     flexDirection: 'row',
@@ -3760,7 +3579,6 @@ const styles = StyleSheet.create({
     color: '#0369A1',
     fontWeight: '700',
   },
-
   /* Category Chips */
   catChipsGrid: {
     flexDirection: 'row',
@@ -3796,7 +3614,6 @@ const styles = StyleSheet.create({
   catChipFeeActive: {
     color: '#0A1E3F',
   },
-
   /* Accompanying Persons */
   accompanyingHeader: {
     flexDirection: 'row',
@@ -3831,7 +3648,6 @@ const styles = StyleSheet.create({
     minWidth: 20,
     textAlign: 'center',
   },
-
   /* SSTC Options */
   sstcOptionRow: {
     flexDirection: 'row',
@@ -3860,7 +3676,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0284C7',
   },
-
   /* Banquet & Meal */
   banquetToggleRow: {
     flexDirection: 'row',
@@ -3885,7 +3700,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#475569',
   },
-
   /* Payment summary */
   paymentSummaryCard: {
     backgroundColor: '#0A1E3F',
@@ -4103,7 +3917,6 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     letterSpacing: 0.5,
   },
-
   /* Success Confirmed Card */
   successConfirmedCard: {
     backgroundColor: '#FFFFFF',
@@ -4196,7 +4009,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-
   /* Modals Base */
   modalOverlay: {
     flex: 1,
@@ -4285,7 +4097,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-
   /* Receipt Modal Styles */
   receiptContainer: {
     backgroundColor: '#FFFFFF',
@@ -4361,7 +4172,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#0F172A',
   },
-
   /* Slip Styles */
   slipCard: {
     backgroundColor: '#FFFFFF',
@@ -4457,7 +4267,6 @@ const styles = StyleSheet.create({
     color: '#B45309',
     lineHeight: 14,
   },
-
   /* Accommodation Notices & Partner Hotels */
   closedNoticeBox: {
     backgroundColor: '#FFF7ED',
@@ -4511,7 +4320,6 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: 3,
   },
-
   /* Letterhead Styles */
   letterheadFrame: {
     backgroundColor: '#FFFFFF',
@@ -4596,7 +4404,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   /* Certificate Preview Modal */
   certCanvasContainer: {
     width: '100%',
@@ -4752,5 +4559,4 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
-
 export default MidTermScreen;

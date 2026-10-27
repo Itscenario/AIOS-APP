@@ -23,12 +23,7 @@ import {
 } from '../components';
 import { ScreenStatusBar } from '../components/ScreenStatusBar';
 import { formatProfileName } from '../utils/profileName';
-import {
-  pick,
-  types,
-  isErrorWithCode,
-  errorCodes,
-} from '@react-native-documents/picker';
+
 
 const OPTIONS = {
   title: ['Dr.', 'Prof.'],
@@ -92,41 +87,6 @@ export const MyProfileScreen: React.FC = () => {
       hide.remove();
     };
   }, []);
-  const choosePhotograph = async () => {
-    try {
-      const [file] = await pick({
-        mode: 'import',
-        type: [types.allFiles],
-        allowMultiSelection: false,
-      });
-      if (!file?.uri) return;
-      const isImage =
-        file.type?.startsWith('image/') ||
-        /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || '');
-      if (!isImage) {
-        Alert.alert(
-          'Select a photograph',
-          'Please choose an image file for your passport-size photograph.',
-        );
-        return;
-      }
-      setForm(current => ({
-        ...current,
-        avatar: file.uri,
-        photographName: file.name || 'Passport photograph',
-      }));
-    } catch (error) {
-      if (
-        isErrorWithCode(error) &&
-        error.code === errorCodes.OPERATION_CANCELED
-      )
-        return;
-      Alert.alert(
-        'File picker unavailable',
-        'Unable to open files. Please try again.',
-      );
-    }
-  };
   const selectedSpecialities =
     form.specialities ||
     (form.speciality
@@ -289,7 +249,7 @@ export const MyProfileScreen: React.FC = () => {
             nestedScrollEnabled
             showsVerticalScrollIndicator
           >
-            <View style={styles.card}>
+            <View style={[styles.card, styles.profileCardElevation]}>
               <View style={styles.photo}>
                 <ProfileImagePicker
                   imageUri={form.avatar}
@@ -322,27 +282,6 @@ export const MyProfileScreen: React.FC = () => {
               {dropdown('Member Type', 'memberType')}
             </View>
             <View style={styles.card}>
-              <View style={styles.field}>
-                <Text style={styles.organizationLabel}>
-                  Upload Passport Size Photograph*
-                </Text>
-                <View style={styles.uploadRow}>
-                  <TouchableOpacity
-                    style={styles.uploadButton}
-                    onPress={choosePhotograph}
-                    accessibilityRole="button"
-                    accessibilityLabel="Choose passport size photograph"
-                  >
-                    <Text style={styles.uploadButtonText}>Choose Files</Text>
-                  </TouchableOpacity>
-                  <Text style={styles.uploadFileName} numberOfLines={2}>
-                    {form.photographName ||
-                      (form.avatar
-                        ? 'Photograph selected'
-                        : 'no files selected')}
-                  </Text>
-                </View>
-              </View>
               <Text style={styles.section}>Professional details</Text>
               {field('Institute / Organization', 'institution')}
               <View style={styles.field}>
@@ -543,33 +482,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
+  profileCardElevation: {
+    shadowColor: '#20385B',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+  },
   photo: {
     alignItems: 'center',
     marginBottom: 20,
-  },
-  uploadRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  uploadButton: {
-    minHeight: 44,
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    backgroundColor: '#F8FAFC',
-  },
-  uploadButtonText: {
-    fontSize: 15,
-    color: '#0F172A',
-  },
-  uploadFileName: {
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-    color: '#475569',
   },
   section: {
     fontSize: 17,

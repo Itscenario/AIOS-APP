@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
   Modal,
   Platform,
   ScrollView,
@@ -81,6 +83,22 @@ const GOV_ID_OPTIONS = [
 ];
 
 export const BecomeMemberScreen: React.FC = () => {
+  const formScroll = useRef<React.ElementRef<typeof ScrollView>>(null);
+  const captchaFocused = useRef(false);
+  const scrollToCaptcha = () => {
+    if (captchaFocused.current) {
+      formScroll.current?.scrollToEnd({ animated: true });
+    }
+  };
+  useEffect(() => {
+    const subscription = Keyboard.addListener('keyboardDidShow', () => {
+      if (captchaFocused.current) {
+        requestAnimationFrame(() => formScroll.current?.scrollToEnd({ animated: true }));
+      }
+    });
+    return () => subscription.remove();
+  }, []);
+
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const insets = useSafeAreaInsets();
@@ -283,10 +301,13 @@ export const BecomeMemberScreen: React.FC = () => {
 
   return (
     <Background
-      scrollable
-      keyboardAvoiding
-      contentContainerStyle={[styles.container, { paddingTop: insets.top + 8 }]}
+      keyboardAvoiding={false}
+      style={styles.fixedLayout}
     >
+      <KeyboardAvoidingView
+        style={styles.formScroll}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <View style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
@@ -302,10 +323,21 @@ export const BecomeMemberScreen: React.FC = () => {
             color={colors.white}
             numberOfLines={1}
           >
-            Become a AIOS Member
+            Become an AIOS Member
           </Typography>
         </View>
       </View>
+      <ScrollView
+        ref={formScroll}
+        onLayout={scrollToCaptcha}
+        onContentSizeChange={scrollToCaptcha}
+        style={styles.formScroll}
+        contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 32 }]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none"
+        nestedScrollEnabled
+        showsVerticalScrollIndicator={false}
+      >
       <View style={styles.mainCard}>
         <View style={styles.sectionHeader}>
           <Typography
@@ -1668,6 +1700,11 @@ export const BecomeMemberScreen: React.FC = () => {
                   placeholder="Enter Captcha"
                   placeholderTextColor="#94A3B8"
                   value={captchaInput}
+                  onFocus={() => {
+                    captchaFocused.current = true;
+                    requestAnimationFrame(scrollToCaptcha);
+                  }}
+                  onBlur={() => { captchaFocused.current = false; }}
                   onChangeText={setCaptchaInput}
                   autoCapitalize="none"
                 />
@@ -1687,6 +1724,9 @@ export const BecomeMemberScreen: React.FC = () => {
           </View>
         </View>
       </View>
+
+      </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* State Selection Modal */}
       <Modal
@@ -1800,6 +1840,8 @@ export const BecomeMemberScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  fixedLayout: { flex: 1, paddingTop: 8 },
+  formScroll: { flex: 1 },
   container: {
     paddingBottom: 32,
   },

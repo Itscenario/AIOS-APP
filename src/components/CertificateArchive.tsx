@@ -4,11 +4,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { DocumentIcon, SearchIcon } from './Icons';
+import { DocumentIcon } from './Icons';
+import { useAppSelector } from '../store';
 
 type Conference = {
   id: string;
@@ -23,50 +23,52 @@ type Participant = {
   registrationNo: string;
   memberType: 'Faculty' | 'Delegate';
 };
-// Sample archive rows until a certificate search API is connected.
-const SAMPLE_PARTICIPANTS: Participant[] = [
-  {
-    name: 'Dr. Mohan Rajan',
-    registrationNo: 'APAO2500025',
-    memberType: 'Faculty',
-  },
-  {
-    name: 'Dr. A. Balraj',
-    registrationNo: 'APAO2500084',
-    memberType: 'Delegate',
-  },
-  {
-    name: 'Dr. Chimanlal Devraj Malavia',
-    registrationNo: 'APAO2500109',
-    memberType: 'Delegate',
-  },
-];
-
 export const CertificateArchive: React.FC<{
+  modern?: boolean;
   conferences: Conference[];
   onOpen: (conference: Conference, person: Participant) => void;
-}> = ({ conferences, onOpen }) => {
+}> = ({ conferences, onOpen, modern = false }) => {
   const [expanded, setExpanded] = useState<string | null>(null);
-  const [queries, setQueries] = useState<Record<string, string>>({});
+  const profile = useAppSelector(state => state.auth.profile);
+  if (modern) return (
+    <View style={styles.modernContainer}>
+      <View style={styles.modernTitleRow}><View style={styles.modernEmblem}><DocumentIcon size={24} color="#6251B7" /></View><View style={styles.modernTitleCopy}><Text style={styles.modernTitle}>Certificate archive</Text><Text style={styles.modernHint}>Your participation, recognised.</Text></View></View>
+      {conferences.map(conference => {
+        const open = expanded === conference.id;
+        const rows = (profile?.archiveCertificates || []).filter(item => item.conferenceId === conference.id);
+        return <View key={conference.id} style={[styles.modernCard, open && styles.modernCardOpen]}>
+          <TouchableOpacity style={styles.modernHeading} onPress={() => setExpanded(open ? null : conference.id)} accessibilityRole="button" accessibilityState={{ expanded: open }}>
+            <View style={styles.modernYear}><Text style={styles.modernYearText}>{conference.year}</Text><Text style={styles.modernYearCaption}>ARCHIVE</Text></View>
+            <View style={styles.modernTitleCopy}><Text style={styles.modernConference}>{conference.title}</Text><Text style={styles.modernLocation}>{conference.location}</Text></View>
+            <Text style={styles.modernChevron}>{open ? '−' : '+'}</Text>
+          </TouchableOpacity>
+          {open && <View style={styles.modernBody}>
+            <Text style={styles.modernDates}>{conference.dates}</Text>
+            {rows.length ? rows.map(person => <View key={person.registrationNo} style={styles.modernCertificate}>
+              <Text style={styles.modernConference}>{person.name}</Text><Text style={styles.modernLocation}>{person.registrationNo} · {person.memberType}</Text>
+              <TouchableOpacity style={styles.modernDownload} onPress={() => onOpen(conference, person)} accessibilityRole="button"><DocumentIcon size={17} color="#6251B7" /><Text style={styles.modernDownloadText}>View certificate</Text></TouchableOpacity>
+            </View>) : <View style={styles.modernEmpty}><DocumentIcon size={26} color="#A7B2C8" /><Text style={styles.modernEmptyTitle}>No certificate available</Text><Text style={styles.modernEmptyCopy}>Certificates linked to your account for this conference will appear here.</Text></View>}
+          </View>}
+        </View>;
+      })}
+    </View>
+  );
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Archive Participation Certificate</Text>
       <Text style={styles.hint}>
-        Choose a conference to find your certificate.
+        Your participation certificates from past conferences.
       </Text>
       <FlatList
         data={conferences}
         keyExtractor={conference => conference.id}
         scrollEnabled={false}
         keyboardShouldPersistTaps="handled"
-        extraData={{ expanded, queries }}
+        extraData={{ expanded, profile }}
         renderItem={({ item: conference }) => {
           const open = expanded === conference.id;
-          const query = (queries[conference.id] || '').trim().toLowerCase();
-          const rows = SAMPLE_PARTICIPANTS.filter(person =>
-            `${person.name} ${person.registrationNo} ${person.memberType}`
-              .toLowerCase()
-              .includes(query),
+          const rows = (profile?.archiveCertificates || []).filter(
+            certificate => certificate.conferenceId === conference.id,
           );
           return (
             <View key={conference.id} style={styles.archive}>
@@ -87,26 +89,6 @@ export const CertificateArchive: React.FC<{
               </TouchableOpacity>
               {open && (
                 <View style={styles.body}>
-                  <View style={styles.search}>
-                    <SearchIcon size={18} color="#64748B" />
-                    <TextInput
-                      style={styles.searchInput}
-                      value={queries[conference.id] || ''}
-                      onChangeText={value =>
-                        setQueries(current => ({
-                          ...current,
-                          [conference.id]: value,
-                        }))
-                      }
-                      placeholder="Search name or registration no."
-                      placeholderTextColor="#94A3B8"
-                      autoCorrect={false}
-                      accessibilityLabel={`Search ${conference.title} certificates`}
-                    />
-                  </View>
-                  <Text style={styles.sample}>
-                    Sample data · {rows.length} results
-                  </Text>
                   <ScrollView
                     horizontal
                     nestedScrollEnabled
@@ -170,8 +152,7 @@ export const CertificateArchive: React.FC<{
                   </ScrollView>
                   {!rows.length && (
                     <Text style={styles.empty}>
-                      No certificates found. Try another name or registration
-                      number.
+                      No certificate is available for your account for this conference.
                     </Text>
                   )}
                   <Text style={styles.hint}>
@@ -187,6 +168,30 @@ export const CertificateArchive: React.FC<{
   );
 };
 const styles = StyleSheet.create({
+  modernContainer: { marginTop: 8, marginBottom: 20 },
+  modernTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 18 },
+  modernEmblem: { backgroundColor: '#ECE8FC', width: 46, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  modernTitleCopy: { flex: 1 },
+  modernTitle: { color: '#25314F', fontSize: 21, fontWeight: '700' },
+  modernHint: { color: '#8B97AC', fontSize: 11, marginTop: 5 },
+  modernCard: { backgroundColor: '#FFFFFF', borderRadius: 20, borderWidth: 1, borderColor: '#E3E7F1', marginBottom: 12, overflow: 'hidden' },
+  modernCardOpen: { borderColor: '#B9ADE3' },
+  modernHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16 },
+  modernYear: { backgroundColor: '#F0EDFA', borderRadius: 13, width: 58, paddingVertical: 12, alignItems: 'center' },
+  modernYearText: { color: '#6251A1', fontSize: 17, fontWeight: '800' },
+  modernYearCaption: { color: '#9A8BBE', fontSize: 6, letterSpacing: 1, fontWeight: '700', marginTop: 4 },
+  modernConference: { color: '#33415E', fontSize: 14, fontWeight: '700', lineHeight: 21 },
+  modernLocation: { color: '#8794AB', fontSize: 11, lineHeight: 18, marginTop: 4 },
+  modernChevron: { color: '#8273B2', fontSize: 23, paddingLeft: 4 },
+  modernBody: { padding: 16, paddingTop: 0 },
+  modernDates: { color: '#8794AB', fontSize: 11, lineHeight: 18, marginBottom: 12 },
+  modernCertificate: { backgroundColor: '#F7F8FC', padding: 14, borderRadius: 14, marginBottom: 8 },
+  modernDownload: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, marginTop: 6 },
+  modernDownloadText: { color: '#6251B7', fontSize: 12, fontWeight: '700' },
+  modernEmpty: { alignItems: 'center', backgroundColor: '#F7F8FC', borderRadius: 14, padding: 20 },
+  modernEmptyTitle: { color: '#67758F', fontSize: 13, fontWeight: '600', marginTop: 12 },
+  modernEmptyCopy: { color: '#97A2B6', fontSize: 11, lineHeight: 18, textAlign: 'center', marginTop: 7 },
+
   container: {
     marginBottom: 0,
   },

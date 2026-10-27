@@ -1,6 +1,7 @@
-import React from 'react';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback } from 'react';
+import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { useDrawerStatus } from '@react-navigation/drawer';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowBackIcon } from '../components/Icons';
@@ -12,6 +13,15 @@ import type { DrawerParamList } from '../navigation/types';
 export const AboutAIOSScreen: React.FC = () => {
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
   const insets = useSafeAreaInsets();
+  const drawerStatus = useDrawerStatus();
+  useFocusEffect(useCallback(() => {
+    if (drawerStatus === 'open') return;
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      navigation.openDrawer();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [navigation, drawerStatus]));
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />

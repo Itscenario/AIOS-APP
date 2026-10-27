@@ -1,7 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { DashboardScreen } from '../screens/DashboardScreen';
-import { JobOpportunitiesScreen } from '../screens/JobOpportunitiesScreen';
+// import { JobOpportunitiesScreen } from '../screens/JobOpportunitiesScreen';
 import { AnnualConferenceScreen } from '../screens/AnnualConferenceScreen';
 import { MidTermScreen } from '../screens/MidTermScreen';
 import { AccountScreen } from '../screens/AccountScreen';
@@ -23,7 +23,7 @@ export const BottomTabNavigator: React.FC = () => (
     }}
   >
     <Tab.Screen name="Dashboard" component={DashboardScreen} />
-    <Tab.Screen name="Jobs" component={JobOpportunitiesScreen} />
+    {/* <Tab.Screen name="Jobs" component={JobOpportunitiesScreen} /> */}
     <Tab.Screen name="Certificates" component={AnnualConferenceScreen} />
     <Tab.Screen name="MidTerm" component={MidTermScreen} />
     <Tab.Screen name="Profile" component={AccountScreen} />

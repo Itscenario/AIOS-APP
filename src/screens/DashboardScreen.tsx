@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import { DashboardOfficeBearers } from '../components/DashboardOfficeBearers';
+import { BannerSlider } from '../components/BannerSlider';
+import React from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import {
   Image,
-  Linking,
   Platform,
   ScrollView,
   StyleSheet,
@@ -29,7 +30,6 @@ import {
 
 export const DashboardScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
-  const [bannerWidth, setBannerWidth] = useState(0);
   const navigation = useNavigation<any>();
   const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
@@ -50,7 +50,12 @@ export const DashboardScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <LinearGradient
+        colors={['#0B1728', '#172B50', '#263665']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={[styles.header, { paddingTop: insets.top + 6 }]}
+      >
         <View style={styles.headerLeft}>
           <DrawerMenuButton />
           <View style={styles.logoBadge}>
@@ -103,7 +108,7 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.onlineDot} />
           </TouchableOpacity>
         </View>
-      </View>
+      </LinearGradient>
 
       <ScrollView
         style={styles.scrollView}
@@ -115,7 +120,7 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.stripIndicator}>
               <Text style={styles.stripBreadcrumbText}>Dashboard</Text>
             </View>
-            <Text style={styles.memberPortalBadge}>
+            <Text style={[styles.memberPortalBadge, isMember && styles.activeMemberBadge]}>
               {isMember ? 'Member' : 'Non Member'}
             </Text>
           </View>
@@ -123,17 +128,18 @@ export const DashboardScreen: React.FC = () => {
             <TouchableOpacity
               style={styles.welcomeSection}
               activeOpacity={0.9}
-              onPress={() => navigation.navigate('MyProfile')}
+              // onPress={() => navigation.navigate('MyProfile')}
               accessibilityRole="button"
               accessibilityLabel={`Welcome to All India Ophthalmological Society. ${displayName}. Open full profile`}
             >
               <LinearGradient
-                colors={['#182452', '#101438', '#09152A']}
+                colors={['#283B78', '#253461', '#10243E']}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={StyleSheet.absoluteFill}
               />
               <View style={styles.welcomeAccentRing} pointerEvents="none" />
+              <View style={styles.welcomeGlow} pointerEvents="none" />
               <Image
                 source={images.aiosBuilding}
                 style={styles.welcomeBuilding}
@@ -171,122 +177,27 @@ export const DashboardScreen: React.FC = () => {
             </TouchableOpacity>
           )}
         </View>
-        <TouchableOpacity
-          style={styles.conferenceBannerCard}
-          activeOpacity={0.9}
-          accessibilityRole="button"
-          accessibilityLabel="AIOC 2027 annual conference. View conference details"
-          onPress={() => navigation.navigate('Certificates')}
-        >
-          <View
-            style={styles.conferenceBannerFrame}
-            onLayout={({ nativeEvent }) =>
-              setBannerWidth(nativeEvent.layout.width)
-            }
-          >
-            {bannerWidth > 0 ? (
-              <Image
-                source={images.aioc2027Banner}
-                style={{
-                  width: bannerWidth,
-                  height: (bannerWidth * 316) / 998,
-                }}
-                resizeMode="contain"
-                accessibilityLabel="85th Annual Conference of AIOS, AIOC 2027 Gandhinagar, February 18–21"
-              />
-            ) : null}
-          </View>
-        </TouchableOpacity>
+        <View style={styles.bannerSlider}>
+          <BannerSlider />
+        </View>
 
         <View style={styles.servicesSection}>
-          <View style={styles.sectionHeaderRow}>
-            <Text style={styles.sectionTitle}>Society Services</Text>
-            <Text style={styles.sectionSubtitleLink}>Quick Portal</Text>
-          </View>
 
           <View style={styles.servicesGrid}>
             <TouchableOpacity
-              style={styles.serviceGridCard}
+              style={[styles.serviceGridCard, styles.membershipCard]}
               activeOpacity={0.8}
-              onPress={() => navigation.navigate('Jobs')}
-            >
-              <View style={styles.serviceCardTop}>
-                <View
-                  style={[
-                    styles.serviceIconPill,
-                    { backgroundColor: '#EFF6FF' },
-                  ]}
-                >
-                  <BriefcaseIcon size={18} color="#2563EB" />
-                </View>
-                <View style={styles.serviceBadgeOrange}>
-                  <Text style={styles.serviceBadgeOrangeText}>8 New</Text>
-                </View>
-              </View>
-              <Text style={styles.serviceTitle}>Job Hub</Text>
-              <Text style={styles.serviceDesc}>Faculty & Fellowships</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.serviceGridCard}
-              activeOpacity={0.8}
-              onPress={() => navigation.navigate('Certificates')}
-            >
-              <View style={styles.serviceCardTop}>
-                <View
-                  style={[
-                    styles.serviceIconPill,
-                    { backgroundColor: '#EFF6FF' },
-                  ]}
-                >
-                  <CertificatesTabIcon size={18} color="#2563EB" />
-                </View>
-                <View style={styles.serviceBadgeGray}>
-                  <Text style={styles.serviceBadgeGrayText}>2026</Text>
-                </View>
-              </View>
-              <Text style={styles.serviceTitle}>Annual</Text>
-              <Text style={styles.serviceDesc}>
-                Registration & Certificates
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.serviceGridCard}
-              activeOpacity={0.8}
-              onPress={() => navigation.navigate('MidTerm')}
-            >
-              <View style={styles.serviceCardTop}>
-                <View
-                  style={[
-                    styles.serviceIconPill,
-                    { backgroundColor: '#FFF7ED' },
-                  ]}
-                >
-                  <MidTermTabIcon size={18} color="#EA580C" />
-                </View>
-                <View style={styles.serviceBadgeGreen}>
-                  <Text style={styles.serviceBadgeGreenText}>2026</Text>
-                </View>
-              </View>
-              <Text style={styles.serviceTitle}>Mid-Term Pass</Text>
-              <Text style={styles.serviceDesc}>Download Credentials</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.serviceGridCard}
-              activeOpacity={0.8}
-              onPress={isMember ? undefined : () => navigation.navigate('Profile')}
+              onPress={isMember ? undefined : () => navigation.navigate('BecomeMember')}
               disabled={isMember}
             >
               <View style={styles.serviceCardTop}>
                 <View
                   style={[
                     styles.serviceIconPill,
-                    { backgroundColor: '#F8FAFC' },
+                    { backgroundColor: '#8B5CF6' },
                   ]}
                 >
-                  <DocumentIcon size={18} color="#64748B" />
+                  <DocumentIcon size={21} color="#FFFFFF" />
                 </View>
                 <View style={styles.serviceBadgeAmber}>
                   <Text style={styles.serviceBadgeAmberText}>Open</Text>
@@ -296,21 +207,136 @@ export const DashboardScreen: React.FC = () => {
                 {isMember ? 'FAICO Examination 2026' : 'Become an AIOS Member'}
               </Text>
               <Text style={styles.serviceDesc} numberOfLines={1} adjustsFontSizeToFit>
-                Apply for AIOS Membership
+                {isMember ? 'Apply for FAICO Examination' : 'Apply for AIOS Membership'}
               </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.serviceGridCard, styles.annualCard]}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('Certificates')}
+            >
+              <View style={styles.serviceCardTop}>
+                <View
+                  style={[
+                    styles.serviceIconPill,
+                    { backgroundColor: '#3B82F6' },
+                  ]}
+                >
+                  <CertificatesTabIcon size={21} color="#FFFFFF" />
+                </View>
+                <View style={styles.serviceBadgeGray}>
+                  <Text style={styles.serviceBadgeGrayText}>2026</Text>
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>Annual Conference</Text>
+              <Text style={styles.serviceDesc}>
+                Registration & Certificates
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.serviceGridCard, styles.midTermCard]}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('MidTerm')}
+            >
+              <View style={styles.serviceCardTop}>
+                <View
+                  style={[
+                    styles.serviceIconPill,
+                    { backgroundColor: '#F97316' },
+                  ]}
+                >
+                  <MidTermTabIcon size={21} color="#FFFFFF" />
+                </View>
+                <View style={styles.serviceBadgeGreen}>
+                  <Text style={styles.serviceBadgeGreenText}>2026</Text>
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>Mid-Term  Conference</Text>
+              <Text style={styles.serviceDesc}>Download Credentials</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.serviceGridCard, styles.calendarCard]} onPress={() => navigation.navigate('MeetingCalendar')} activeOpacity={0.8} accessibilityRole="button">
+              <View style={styles.serviceCardTop}>
+                <View style={[styles.serviceIconPill, { backgroundColor: '#A855F7' }]}>
+                  <CertificatesTabIcon size={21} color="#FFFFFF" />
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>Meeting Calendar</Text>
+              <Text style={styles.serviceDesc}>Upcoming meetings & events</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.serviceGridCard, styles.updatesCard]} onPress={() => navigation.navigate('AIOSUpdates')} activeOpacity={0.8} accessibilityRole="button">
+              <View style={styles.serviceCardTop}>
+                <View style={[styles.serviceIconPill, { backgroundColor: '#0EA5E9' }]}>
+                  <BellIcon size={21} color="#FFFFFF" />
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>AIOS Update</Text>
+              <Text style={styles.serviceDesc}>Latest Aios updates</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.serviceGridCard, styles.jobsCard]}
+              activeOpacity={0.8}
+              onPress={isMember ? () => navigation.navigate('JobOpportunities') : undefined}
+              disabled={!isMember}
+              accessibilityRole="button"
+              accessibilityLabel={isMember ? 'Open Job Hub' : 'Job Hub, members only'}
+              accessibilityState={{ disabled: !isMember }}
+            >
+              <View style={styles.serviceCardTop}>
+                <View
+                  style={[
+                    styles.serviceIconPill,
+                    { backgroundColor: '#10B981' },
+                  ]}
+                >
+                  <BriefcaseIcon size={21} color="#FFFFFF" />
+                </View>
+                <View style={styles.serviceBadgeOrange}>
+                  <Text style={styles.serviceBadgeOrangeText}>{isMember ? '8 New' : 'Locked'}</Text>
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>Job Hub</Text>
+              <Text style={styles.serviceDesc}>{isMember ? 'Faculty & Fellowships' : 'Members only'}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.serviceGridCard, styles.newsCard]} onPress={() => navigation.navigate('NewsViews')} activeOpacity={0.8} accessibilityRole="button">
+              <View style={styles.serviceCardTop}>
+                <View style={[styles.serviceIconPill, { backgroundColor: '#EC4899' }]}>
+                  <MegaphoneIcon size={21} color="#FFFFFF" />
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>News / Views</Text>
+              <Text style={styles.serviceDesc}>News & perspectives</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.serviceGridCard, styles.grievanceCard]} onPress={() => navigation.navigate('Grievance')} activeOpacity={0.8} accessibilityRole="button">
+              <View style={styles.serviceCardTop}>
+                <View style={[styles.serviceIconPill, { backgroundColor: '#14B8A6' }]}>
+                  <DocumentIcon size={21} color="#FFFFFF" />
+                </View>
+              </View>
+              <Text style={styles.serviceTitle}>Grievance Form</Text>
+              <Text style={styles.serviceDesc}>Suggestions & grievances</Text>
             </TouchableOpacity>
           </View>
         </View>
 
+        <DashboardOfficeBearers />
+
+        {/* Notice Board temporarily hidden.
         <View style={styles.noticeSection}>
           <View style={styles.sectionHeaderRow}>
             <View style={styles.noticeHeaderLeft}>
               <MegaphoneIcon size={18} color="#FF5722" />
               <Text style={styles.noticeSectionTitle}>Notice Board</Text>
             </View>
-            {/* <TouchableOpacity onPress={() => Linking.openURL('https://www.aios.org')}>
+            <TouchableOpacity onPress={() => Linking.openURL('https://www.aios.org')}>
               <Text style={styles.archiveLink}>Archive</Text>
-            </TouchableOpacity> */}
+            </TouchableOpacity>
           </View>
 
           <View style={styles.noticeCard}>
@@ -355,6 +381,7 @@ export const DashboardScreen: React.FC = () => {
             </Text>
           </View>
         </View>
+        */}
       </ScrollView>
     </View>
   );
@@ -383,7 +410,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 8,
-    backgroundColor: '#16253B',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     padding: 3,
     borderWidth: 1,
     borderColor: '#223854',
@@ -409,7 +436,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   officialPill: {
-    backgroundColor: '#0284C7',
+    backgroundColor: '#38BDF8',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -423,7 +450,7 @@ const styles = StyleSheet.create({
   },
   brandSubtitle: {
     fontSize: 10.5,
-    color: '#94A3B8',
+    color: '#CBD5E1',
     marginTop: 2,
   },
   headerRight: {
@@ -435,7 +462,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#16253B',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -468,7 +495,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 8,
     width: '100%',
     maxWidth: 640,
     alignSelf: 'center',
@@ -502,19 +529,32 @@ const styles = StyleSheet.create({
   memberPortalBadge: {
     fontSize: 10,
     fontWeight: '700',
-    color: '#9A3412',
-    backgroundColor: '#FFF7ED',
+    color: '#7C3AED',
+    backgroundColor: '#EDE9FE',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 20,
     letterSpacing: 0.5,
   },
+  activeMemberBadge: {
+    color: '#047857',
+    backgroundColor: '#D1FAE5',
+  },
+  welcomeGlow: {
+    position: 'absolute',
+    width: 150,
+    height: 150,
+    borderRadius: 75,
+    backgroundColor: 'rgba(56, 189, 248, 0.09)',
+    bottom: -90,
+    left: -40,
+  },
   welcomeSection: {
     marginTop: 18,
     backgroundColor: '#101047',
-    borderRadius: 18,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: '#28375B',
+    borderColor: '#425C95',
     minHeight: 186,
     justifyContent: 'center',
     overflow: 'hidden',
@@ -552,7 +592,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     backgroundColor: '#273658',
     borderWidth: 1,
-    borderColor: '#60749B',
+    borderColor: '#93C5FD',
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
@@ -580,7 +620,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#364365',
+    borderTopColor: 'rgba(255, 255, 255, 0.18)',
     fontSize: 20,
     lineHeight: 28,
     fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
@@ -592,16 +632,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  conferenceBannerCard: {
+  bannerSlider: {
     marginHorizontal: 16,
     marginTop: 16,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: 'transparent',
-  },
-  conferenceBannerFrame: {
-    alignSelf: 'stretch',
-    minHeight: 1,
   },
   servicesSection: {
     marginHorizontal: 16,
@@ -648,6 +681,54 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 2,
   },
+  membershipCard: {
+    backgroundColor: '#F3EEFF',
+    borderColor: '#D9CCFA',
+    borderTopColor: '#8B5CF6',
+    borderTopWidth: 3,
+  },
+  annualCard: {
+    backgroundColor: '#EBF4FF',
+    borderColor: '#BDD8FB',
+    borderTopColor: '#3B82F6',
+    borderTopWidth: 3,
+  },
+  midTermCard: {
+    backgroundColor: '#FFF2E8',
+    borderColor: '#FED3AE',
+    borderTopColor: '#F97316',
+    borderTopWidth: 3,
+  },
+  calendarCard: {
+    backgroundColor: '#F5EFFF',
+    borderColor: '#DFC9FB',
+    borderTopColor: '#A855F7',
+    borderTopWidth: 3,
+  },
+  updatesCard: {
+    backgroundColor: '#E9F8FF',
+    borderColor: '#B8E5F7',
+    borderTopColor: '#0EA5E9',
+    borderTopWidth: 3,
+  },
+  jobsCard: {
+    backgroundColor: '#EAFAF2',
+    borderColor: '#B7E6CE',
+    borderTopColor: '#10B981',
+    borderTopWidth: 3,
+  },
+  newsCard: {
+    backgroundColor: '#FFF0F4',
+    borderColor: '#F6C7D5',
+    borderTopColor: '#EC4899',
+    borderTopWidth: 3,
+  },
+  grievanceCard: {
+    backgroundColor: '#E8F9F7',
+    borderColor: '#AFE4DD',
+    borderTopColor: '#14B8A6',
+    borderTopWidth: 3,
+  },
   serviceCardTop: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -655,9 +736,9 @@ const styles = StyleSheet.create({
     marginBottom: 14,
   },
   serviceIconPill: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -777,7 +858,7 @@ const styles = StyleSheet.create({
   },
   noticeTimeText: {
     fontSize: 10,
-    color: '#94A3B8',
+    color: '#CBD5E1',
   },
   noticeTitle: {
     fontSize: 14,

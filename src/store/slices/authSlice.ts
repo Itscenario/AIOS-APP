@@ -24,6 +24,12 @@ export interface UserProfile {
   // Set to active only after membership payment is verified by the server.
   membershipStatus?: 'pending' | 'active' | 'expired';
   // Conference registration completion is independent of society membership.
+  archiveCertificates?: {
+    conferenceId: string;
+    name: string;
+    registrationNo: string;
+    memberType: 'Faculty' | 'Delegate';
+  }[];
   conferenceRegistrations?: Record<string, 'pending' | 'completed'>;
   nationality?: string;
   passportNo?: string;
@@ -31,6 +37,11 @@ export interface UserProfile {
   institution?: string;
   speciality?: string;
   specialities?: string[];
+  publicationPreferences?: Record<string, 'hard_copy' | 'online' | 'both'>;
+  contactPrivacy?: {
+    mobile: 'office_only' | 'can_be_shared' | '';
+    email: 'office_only' | 'can_be_shared' | '';
+  };
   organizationType?: string;
   biodata?: string;
 }

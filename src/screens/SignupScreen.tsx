@@ -1173,6 +1173,7 @@ export const SignupScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+
   scrollContent: {
     paddingBottom: 24,
   },

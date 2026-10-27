@@ -1,45 +1,20 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { FlatList, Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation, useIsFocused } from '@react-navigation/native';
+import React from 'react';
+import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import type { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { DrawerParamList } from '../navigation/types';
 import { ScreenStatusBar } from '../components/ScreenStatusBar';
 import { ArrowBackIcon } from '../components/Icons';
 import { images } from '../constants/images';
+import { BannerSlider } from '../components/BannerSlider';
 import { HomeUpdates } from '../components/HomeUpdates';
 import { ABOUT_AIOS_INTRO } from '../constants/aboutAIOS';
-
-const BANNERS = Array.from({ length: 7 }, (_, index) => ({
-  id: `banner${index + 1}`,
-  source: images[`banner${index + 1}`],
-}));
 
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<DrawerNavigationProp<DrawerParamList>>();
-  const focused = useIsFocused();
-  const slider = useRef<FlatList<(typeof BANNERS)[number]>>(null);
-  const [width, setWidth] = useState(0);
-  const [active, setActive] = useState(0);
-  const dragging = useRef(false);
   const openDashboard = () => navigation.navigate('Portal', { screen: 'Dashboard' });
-  const goToSlide = (index: number) => {
-    slider.current?.scrollToOffset({ offset: index * width, animated: true });
-    setActive(index);
-  };
-  useEffect(() => {
-    if (!focused || !width) return;
-    const timer = setInterval(() => {
-      if (dragging.current) return;
-      setActive(current => {
-        const next = (current + 1) % BANNERS.length;
-        slider.current?.scrollToOffset({ offset: next * width, animated: true });
-        return next;
-      });
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [focused, width]);
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
@@ -61,30 +36,7 @@ export const HomeScreen: React.FC = () => {
         <TouchableOpacity onPress={openDashboard} accessibilityRole="button"><Text style={styles.dashboard}>My Dashboard ↗</Text></TouchableOpacity>
       </View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
-        <View style={styles.carousel} onLayout={({ nativeEvent }) => {
-          const nextWidth = Math.max(0, nativeEvent.layout.width - 2);
-          setWidth(nextWidth);
-          slider.current?.scrollToOffset({ offset: active * nextWidth, animated: false });
-        }}>
-          {width > 0 && <FlatList
-            ref={slider}
-            style={{ height: width * 337 / 846 }}
-            data={BANNERS}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={item => item.id}
-            extraData={width}
-            getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-            onScrollBeginDrag={() => { dragging.current = true; }}
-            onScrollEndDrag={() => { dragging.current = false; }}
-            onMomentumScrollEnd={({ nativeEvent }) => setActive(Math.round(nativeEvent.contentOffset.x / width))}
-            renderItem={({ item }) => <View style={{ width, height: width * 337 / 846 }}><Image source={item.source} style={[styles.banner, { width, height: width * 337 / 846 }]} resizeMode="contain" accessibilityLabel={item.id} /></View>}
-          />}
-        </View>
-        <View style={styles.pagination}>
-          {BANNERS.map((banner, index) => <TouchableOpacity key={banner.id} style={styles.dotButton} onPress={() => goToSlide(index)} accessibilityRole="button" accessibilityLabel={`Show banner ${index + 1}`} accessibilityState={{ selected: active === index }}><View style={[styles.dot, active === index && styles.dotActive]} /></TouchableOpacity>)}
-        </View>
+        <BannerSlider />
         <View style={[styles.card, styles.youtubeCard]}>
           <Text style={styles.cardTitle}><Text style={styles.blue}>ONE AIOS</Text> — the all-in-one AIOS YouTube Channel</Text>
           <Text style={styles.body}>Live sessions and archived content, all in one place.</Text>
@@ -118,7 +70,7 @@ export const HomeScreen: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.navigate('AboutAIOS')} accessibilityRole="button" style={styles.readMore}><Text style={styles.readMoreText}>Read More</Text></TouchableOpacity>
         </View>
         <HomeUpdates
-          onJobs={() => navigation.navigate('Portal', { screen: 'Jobs' })}
+          onJobs={() => navigation.getParent()?.navigate('JobOpportunities')}
           onProfile={() => navigation.getParent()?.navigate('MyProfile')}
         />
       </ScrollView>
@@ -212,39 +164,6 @@ const styles = StyleSheet.create({
     maxWidth: 640,
     alignSelf: 'center',
     gap: 16,
-  },
-  carousel: {
-    width: '100%',
-    aspectRatio: 846 / 337,
-    overflow: 'hidden',
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
-  banner: {
-    aspectRatio: 846 / 337,
-  },
-  pagination: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginTop: -10,
-  },
-  dotButton: {
-    width: 32,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  dot: {
-    width: 9,
-    height: 9,
-    borderRadius: 5,
-    borderWidth: 1.5,
-    borderColor: '#FB923C',
-  },
-  dotActive: {
-    backgroundColor: '#FB923C',
   },
   card: {
     padding: 20,

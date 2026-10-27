@@ -10,7 +10,7 @@ import {
 } from '@react-navigation/drawer';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomTabNavigator } from './BottomTabNavigator';
-import { HomeScreen } from '../screens/HomeScreen';
+// import { HomeScreen } from '../screens/HomeScreen';
 import { AboutAIOSScreen } from '../screens/AboutAIOSScreen';
 import { PresidentAIOSScreen } from '../screens/PresidentAIOSScreen';
 import { AIOSThemeSongScreen } from '../screens/AIOSThemeSongScreen';
@@ -19,17 +19,15 @@ import { OfficeBearersScreen } from '../screens/OfficeBearersScreen';
 import { OfficeBearersSubCommitteeScreen } from '../screens/OfficeBearersSubCommitteeScreen';
 import { GoverningCouncilScreen } from '../screens/GoverningCouncilScreen';
 import { DrawerParamList } from './types';
-import { logout, useAppDispatch, useAppSelector } from '../store';
+import { useAppSelector } from '../store';
 import {
   DashboardIcon,
   JobsTabIcon,
   CertificatesTabIcon,
   MidTermTabIcon,
   ProfileTabIcon,
-  LogoutIcon,
   PersonIcon,
   CloseIcon,
-  LockIcon,
 } from '../components/Icons';
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
@@ -83,11 +81,9 @@ const menuOptions = [
   { label: 'AIOS Wings', Icon: MidTermTabIcon },
   { label: 'AIOS FAICO', Icon: CertificatesTabIcon },
   { label: 'Public Awareness', Icon: PersonIcon },
-  { label: 'Change Password', Icon: LockIcon },
 ];
 
 const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
-  const dispatch = useAppDispatch();
   const [faicoExpanded, setFaicoExpanded] = useState(false);
   const [wingsExpanded, setWingsExpanded] = useState(false);
   const [clinicalExpanded, setClinicalExpanded] = useState(false);
@@ -108,6 +104,7 @@ const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
     : savedProfile;
   const insets = useSafeAreaInsets();
   const portal = props.state.routes[props.state.index];
+  const dashboardFocused = portal.name === 'Portal' && (getFocusedRouteNameFromRoute(portal) || 'Dashboard') === 'Dashboard';
   const name =
     profile?.name ||
     [profile?.title, profile?.firstName, profile?.surname]
@@ -156,17 +153,17 @@ const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
         </View>
         <Text style={styles.sectionLabel}>EXPLORE AIOS</Text>
         <DrawerItem
-          label="Home"
-          focused={portal.name === 'Home'}
+          label="Dashboard"
+          focused={dashboardFocused}
           activeTintColor="#EA580C"
           inactiveTintColor="#334155"
           activeBackgroundColor="#FFF7ED"
           style={styles.item}
           labelStyle={styles.itemLabel}
-          icon={({ color }) => <View style={[styles.menuIcon, portal.name === 'Home' && styles.menuIconActive]}><DashboardIcon size={20} color={color} /></View>}
+          icon={({ color }) => <View style={[styles.menuIcon, dashboardFocused && styles.menuIconActive]}><DashboardIcon size={20} color={color} /></View>}
           onPress={() => {
             setSelectedMenu(null);
-            props.navigation.navigate('Home');
+            props.navigation.navigate('Portal', { screen: 'Dashboard' });
             props.navigation.closeDrawer();
           }}
         />
@@ -183,10 +180,6 @@ const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
             icon={({ color }) => <View style={[styles.menuIcon, selectedMenu === label && styles.menuIconActive]}><Icon size={20} color={color} /></View>}
             onPress={() => {
               setSelectedMenu(label);
-              if (label === 'Change Password') {
-                props.navigation.closeDrawer();
-                props.navigation.getParent()?.navigate('ChangePassword');
-              }
               if (label === 'AIOS FAICO') {
                 setFaicoExpanded(value => !value);
               }
@@ -432,30 +425,15 @@ const PortalDrawerContent: React.FC<DrawerContentComponentProps> = props => {
           </View>
         ))}
       </DrawerContentScrollView>
-      <View
-        style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 16) }]}
-      >
-        <TouchableOpacity
-          style={styles.logout}
-          accessibilityRole="button"
-          accessibilityLabel="Logout"
-          onPress={() => {
-            dispatch(logout());
-            props.navigation
-              .getParent()
-              ?.reset({ index: 0, routes: [{ name: 'Login' }] });
-          }}
-        >
-          <LogoutIcon size={21} color="#DC2626" />
-          <Text style={styles.logoutText}>Logout</Text>
-        </TouchableOpacity>
-      </View>
+
     </View>
   );
 };
 
 export const DrawerNavigator: React.FC = () => (
   <Drawer.Navigator
+    key="dashboard-drawer-v2"
+    backBehavior="none"
     initialRouteName="Portal"
     drawerContent={props => <PortalDrawerContent {...props} />}
     screenOptions={{
@@ -465,7 +443,6 @@ export const DrawerNavigator: React.FC = () => (
       overlayColor: 'rgba(10, 30, 63, 0.45)',
     }}
   >
-    <Drawer.Screen name="Home" component={HomeScreen} />
     <Drawer.Screen name="AboutAIOS" component={AboutAIOSScreen} />
     <Drawer.Screen name="PresidentAIOS" component={PresidentAIOSScreen} />
     <Drawer.Screen name="AIOSThemeSong" component={AIOSThemeSongScreen} />

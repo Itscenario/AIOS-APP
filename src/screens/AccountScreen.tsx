@@ -1,3 +1,4 @@
+import { LogoutConfirmation } from '../components/LogoutConfirmation';
 import { Toast, ToastNotification } from '../components/Toast';
 import { PaymentInformation } from '../components/PaymentInformation';
 import { formatProfileName } from '../utils/profileName';
@@ -21,10 +22,14 @@ import { ScreenStatusBar } from '../components/ScreenStatusBar';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { images } from '../constants/images';
-import { useAppSelector, useAppDispatch, updateProfile } from '../store';
+import { useAppSelector, useAppDispatch, updateProfile, logout } from '../store';
 import type { RootStackParamList } from '../navigation/types';
 import {
+  ArrowBackIcon,
   BellIcon,
+  LockIcon,
+  BookOpenIcon,
+  LogoutIcon,
   CheckIcon,
   ShieldCheckIcon,
   PersonIcon,
@@ -59,7 +64,8 @@ export const GO_GREEN_PUBLICATIONS: GoGreenPublication[] = [
 
 export type GoGreenOption = 'hard_copy' | 'online' | 'both';
 
-export const AccountScreen: React.FC = () => {
+type PreferencePage = 'green' | 'privacy' | 'speciality';
+export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ preferencePage }) => {
   const insets = useSafeAreaInsets();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -68,6 +74,10 @@ export const AccountScreen: React.FC = () => {
     ? { ...savedProfile, membershipId: undefined }
     : savedProfile;
   const dispatch = useAppDispatch();
+
+
+  const [logoutVisible, setLogoutVisible] = useState(false);
+  const handleLogout = () => setLogoutVisible(true);
 
   // Profile edit modal
   const [editModalVisible, setEditModalVisible] = useState(false);
@@ -215,11 +225,11 @@ export const AccountScreen: React.FC = () => {
     } catch {}
   };
 
-  const [specialities, setSpecialities] = useState<string[]>([]);
+  const [specialities, setSpecialities] = useState<string[]>(profile?.specialities || []);
 
   const [goGreenSelections, setGoGreenSelections] = useState<
     Record<string, GoGreenOption>
-  >({});
+  >(profile?.publicationPreferences || {});
 
   const handleSelectGoGreen = (pubId: string, option: GoGreenOption) => {
     setGoGreenSelections(prev => ({
@@ -230,10 +240,10 @@ export const AccountScreen: React.FC = () => {
 
   const [mobileConsent, setMobileConsent] = useState<
     'office_only' | 'can_be_shared' | ''
-  >('office_only');
+  >(profile?.contactPrivacy?.mobile || 'office_only');
   const [emailConsent, setEmailConsent] = useState<
     'office_only' | 'can_be_shared' | ''
-  >('office_only');
+  >(profile?.contactPrivacy?.email || 'office_only');
 
   const [proposerMembershipNo, setProposerMembershipNo] = useState('');
   const [proposerName, setProposerName] = useState('');
@@ -443,6 +453,343 @@ export const AccountScreen: React.FC = () => {
     setPaymentInformationVisible(true);
   };
 
+  if (preferencePage) {
+    const title = { green: 'Go Green', privacy: 'Privacy', speciality: 'Speciality' }[preferencePage];
+    return (
+      <View style={styles.container}>
+        <ScreenStatusBar />
+        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+          <View style={styles.headerLeft}>
+            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.preferenceBack} accessibilityRole="button" accessibilityLabel="Go back">
+              <ArrowBackIcon size={22} color="#FFFFFF" />
+            </TouchableOpacity>
+            <Text style={styles.brandTitle}>{title}</Text>
+          </View>
+        </View>
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}>
+          {preferencePage === 'green' && (<>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * AIOS - Go Green Initiative
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.goGreenTableContainer}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <View style={styles.goGreenTable}>
+                  <View style={styles.goGreenTableHeaderRow}>
+                    <View style={styles.goGreenColTitle} />
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>
+                        I need hard copy
+                      </Text>
+                    </View>
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>Online version</Text>
+                    </View>
+                    <View style={styles.goGreenColRadioHeader}>
+                      <Text style={styles.radioHeaderText}>I need both</Text>
+                    </View>
+                  </View>
+
+                  {GO_GREEN_PUBLICATIONS.map(pub => {
+                    const selected = goGreenSelections[pub.id];
+                    return (
+                      <View key={pub.id} style={styles.goGreenTableRow}>
+                        <View style={styles.goGreenColTitle}>
+                          <Text style={styles.pubTitleText}>{pub.title}</Text>
+                        </View>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() =>
+                            handleSelectGoGreen(pub.id, 'hard_copy')
+                          }
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'hard_copy' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'hard_copy' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() => handleSelectGoGreen(pub.id, 'online')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'online' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'online' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.goGreenColRadio}
+                          onPress={() => handleSelectGoGreen(pub.id, 'both')}
+                          activeOpacity={0.7}
+                        >
+                          <View
+                            style={[
+                              styles.radioCircleSmall,
+                              selected === 'both' &&
+                                styles.radioCircleSmallActive,
+                            ]}
+                          >
+                            {selected === 'both' && (
+                              <View style={styles.radioDotSmall} />
+                            )}
+                          </View>
+                        </TouchableOpacity>
+                      </View>
+                    );
+                  })}
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+          </>)}
+          {preferencePage === 'privacy' && (<>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * Use of your mobile number (please tick)
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.mobileConsentList}>
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setMobileConsent('office_only')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    mobileConsent === 'office_only' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {mobileConsent === 'office_only' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>mobile number</Text>{' '}
+                  should be used only for AIOS Office purpose.
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setMobileConsent('can_be_shared')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    mobileConsent === 'can_be_shared' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {mobileConsent === 'can_be_shared' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>mobile number</Text>{' '}
+                  can be shared with other (as per office policy) if they ask
+                  for it apart from official purpose as well.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                * Use of your email id (please tick)
+              </Text>
+              <View style={styles.tealAccentBar} />
+            </View>
+
+            <View style={styles.mobileConsentList}>
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setEmailConsent('office_only')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    emailConsent === 'office_only' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {emailConsent === 'office_only' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>email id</Text> should
+                  be used only for AIOS Office purpose.
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.mobileConsentRow}
+                onPress={() => setEmailConsent('can_be_shared')}
+                activeOpacity={0.75}
+              >
+                <View
+                  style={[
+                    styles.mobileConsentCircle,
+                    emailConsent === 'can_be_shared' &&
+                      styles.mobileConsentCircleActive,
+                  ]}
+                >
+                  {emailConsent === 'can_be_shared' && (
+                    <View style={styles.mobileConsentDot} />
+                  )}
+                </View>
+                <Text style={styles.mobileConsentText}>
+                  My <Text style={{ fontWeight: '700' }}>email id</Text> can be
+                  shared with other (as per office policy) if they ask for it
+                  apart from official purpose as well.
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          </>)}
+          {preferencePage === 'speciality' && (<>
+          <View style={styles.formSectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionOrangeHeading}>
+                Sub - Speciality{' '}
+                <Text style={styles.subHeadingMuted}>
+                  (i.e. Cataract, Refractive Surgery, Vitreo-Retina, Cornea etc)
+                </Text>
+              </Text>
+              <View style={styles.headingUnderline} />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>State Registrar *</Text>
+              <TextInput
+                style={styles.textInput}
+                value={stateRegistrar}
+                onChangeText={setStateRegistrar}
+                placeholder="Enter State Registrar"
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>Registration No. *</Text>
+              <TextInput
+                style={styles.textInput}
+                value={registrationNo}
+                onChangeText={setRegistrationNo}
+                placeholder="Enter Registration No."
+                placeholderTextColor="#94A3B8"
+              />
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                Upload State Medical Council Registration Certificate *
+              </Text>
+              <TouchableOpacity
+                style={styles.fileUploadBox}
+                activeOpacity={0.75}
+                onPress={handlePickRegCert}
+              >
+                <View style={styles.chooseFileBtn} pointerEvents="none">
+                  <Text style={styles.chooseFileText}>Choose Files</Text>
+                </View>
+                <Text
+                  style={styles.fileNameText}
+                  numberOfLines={1}
+                  pointerEvents="none"
+                >
+                  {regCertFileName || 'no file selected'}
+                </Text>
+              </TouchableOpacity>
+              <Text style={styles.uploadHelperText}>
+                Image size should be 200 x 200 Pixels and not more than 200 KB
+              </Text>
+            </View>
+
+            <View style={styles.inputGroup}>
+              <Text style={styles.fieldLabel}>
+                Speciality{' '}
+                <Text style={styles.subHeadingMuted}>(Maximum Three)</Text>
+              </Text>
+              <View style={styles.checkboxList}>
+                {ALL_SPECIALITIES.map(item => {
+                  const isChecked = specialities.includes(item);
+                  return (
+                    <TouchableOpacity
+                      key={item}
+                      style={styles.checkboxRow}
+                      activeOpacity={0.8}
+                      onPress={() => toggleSpeciality(item)}
+                    >
+                      <View
+                        style={[
+                          styles.checkboxSquare,
+                          isChecked && styles.checkboxSquareChecked,
+                        ]}
+                      >
+                        {isChecked && <CheckIcon size={12} color="#FFFFFF" />}
+                      </View>
+                      <Text
+                        style={[
+                          styles.checkboxLabel,
+                          isChecked && styles.checkboxLabelChecked,
+                        ]}
+                      >
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          </View>
+          </>)}
+          {preferencePage && (
+            <TouchableOpacity style={styles.preferenceSave} onPress={() => {
+              dispatch(updateProfile({ specialities, publicationPreferences: goGreenSelections, contactPrivacy: { mobile: mobileConsent, email: emailConsent } }));
+              navigation.goBack();
+              showToast('Preferences saved.');
+            }} accessibilityRole="button">
+              <Text style={styles.preferenceSaveText}>Save preferences</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+      </View>
+    );
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -450,6 +797,15 @@ export const AccountScreen: React.FC = () => {
     >
       <ScreenStatusBar />
       <Toast notification={toast} />
+      <LogoutConfirmation
+        visible={logoutVisible}
+        onCancel={() => setLogoutVisible(false)}
+        onConfirm={() => {
+          setLogoutVisible(false);
+          dispatch(logout());
+          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+        }}
+      />
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
@@ -529,6 +885,31 @@ export const AccountScreen: React.FC = () => {
             </TouchableOpacity>
           </View>
 
+
+          <View style={styles.accountMenu}>
+            {[
+              { title: 'Update Profile', subtitle: 'Manage your personal details', Icon: EditPencilIcon, color: '#2563EB', background: '#EFF6FF', action: () => navigation.navigate('MyProfile') },
+              { title: 'Change Password', subtitle: 'Keep your account secure', Icon: LockIcon, color: '#7C3AED', background: '#F5F3FF', action: () => navigation.navigate('ChangePassword') },
+              { title: 'Go Green', subtitle: 'Choose your publication preferences', Icon: BookOpenIcon, color: '#059669', background: '#ECFDF5', action: () => navigation.navigate('GoGreen') },
+              { title: 'Privacy', subtitle: 'Control sharing of your contact details', Icon: ShieldCheckIcon, color: '#0891B2', background: '#ECFEFF', action: () => navigation.navigate('Privacy') },
+              { title: 'Speciality', subtitle: 'Select your areas of expertise', Icon: DocumentIcon, color: '#EA580C', background: '#FFF7ED', action: () => navigation.navigate('Speciality') },
+              { title: 'Logout', subtitle: 'Sign out of your account', Icon: LogoutIcon, color: '#DC2626', background: '#FFF1F2', action: handleLogout },
+            ].map(({ title, subtitle, Icon, color, background, action }) => (
+              <TouchableOpacity key={title} style={styles.accountMenuCard} onPress={action} activeOpacity={0.8} accessibilityRole="button">
+                <View style={[styles.accountMenuAccent, { backgroundColor: color }]} />
+                <View style={[styles.accountMenuIcon, { backgroundColor: background }]}><Icon size={22} color={color} /></View>
+                <View style={styles.accountMenuCopy}>
+                  <Text style={styles.accountMenuTitle}>{title}</Text>
+                  {/* <Text style={styles.accountMenuSubtitle}>{subtitle}</Text> */}
+                </View>
+                <View style={[styles.accountMenuArrowCircle, { backgroundColor: background }]}>
+                  <Text style={[styles.accountMenuArrow, { color }]}>›</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {/* Membership form is available on the dedicated BecomeMember screen. */}
+          {false && (<>
           <View style={styles.formSectionCard}>
             <View style={styles.inputGroup}>
               <Text style={styles.fieldLabel}>Passport No.</Text>
@@ -1397,6 +1778,7 @@ export const AccountScreen: React.FC = () => {
               transactions are SSL encrypted. Terms & conditions apply.
             </Text>
           </View>
+          </>)}
         </ScrollView>
       </View>
 
@@ -1594,6 +1976,41 @@ export const AccountScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  preferenceBack: { padding: 10, marginRight: 8 },
+  accountMenu: { marginHorizontal: 2, gap: 12, paddingBottom: 8 },
+  accountMenuCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#E8EDF5',
+    gap: 14,
+    shadowColor: '#20385B',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  accountMenuAccent: {
+    position: 'absolute',
+    left: 0,
+    width: 3,
+    height: 26,
+    borderTopRightRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  accountMenuIcon: { width: 46, height: 46, borderRadius: 15, alignItems: 'center', justifyContent: 'center' },
+  accountMenuCopy: { flex: 1 },
+  accountMenuTitle: { fontSize: 15, fontWeight: '700', color: '#1E293B', letterSpacing: 0.1 },
+  accountMenuSubtitle: { fontSize: 12, lineHeight: 18, color: '#64748B', marginTop: 4 },
+  accountMenuArrowCircle: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  accountMenuArrow: { fontSize: 24, lineHeight: 26, textAlign: 'center' },
+  preferenceSave: { margin: 16, padding: 16, borderRadius: 16, backgroundColor: '#2563EB', alignItems: 'center' },
+  preferenceSaveText: { color: '#FFFFFF', fontWeight: '700' },
+
   fbsTitle: {
     fontSize: 18,
     fontWeight: '700',

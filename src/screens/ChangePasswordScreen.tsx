@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Modal,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -231,9 +232,8 @@ export const ChangePasswordScreen: React.FC = () => {
 
   return (
     <Background
-      scrollable
       keyboardAvoiding
-      contentContainerStyle={[styles.container, { paddingTop: insets.top + 8 }]}
+      style={styles.fixedLayout}
     >
       {/* Top Header */}
       <View style={styles.topHeader}>
@@ -254,9 +254,9 @@ export const ChangePasswordScreen: React.FC = () => {
             />
           </View>
           <View>
-            <Typography variant="bodySm" color="rgba(255, 255, 255, 0.75)">
+            {/* <Typography variant="bodySm" color="rgba(255, 255, 255, 0.75)">
               AIOS Security
-            </Typography>
+            </Typography> */}
             <Typography variant="headlineSm" weight="bold" color={colors.white}>
               Change Password
             </Typography>
@@ -266,6 +266,13 @@ export const ChangePasswordScreen: React.FC = () => {
         <View style={styles.headerRightSpacer} />
       </View>
 
+      <ScrollView
+        style={styles.formScroll}
+        contentContainerStyle={[styles.container, { paddingBottom: insets.bottom + 24 }]}
+        keyboardShouldPersistTaps="handled"
+        automaticallyAdjustKeyboardInsets
+        showsVerticalScrollIndicator={false}
+      >
       {/* Main Card */}
       <View style={styles.cardContainer}>
         {/* Emblem & Intro */}
@@ -281,6 +288,9 @@ export const ChangePasswordScreen: React.FC = () => {
             style={styles.cardHeading}
           >
             Update Your Password
+          </Typography>
+          <Typography variant="bodySm" color={colors.textMuted} align="center" style={styles.cardSubheading}>
+            Choose a strong password to keep your AIOS account secure.
           </Typography>
         </View>
 
@@ -588,6 +598,8 @@ export const ChangePasswordScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
+      </ScrollView>
+
       {/* Success Modal */}
       <Modal
         visible={showSuccessModal}
@@ -644,6 +656,8 @@ export const ChangePasswordScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  fixedLayout: { flex: 1, paddingTop: 8 },
+  formScroll: { flex: 1 },
   container: {
     paddingBottom: spacing.spaceXl,
   },
@@ -691,13 +705,13 @@ const styles = StyleSheet.create({
 
   cardContainer: {
     backgroundColor: colors.surfaceContainerLowest,
-    borderRadius: 20,
+    borderRadius: 28,
     borderWidth: 1,
-    borderColor: colors.borderNeutral,
+    borderColor: '#E2E8F0',
     marginHorizontal: 16,
     marginTop: 8,
     paddingHorizontal: 20,
-    paddingVertical: 24,
+    paddingVertical: 28,
     ...shadows.level2,
   },
 
@@ -706,15 +720,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   emblemCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#EFF6FF',
+    width: 72,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#BFDBFE',
+    borderColor: '#C7D2FE',
   },
   cardHeading: {
     marginBottom: 6,
@@ -725,7 +739,7 @@ const styles = StyleSheet.create({
   },
 
   fieldGroup: {
-    marginBottom: 18,
+    marginBottom: 22,
   },
   labelRow: {
     flexDirection: 'row',
@@ -736,11 +750,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#F8FAFC',
-    borderRadius: 12,
-    borderWidth: 1.2,
+    borderRadius: 16,
+    borderWidth: 1,
     borderColor: colors.borderField,
     paddingHorizontal: 12,
-    height: 50,
+    height: 56,
   },
   inputErrorBorder: {
     borderColor: colors.borderField,
@@ -803,8 +817,8 @@ const styles = StyleSheet.create({
 
   // Requirements checklist
   requirementsBox: {
-    backgroundColor: '#F8FAFC',
-    borderRadius: 10,
+    backgroundColor: '#F4F6FF',
+    borderRadius: 16,
     padding: 12,
     marginTop: 10,
     borderWidth: 1,
@@ -857,9 +871,9 @@ const styles = StyleSheet.create({
   },
 
   submitButton: {
-    backgroundColor: colors.primaryNavy,
-    borderRadius: 12,
-    height: 52,
+    backgroundColor: '#394BA0',
+    borderRadius: 16,
+    height: 56,
     alignItems: 'center',
     justifyContent: 'center',
     ...shadows.level1,

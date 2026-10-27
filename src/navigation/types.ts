@@ -9,7 +9,7 @@ export type BottomTabParamList = {
 };
 
 export type DrawerParamList = {
-  Home: undefined;
+  // Home: undefined;
   AboutAIOS: undefined;
   GoverningCouncil: undefined;
   OfficeBearersSubCommittee: undefined;
@@ -30,7 +30,24 @@ export type RootStackParamList = {
   MainTabs: undefined;
   MyProfile: undefined;
   BecomeMember: undefined;
+  NewsViews: undefined;
+  NewsViewDetail: { articleId: string };
+  AnnualAccommodationBooking: {
+    checkInDates?: { value: string; label: string }[];
+    checkOutDates?: { value: string; label: string }[];
+  } | undefined;
+  AnnualAccommodation: undefined;
+  AIOSUpdates: undefined;
+  AIOSUpdateDetail: { updateId: string };
+  AdverseRegistry: undefined;
+  GrievanceForm: undefined;
+  Grievance: undefined;
+  GrievanceOtp: { identifier: string };
+  MeetingCalendar: undefined;
   ChangePassword: undefined;
+  GoGreen: undefined;
+  Privacy: undefined;
+  Speciality: undefined;
   JobOpportunities: undefined;
   JobApplication: { job: any } | undefined;
 };
