@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React from 'react';
 import {
   Alert,
@@ -55,7 +57,7 @@ export const MeetingCalendarScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity
           style={styles.back}
           onPress={() => navigation.goBack()}
@@ -68,7 +70,7 @@ export const MeetingCalendarScreen: React.FC = () => {
           <Text style={styles.headerTitle}>Meeting Calendar</Text>
           <Text style={styles.headerSubtitle}>Connect. Learn. Grow.</Text>
         </View>
-      </View>
+      </AppHeader>
       <FlatList
         data={events}
         keyExtractor={item => item.id}
@@ -173,7 +175,8 @@ export const MeetingCalendarScreen: React.FC = () => {
                   </View>
                 </View>
                 <View style={styles.footer}>
-                  <TouchableOpacity
+                  <Button
+                    customLayout
                     disabled={!item.detailsUrl}
                     onPress={() => viewDetails(item)}
                     accessibilityRole="link"
@@ -185,7 +188,7 @@ export const MeetingCalendarScreen: React.FC = () => {
                       View Details
                     </Text>
                     <Text style={[styles.arrow, { color: '#2563EB' }]}>↗</Text>
-                  </TouchableOpacity>
+                  </Button>
                 </View>
               </View>
             </View>

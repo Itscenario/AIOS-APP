@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -70,7 +72,7 @@ export const ResetPasswordScreen: React.FC = () => {
 
   return (
     <Background scrollable keyboardAvoiding>
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -95,7 +97,7 @@ export const ResetPasswordScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRightActions} />
-      </View>
+      </AppHeader>
 
       <View style={styles.cardContainer}>
         <View style={styles.emblemContainer}>
@@ -159,7 +161,9 @@ export const ResetPasswordScreen: React.FC = () => {
           />
         </View>
 
-        <TouchableOpacity
+        <Button
+
+          customLayout
           style={styles.submitButton}
           onPress={handleResetPassword}
           activeOpacity={0.8}
@@ -167,12 +171,12 @@ export const ResetPasswordScreen: React.FC = () => {
           <Typography
             variant="labelLg"
             weight="bold"
-            color={colors.onPrimary}
+            color="#FFFFFF"
             style={styles.buttonText}
           >
             Update Password
           </Typography>
-        </TouchableOpacity>
+        </Button>
       </View>
     </Background>
   );

@@ -1,4 +1,5 @@
 export * from './Typography';
+export * from './AppHeader';
 export * from './Button';
 export * from './Image';
 export * from './Background';

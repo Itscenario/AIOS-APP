@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -49,7 +51,7 @@ export const ForgotPasswordScreen: React.FC = () => {
 
   return (
     <Background scrollable keyboardAvoiding>
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -74,7 +76,7 @@ export const ForgotPasswordScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRightActions} />
-      </View>
+      </AppHeader>
 
       <View style={styles.cardContainer}>
         <View style={styles.emblemContainer}>
@@ -112,7 +114,9 @@ export const ForgotPasswordScreen: React.FC = () => {
           />
         </View>
 
-        <TouchableOpacity
+        <Button
+
+          customLayout
           style={styles.submitButton}
           onPress={handleSendOtp}
           activeOpacity={0.8}
@@ -120,13 +124,13 @@ export const ForgotPasswordScreen: React.FC = () => {
           <Typography
             variant="labelLg"
             weight="bold"
-            color={colors.onPrimary}
+            color="#FFFFFF"
             style={styles.buttonText}
           >
             Send Verification Code
           </Typography>
           <ArrowRightIcon size={16} color={colors.onPrimary} />
-        </TouchableOpacity>
+        </Button>
       </View>
     </Background>
   );

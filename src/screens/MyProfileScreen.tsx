@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -207,7 +209,7 @@ export const MyProfileScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View
+      <AppHeader
         style={[styles.header, { paddingTop: insets.top + 12 }]}
         onLayout={({ nativeEvent }) =>
           setHeaderHeight(nativeEvent.layout.height)
@@ -223,9 +225,8 @@ export const MyProfileScreen: React.FC = () => {
         </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>My Profile</Text>
-          <Text style={styles.subtitle}>Manage your personal details</Text>
         </View>
-      </View>
+      </AppHeader>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -377,13 +378,14 @@ export const MyProfileScreen: React.FC = () => {
                 {countWords(form.biodata || '')} / 300 words
               </Text>
             </View>
-            <TouchableOpacity
+            <Button
+              customLayout
               style={styles.save}
               onPress={save}
               accessibilityRole="button"
             >
-              <Text style={styles.saveText}>Save Changes</Text>
-            </TouchableOpacity>
+              <Text style={styles.saveText}>Update</Text>
+            </Button>
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -614,7 +616,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   save: {
-    backgroundColor: '#0F294A',
+    backgroundColor: '#996bb4',
     borderRadius: 12,
     minHeight: 52,
     justifyContent: 'center',

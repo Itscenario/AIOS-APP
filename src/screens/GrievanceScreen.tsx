@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -26,10 +28,10 @@ const GrievancePage: React.FC<{ verify?: boolean }> = ({ verify = false }) => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
-        <View><Text style={styles.headerTitle}>{verify ? 'OTP Verification' : 'Grievance Corner'}</Text><Text style={styles.headerCaption}>AIOS member support</Text></View>
-      </View>
+        <View><Text style={styles.headerTitle}>{verify ? 'OTP Verification' : 'Grievance Corner'}</Text></View>
+      </AppHeader>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
           <LinearGradient colors={['#203C72', '#326E92']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
@@ -50,7 +52,10 @@ const GrievancePage: React.FC<{ verify?: boolean }> = ({ verify = false }) => {
                 <TextInput
                   style={styles.otp}
                   value={otp}
-                  onChangeText={text => setOtp(text.replace(/\D/g, ''))}
+                  onChangeText={text => {
+                    setOtp(text.replace(/\D/g, ''));
+                    setError('');
+                  }}
                   onFocus={() => setOtpFocused(true)}
                   onBlur={() => setOtpFocused(false)}
                   keyboardType="number-pad"
@@ -63,19 +68,25 @@ const GrievancePage: React.FC<{ verify?: boolean }> = ({ verify = false }) => {
                 {!otp && !otpFocused && <View pointerEvents="none" style={styles.otpPlaceholder}><Text style={styles.otpPlaceholderText}>Enter OTP</Text></View>}
               </View>
               <View style={styles.pending}><Text style={styles.pendingText}>OTP delivery and verification will be enabled when the grievance service is connected.</Text></View>
-              <TouchableOpacity
-                style={[styles.button, otp.length !== 6 && styles.disabled]}
-                disabled={otp.length !== 6}
-                onPress={() => navigation.navigate('GrievanceForm')}
+              {!!error && <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text>}
+              <Button
+                customLayout
+                style={styles.button}
+                onPress={() => {
+                  if (otp.length !== 6) {
+                    setError('Please enter the 6-digit OTP.');
+                    return;
+                  }
+                  navigation.navigate('GrievanceForm');
+                }}
                 accessibilityRole="button"
-                accessibilityState={{ disabled: otp.length !== 6 }}
-              ><Text style={styles.buttonText}>Verify OTP</Text></TouchableOpacity>
+              ><Text style={styles.buttonText}>Verify OTP</Text></Button>
               <TouchableOpacity onPress={() => navigation.goBack()} style={styles.editIdentifier} accessibilityRole="button"><Text style={styles.editText}>Change account details</Text></TouchableOpacity>
             </> : <>
               <Text style={styles.label}>Membership No. / Mobile / Email</Text>
               <TextInput style={[styles.input, !!error && styles.inputError]} value={identifier} onChangeText={value => { setIdentifier(value); setError(''); }} placeholder="Enter your registered details" placeholderTextColor="#94A3B8" autoCapitalize="none" autoCorrect={false} returnKeyType="done" onSubmitEditing={next} accessibilityLabel="Membership number, registered mobile or email" />
               {!!error && <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text>}
-              <TouchableOpacity style={styles.button} onPress={next} accessibilityRole="button"><Text style={styles.buttonText}>Send OTP</Text><Text style={styles.buttonArrow}>→</Text></TouchableOpacity>
+              <Button customLayout style={styles.button} onPress={next} accessibilityRole="button"><Text style={styles.buttonText}>Send OTP</Text><Text style={styles.buttonArrow}>→</Text></Button>
               <Text style={styles.preview}>OTP screen preview · Delivery service pending</Text>
             </>}
           </View>
@@ -127,7 +138,6 @@ const styles = StyleSheet.create({
   identifierValue: { color: '#253B79', fontWeight: '600', marginTop: 6 },
   pending: { marginTop: 14, padding: 12, backgroundColor: '#FFF8E8', borderRadius: 12 },
   pendingText: { color: '#92702D', fontSize: 12, lineHeight: 18 },
-  disabled: { opacity: 0.45 },
   editIdentifier: { padding: 14, alignItems: 'center' },
   editText: { color: '#2858A2', fontSize: 12, fontWeight: '600' },
 

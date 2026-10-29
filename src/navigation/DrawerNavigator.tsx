@@ -464,7 +464,7 @@ export default DrawerNavigator;
 
 const styles = StyleSheet.create({
   annualSubmenu: {
-    backgroundColor: '#242F68',
+    backgroundColor: '#242F68tm',
     paddingLeft: 16,
     paddingVertical: 4,
   },
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   aboutSubmenu: {
-    backgroundColor: '#343F79',
+    backgroundColor: '#996bb4',
     borderRadius: 12,
     marginHorizontal: 2,
     marginBottom: 10,
@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
   content: { paddingHorizontal: 14 },
   profile: {
-    backgroundColor: '#0A1E3F',
+    backgroundColor: '#3b1165',
     borderRadius: 20,
     padding: 18,
     marginBottom: 24,

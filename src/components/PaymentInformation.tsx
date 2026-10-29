@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import React from 'react';
 import {
   Alert,
@@ -78,7 +79,8 @@ export const PaymentInformation: React.FC<{
             </Text>
           </View>
         </View>
-        <TouchableOpacity
+        <Button
+          customLayout
           style={styles.pay}
           accessibilityRole="button"
           onPress={() =>
@@ -87,7 +89,7 @@ export const PaymentInformation: React.FC<{
         >
           <Text style={styles.payText}>Pay Now</Text>
           <Text style={styles.payArrow}>→</Text>
-        </TouchableOpacity>
+        </Button>
         {/* <TouchableOpacity style={styles.edit} onPress={onBack} accessibilityRole="button"><Text style={styles.editText}>Review registration details</Text></TouchableOpacity> */}
       </ScrollView>
     </View>

@@ -16,7 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { colors } from '../theme/colors';
 import { ScreenStatusBar } from './ScreenStatusBar';
 
-export const DEFAULT_GRADIENT_COLORS = ['#103875', '#082154', '#00092B'];
+export const DEFAULT_GRADIENT_COLORS = ['#3b1165', '#3b1165', '#3b1165'];
 
 export interface BackgroundProps {
   children?: React.ReactNode;

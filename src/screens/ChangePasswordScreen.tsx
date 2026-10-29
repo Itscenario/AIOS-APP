@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
@@ -236,7 +238,7 @@ export const ChangePasswordScreen: React.FC = () => {
       style={styles.fixedLayout}
     >
       {/* Top Header */}
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -264,7 +266,7 @@ export const ChangePasswordScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRightSpacer} />
-      </View>
+      </AppHeader>
 
       <ScrollView
         style={styles.formScroll}
@@ -571,7 +573,8 @@ export const ChangePasswordScreen: React.FC = () => {
           ) : null}
         </View>
         {/* Submit Button */}
-        <TouchableOpacity
+        <Button
+          customLayout
           style={[
             styles.submitButton,
             isSubmitting && styles.submitButtonDisabled,
@@ -588,14 +591,14 @@ export const ChangePasswordScreen: React.FC = () => {
               <Typography
                 variant="labelLg"
                 weight="bold"
-                color={colors.white}
+                color="#FFFFFF"
                 style={styles.buttonLabel}
               >
                 Update Password
               </Typography>
             </View>
           )}
-        </TouchableOpacity>
+        </Button>
       </View>
 
       </ScrollView>
@@ -639,15 +642,17 @@ export const ChangePasswordScreen: React.FC = () => {
               </Typography>
             </View> */}
 
-            <TouchableOpacity
+            <Button
+
+              customLayout
               style={styles.modalButton}
               onPress={handleCloseSuccess}
               activeOpacity={0.85}
             >
-              <Typography variant="labelLg" weight="bold" color={colors.white}>
+              <Typography variant="labelLg" weight="bold" color="#FFFFFF">
                 Back to Account
               </Typography>
-            </TouchableOpacity>
+            </Button>
           </View>
         </View>
       </Modal>

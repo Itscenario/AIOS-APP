@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import { VideoShareIcon } from '../components/VideoShareIcon';
 import React from 'react';
 import { Image, Alert, Linking, Platform, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -33,10 +35,10 @@ export const AIOSThemeSongScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.openDrawer()} accessibilityRole="button" accessibilityLabel="Open navigation menu"><ArrowBackIcon size={20} color="#FFFFFF" /></TouchableOpacity>
         <Text style={styles.headerTitle}>AIOS Theme Song</Text>
-      </View>
+      </AppHeader>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <Text style={styles.title}>From Darkness to Light</Text>
         <Text style={styles.subtitle}>All India Ophthalmological Society</Text>
@@ -51,7 +53,8 @@ export const AIOSThemeSongScreen: React.FC = () => {
           <View style={styles.playOverlay}>
             <View style={styles.playButton}><Text style={styles.playSymbol}>▶</Text></View>
           </View>
-          <TouchableOpacity
+          <Button
+            customLayout
             style={styles.videoShare}
             onPress={event => {
               event.stopPropagation();
@@ -61,7 +64,7 @@ export const AIOSThemeSongScreen: React.FC = () => {
             accessibilityLabel="Share video"
           >
             <VideoShareIcon size={30} color="#FFFFFF" />
-          </TouchableOpacity>
+          </Button>
           <View style={styles.watchBadge}><Text style={styles.watchBadgeText}>Watch on YouTube ↗</Text></View>
         </TouchableOpacity>
       </ScrollView>

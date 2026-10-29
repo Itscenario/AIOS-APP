@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, UIManager, View } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -22,10 +24,10 @@ export const NewsViewDetailScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
         <Text style={styles.headerTitle}>News & Views</Text>
-      </View>
+      </AppHeader>
       {validUrl && nativeAvailable && !failed ? (
         <WebView key={retry} source={{ uri: url! }} style={styles.web} startInLoadingState renderLoading={() => <View style={styles.loading}><ActivityIndicator color="#3561A9" /></View>} onError={() => setFailed(true)} onHttpError={({ nativeEvent }) => { if (nativeEvent.statusCode >= 400) setFailed(true); }} originWhitelist={['http://*', 'https://*']} onShouldStartLoadWithRequest={request => /^https?:\/\//i.test(request.url) || request.url === 'about:blank'} />
       ) : (
@@ -36,7 +38,7 @@ export const NewsViewDetailScreen: React.FC = () => {
             <Text style={styles.title}>{update?.title || 'Article unavailable'}</Text>
             <Text style={styles.copy}>{update?.description}</Text>
             <Text style={styles.copy}>{failed ? 'Unable to load these details. Please try again.' : !validUrl ? 'Details will be available here once the article link is provided.' : 'The in-app viewer is unavailable in this build. Rebuild the app to enable it.'}</Text>
-            {failed && <TouchableOpacity style={styles.retry} onPress={() => { setFailed(false); setRetry(current => current + 1); }} accessibilityRole="button"><Text style={styles.retryText}>Try again</Text></TouchableOpacity>}
+            {failed && <Button customLayout style={styles.retry} onPress={() => { setFailed(false); setRetry(current => current + 1); }} accessibilityRole="button"><Text style={styles.retryText}>Try again</Text></Button>}
           </View>
         </View>
       )}

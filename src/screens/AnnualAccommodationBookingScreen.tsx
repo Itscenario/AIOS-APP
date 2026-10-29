@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -54,7 +56,7 @@ export const AnnualAccommodationBookingScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}><TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity><View><Text style={styles.headerTitle}>Book your stay</Text><Text style={styles.headerSubtitle}>AIOC 2027 · Accommodation</Text></View></View>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}><TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity><View><Text style={styles.headerTitle}>Book your stay</Text><Text style={styles.headerSubtitle}>AIOC 2027 · Accommodation</Text></View></AppHeader>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
           <View style={styles.intro}><Text style={styles.eyebrow}>PLAN YOUR CONFERENCE STAY</Text><Text style={styles.title}>A comfortable stay,{'\n'}a memorable conference.</Text></View>
@@ -83,7 +85,7 @@ export const AnnualAccommodationBookingScreen: React.FC = () => {
             <View style={styles.captchaRow}><TouchableOpacity style={styles.captchaBadge} onPress={() => { setCaptcha(makeCaptcha()); setAnswer(''); }} accessibilityRole="button" accessibilityLabel="Refresh captcha"><Text style={styles.captchaText}>{captcha}</Text><Text style={styles.chevron}>↻</Text></TouchableOpacity><TextInput style={styles.captchaInput} value={answer} onChangeText={setAnswer} placeholder="Enter code" placeholderTextColor="#94A3B8" autoCapitalize="none" autoCorrect={false} onFocus={() => requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }))} accessibilityLabel="Enter captcha" /></View>
             <View style={styles.notice}><Text style={styles.noticeText}>Please check all entries before proceeding. Full advance payment is required; payments are non-refundable.</Text></View>
             {!!error && <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text>}
-            <TouchableOpacity style={styles.pay} onPress={pay} accessibilityRole="button"><Text style={styles.payText}>Pay Now</Text><Text style={styles.payText}>{money(total)} →</Text></TouchableOpacity>
+            <Button customLayout style={styles.pay} onPress={pay} accessibilityRole="button"><Text style={styles.payText}>Pay Now</Text><Text style={styles.payText}>{money(total)} →</Text></Button>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>

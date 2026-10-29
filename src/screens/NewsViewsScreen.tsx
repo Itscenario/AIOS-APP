@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,10 +20,10 @@ export const NewsViewsScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.back} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
         <View><Text style={styles.headerTitle}>News & Views</Text><Text style={styles.headerSubtitle}>Perspectives in ophthalmology</Text></View>
-      </View>
+      </AppHeader>
       <FlatList data={NEWS_ARTICLES} keyExtractor={item => item.id} showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}
         ListHeaderComponent={<>
           <LinearGradient colors={['#23375A', '#536492']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>

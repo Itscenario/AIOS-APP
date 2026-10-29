@@ -1,3 +1,5 @@
+import { AppHeader } from '../components/AppHeader';
+import { colors } from '../theme/colors';
 import React, { useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -64,11 +66,10 @@ export const AdverseRegistryScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
-        <View style={styles.flex}><Text style={styles.headerTitle}>Adverse Registry</Text><Text style={styles.headerSubtitle}>AIOS · Adverse event report</Text></View>
-        <View style={styles.headerIcon}><DocumentIcon size={21} color="#BBD8FF" /></View>
-      </View>
+        <View style={styles.flex}><Text style={styles.headerTitle}>Adverse Registry</Text></View>
+      </AppHeader>
       <View style={styles.stepper}>
         {STEPS.map((title, index) => <TouchableOpacity key={title} onPress={() => changeStep(index)} style={styles.stepItem} accessibilityRole="button" accessibilityState={{ selected: step === index }} accessibilityLabel={`Step ${index + 1}, ${title}`}><View style={[styles.stepNumber, step === index && styles.stepNumberActive]}><Text style={[styles.stepDigit, step === index && styles.stepDigitActive]}>{index + 1}</Text></View><Text style={[styles.stepTitle, step === index && styles.stepTitleActive]}>{title}</Text></TouchableOpacity>)}
       </View>
@@ -161,8 +162,8 @@ const styles = StyleSheet.create({
   check: { width: 16, height: 16, borderWidth: 1, borderColor: '#CBD5E1', borderRadius: 8 }, squareCheck: { borderRadius: 4 }, checkSelected: { backgroundColor: '#3C73AD', borderColor: '#3C73AD', borderWidth: 4 },
   optionText: { flex: 1, color: '#64748B', fontSize: 12, lineHeight: 18 }, selectedText: { color: '#28558B', fontWeight: '600' },
   productHeading: { flexDirection: 'row', alignItems: 'center', gap: 12 }, productNumber: { padding: 9, backgroundColor: '#EAF2FC', borderRadius: 10, color: '#3C73AD', fontSize: 12, fontWeight: '800' },
-  actions: { flexDirection: 'row', gap: 12 }, previous: { flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: '#E6ECF5', borderRadius: 14 }, previousText: { color: '#52647C', fontSize: 14, fontWeight: '700' },
-  next: { flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: '#2D619B', borderRadius: 14 }, nextText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+  actions: { flexDirection: 'row', gap: 12 }, previous: { flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.buttonBackground, borderRadius: 14 }, previousText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+  next: { flex: 1, minHeight: 52, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.buttonBackground, borderRadius: 14 }, nextText: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
   error: { color: '#B45353', backgroundColor: '#FFF1F2', padding: 12, borderRadius: 12, fontSize: 12, lineHeight: 19 },
   note: { color: '#94A3B8', fontSize: 10, textAlign: 'center' },
 });

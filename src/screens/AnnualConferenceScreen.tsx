@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -332,6 +333,17 @@ const SCIENTIFIC_COURSES = {
     'Next-Gen IOLs & Digital Centration: From Pre-Op AI to OR Execution',
   ],
 };
+// Temporary conference data; replace with the API response when available.
+const annualConference = {
+  title: '85th Annual Conference of All India Ophthalmological Society',
+  name: 'AIOC 2027, Gandhinagar',
+  dates: 'February 18 - 21, 2027',
+  location:
+    'Mahatma Mandir Convention and Exhibition Centre, Gandhinagar, Gujarat',
+  organizer: 'All Gujarat Ophthalmological Society',
+  year: '2027',
+};
+
 export const AnnualConferenceScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const bannerSource = images.aioc2027Banner;
@@ -340,11 +352,10 @@ export const AnnualConferenceScreen: React.FC = () => {
     bannerDimensions?.width && bannerDimensions?.height
       ? bannerDimensions.width / bannerDimensions.height
       : 998 / 316;
-  const conferenceTitle = '85th Annual Conference of AIOS';
-  const conferenceLocation =
-    'Mahatma Mandir Convention and Exhibition Centre, Gandhinagar, Gujarat';
-  const conferenceDates = 'February 18 - 21, 2027';
-  const conferenceYear = '2027';
+  const conferenceTitle = annualConference.title;
+  const conferenceLocation = annualConference.location;
+  const conferenceDates = annualConference.dates;
+  const conferenceYear = annualConference.year;
   const insets = useSafeAreaInsets();
   const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
@@ -592,7 +603,7 @@ export const AnnualConferenceScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScreenStatusBar />
-      <View
+      <AppHeader
         style={[
           styles.header,
           { paddingTop: insets.top + (Platform.OS === 'ios' ? 8 : 10) },
@@ -609,22 +620,19 @@ export const AnnualConferenceScreen: React.FC = () => {
           </View>
           <View style={styles.headerTitleWrap}>
             <Text style={styles.headerTitle}>{'Annual Conference'}</Text>
-            <Text style={styles.headerSubtitle}>
-              Conference Portal & Registration
-            </Text>
           </View>
         </View>
-        <View style={styles.statusBadge}>
+        {/* <View style={styles.statusBadge}>
           <Text style={styles.statusBadgeText}>{'AIOC 2027'}</Text>
-        </View>
-      </View>
+        </View> */}
+      </AppHeader>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View
+        {/* <View
           style={[styles.bannerWrapper, { aspectRatio: bannerAspectRatio }]}
         >
           <Image
@@ -632,12 +640,15 @@ export const AnnualConferenceScreen: React.FC = () => {
             style={styles.bannerImage}
             resizeMode="contain"
           />
-        </View>
+        </View> */}
         <LinearGradient colors={['#373082', '#4257A5', '#257C87']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.conferenceOverview}>
-          <Text style={styles.overviewEyebrow}>85TH ANNUAL CONFERENCE OF AIOS</Text>
-          <Text style={styles.overviewTitle}>See you in Gandhinagar.</Text>
+          <Text style={styles.overviewEyebrow}>{annualConference.title}</Text>
+          <Text style={styles.overviewTitle}>{annualConference.name}</Text>
           <View style={styles.overviewMeta}><CalendarIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceDates}</Text></View>
           <View style={styles.overviewMeta}><LocationPinIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceLocation}</Text></View>
+          <Text style={styles.overviewOrganizer}>
+            Organised by {annualConference.organizer}
+          </Text>
         </LinearGradient>
         <View style={styles.portalSectionHeading}><View><Text style={styles.portalSectionTitle}>Manage your visit</Text></View></View>
         {/* Registration gating temporarily disabled. */}
@@ -677,21 +688,21 @@ export const AnnualConferenceScreen: React.FC = () => {
                     icon: <PencilBadgeIcon size={24} />,
                     onPress: () => setAiocRegistrationModalVisible(true),
                   },
-                  {
-                    id: 'payment',
-                    title: 'Payment Details',
-                    icon: <RupeeIcon size={24} color="#BA7B48" />,
-                    onPress: () => setPaymentModalVisible(true),
-                  },
+                  // {
+                  //   id: 'payment',
+                  //   title: 'Payment Details',
+                  //   icon: <RupeeIcon size={24} color="#BA7B48" />,
+                  //   onPress: () => setPaymentModalVisible(true),
+                  // },
                   {
                     id: 'print',
-                    title: 'Print Registration Detail',
+                    title: 'Registration Payment Receipt',
                     icon: <PrinterIcon size={24} color="#3F8F76" />,
                     onPress: () => setPrintRegModalVisible(true),
                   },
                   {
                     id: 'invitation',
-                    title: 'Print Invitation Letter',
+                    title: 'Invitation Letter',
                     icon: <PrinterIcon size={24} color="#AC6B9C" />,
                     onPress: () => setInvitationLetterModalVisible(true),
                   },
@@ -711,7 +722,7 @@ export const AnnualConferenceScreen: React.FC = () => {
                   >
                     <View style={styles.portalActionTop}><View style={styles.portalIcon}>{item.icon}</View><Text style={[styles.portalArrow, { color: ['#6251B7', '#AF6037', '#287D67', '#A04E88', '#317C9F'][index] }]}>↗</Text></View>
                     <Text style={styles.actionBtnText}>{item.title}</Text>
-                    <Text style={styles.portalActionCaption}>{['Start your registration', 'Review your payments', 'Your registration record', 'Your conference invite', 'Plan your stay'][index]}</Text>
+                    <Text style={styles.portalActionCaption}>{['Register now', 'Review your payment', 'View details and print',  'Book now'][index]}</Text>
                   </TouchableOpacity>
                 )}
               />
@@ -821,10 +832,12 @@ export const AnnualConferenceScreen: React.FC = () => {
           />
         ) : (
           <KeyboardAvoidingView
-            style={[styles.aiocFormContainer, { paddingTop: insets.top }]}
+            style={styles.aiocFormContainer}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
-            <View style={styles.aiocFormNav}>
+            <AppHeader
+              style={[styles.aiocFormNav, { paddingTop: insets.top + 14 }]}
+            >
               <TouchableOpacity
                 style={styles.backToDashboardBtn}
                 accessibilityRole="button"
@@ -840,10 +853,10 @@ export const AnnualConferenceScreen: React.FC = () => {
                 {'Annual Registration'}
               </Text>
 
-              <View style={styles.aiocBadge}>
+              {/* <View style={styles.aiocBadge}>
                 <Text style={styles.aiocBadgeText}>{'AIOC 2027'}</Text>
-              </View>
-            </View>
+              </View> */}
+            </AppHeader>
 
             <ScrollView
               ref={registrationScrollRef}
@@ -863,25 +876,9 @@ export const AnnualConferenceScreen: React.FC = () => {
               }}
               showsVerticalScrollIndicator={false}
             >
-              <View style={styles.memberSummaryStrip}>
-                <View style={styles.memberAvatarCircle}>
-                  <PersonIcon size={24} color="#0A1E3F" filled={true} />
-                </View>
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.memberStripName}>{doctorName}</Text>
-                  <Text style={styles.memberStripMeta}>
-                    {memberId} • {profile?.email || 'Email not added'}
-                  </Text>
-                </View>
-                <View style={styles.verifiedTag}>
-                  <Text style={styles.verifiedTagText}>AIOS Member</Text>
-                </View>
-              </View>
-
               {!paymentCompleted ? (
                 <>
                   <View style={styles.aiocSectionCard}>
-                    {/* Row 1: Date of Birth & Nationality (Labels on top) */}
                     <View style={styles.formRow2Col}>
                       <View style={styles.formCol}>
                         <Text style={styles.aiocFieldLabel}>
@@ -1014,6 +1011,13 @@ export const AnnualConferenceScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.aiocSectionCard}>
+                    <View style={styles.registrationSectionHeading}>
+                      <Text style={styles.registrationSectionNumber}>02</Text>
+                      <View style={styles.registrationSectionCopy}>
+                        <Text style={styles.registrationSectionTitle}>Your specialities</Text>
+                        <Text style={styles.registrationSectionCaption}>Select up to three areas of practice</Text>
+                      </View>
+                    </View>
                     <View style={styles.specialityHeaderRow}>
                       <Text style={styles.aiocFieldLabel}>
                         * Speciality{' '}
@@ -1068,6 +1072,13 @@ export const AnnualConferenceScreen: React.FC = () => {
 
                   {/* Delegate Details, Accompanying & Scientific Activities Card */}
                   <View style={styles.aiocSectionCard}>
+                    <View style={styles.registrationSectionHeading}>
+                      <Text style={styles.registrationSectionNumber}>03</Text>
+                      <View style={styles.registrationSectionCopy}>
+                        <Text style={styles.registrationSectionTitle}>Conference preferences</Text>
+                        <Text style={styles.registrationSectionCaption}>Delegate category, guests and activities</Text>
+                      </View>
+                    </View>
                     {/* Row: Delegate Category & Delegate Type (Labels on Top) */}
                     <View style={styles.formRow2Col}>
                       <View style={styles.formCol}>
@@ -2563,10 +2574,11 @@ export const AnnualConferenceScreen: React.FC = () => {
 };
 const styles = StyleSheet.create({
   conferenceOverview: { backgroundColor: '#253D68', padding: 22, borderRadius: 24, marginBottom: 24 },
-  overviewEyebrow: { color: '#D4E7FF', fontSize: 8, fontWeight: '800', letterSpacing: 1.4 },
-  overviewTitle: { color: '#FFFFFF', fontSize: 24, lineHeight: 32, fontWeight: '700', marginTop: 10, marginBottom: 14 },
+  overviewEyebrow: { color: '#FFFFFF', fontSize: 18, lineHeight: 26, fontWeight: '500' },
+  overviewTitle: { color: '#F4C66B', fontSize: 26, lineHeight: 34, fontWeight: '800', marginTop: 10, marginBottom: 14 },
   overviewMeta: { flexDirection: 'row', gap: 9, alignItems: 'flex-start', marginTop: 9 },
   overviewMetaText: { flex: 1, color: '#E2EDFF', fontSize: 12, lineHeight: 19 },
+  overviewOrganizer: { color: '#F4C66B', fontSize: 12, lineHeight: 19, fontWeight: '700', marginTop: 18 },
   portalSectionHeading: { marginBottom: 16 },
   portalEyebrow: { color: '#8A9AB3', fontSize: 8, fontWeight: '800', letterSpacing: 1.3, marginBottom: 5 },
   portalSectionTitle: { color: '#17233E', fontSize: 21, fontWeight: '700' },
@@ -3122,31 +3134,41 @@ const styles = StyleSheet.create({
   },
   aiocFormContainer: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: colors.background,
   },
+  registrationIntro: { marginBottom: 20, paddingTop: 8 },
+  registrationKicker: { color: '#536787', fontSize: 10, fontWeight: '800', letterSpacing: 1.2, marginBottom: 10 },
+  registrationIntroTitle: { color: '#142744', fontSize: 25, lineHeight: 33, fontWeight: '700', marginBottom: 10 },
+  registrationDateRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  registrationIntroCaption: { color: '#64748B', fontSize: 12, lineHeight: 18 },
+  registrationHint: { color: '#64748B', fontSize: 12, lineHeight: 19, marginTop: 12 },
+  registrationSectionHeading: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 22 },
+  registrationSectionNumber: { color: '#365278', backgroundColor: '#EDF2FA', fontSize: 12, fontWeight: '800', padding: 10, borderRadius: 12, overflow: 'hidden' },
+  registrationSectionCopy: { flex: 1 },
+  registrationSectionTitle: { color: '#142744', fontSize: 16, lineHeight: 22, fontWeight: '700' },
+  registrationSectionCaption: { color: '#7A879B', fontSize: 11, lineHeight: 17, marginTop: 3 },
   aiocFormNav: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: '#0A1E3F',
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: '#162C54',
+    borderBottomColor: 'rgba(255, 255, 255, 0.12)',
   },
   backToDashboardBtn: {
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: '#1C2C42',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   registrationHeaderTitle: {
     flex: 1,
     marginHorizontal: 12,
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: 20,
+    lineHeight: 28,
     fontWeight: '700',
     color: '#FFFFFF',
   },
@@ -3165,29 +3187,32 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   aiocFormScrollContent: {
-    padding: 16,
+    padding: 18,
+    alignSelf: 'center',
+    maxWidth: 680,
+    width: '100%',
   },
   /* Member Summary Strip */
   memberSummaryStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 14,
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 20,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#E3E8F2',
   },
   memberAvatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     backgroundColor: '#E0F2FE',
     alignItems: 'center',
     justifyContent: 'center',
   },
   memberStripName: {
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '800',
     color: '#0A1E3F',
   },
@@ -3195,6 +3220,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#64748B',
     marginTop: 2,
+    lineHeight: 17,
   },
   verifiedTag: {
     backgroundColor: '#ECFDF5',
@@ -3212,16 +3238,16 @@ const styles = StyleSheet.create({
   /* Section Cards */
   aiocSectionCard: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#E3E8F2',
   },
   formRow2Col: {
     flexDirection: 'row',
     gap: 12,
-    marginBottom: 12,
+    marginBottom: 18,
   },
   formCol: {
     flex: 1,
@@ -3236,7 +3262,7 @@ const styles = StyleSheet.create({
   },
   formFullWidth: {
     width: '100%',
-    marginBottom: 12,
+    marginBottom: 18,
   },
   formDivider: {
     height: 1,
@@ -3244,10 +3270,10 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   aiocFieldLabel: {
-    fontSize: 12.5,
-    fontWeight: '800',
-    color: '#000000',
-    marginBottom: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#334155',
+    marginBottom: 8,
   },
   hintSub: {
     fontSize: 11,
@@ -3255,30 +3281,30 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   aiocTextInput: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 4,
+    backgroundColor: '#F8FAFD',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
-    paddingHorizontal: 10,
-    paddingVertical: Platform.OS === 'ios' ? 9 : 7,
+    borderColor: '#DFE5EF',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     fontSize: 13,
     color: '#0F172A',
     fontWeight: '500',
-    minHeight: 38,
+    minHeight: 48,
     width: '100%',
   },
   /* Select Box Dropdown (Matching Native Select) */
   selectBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 4,
+    backgroundColor: '#F8FAFD',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
-    paddingHorizontal: 10,
-    paddingVertical: Platform.OS === 'ios' ? 9 : 7,
+    borderColor: '#DFE5EF',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    minHeight: 38,
+    minHeight: 48,
   },
   selectBoxText: {
     fontSize: 12.5,
@@ -3294,7 +3320,7 @@ const styles = StyleSheet.create({
   formSectionDivider: {
     height: 1,
     backgroundColor: '#E2E8F0',
-    marginVertical: 14,
+    marginVertical: 20,
   },
   /* Accompanying Persons Box */
   accompanyingContainer: {
@@ -3747,8 +3773,8 @@ const styles = StyleSheet.create({
   /* Payment summary */
   paymentSummaryCard: {
     backgroundColor: '#0A1E3F',
-    borderRadius: 16,
-    padding: 18,
+    borderRadius: 22,
+    padding: 20,
     marginTop: 6,
     marginBottom: 16,
     shadowColor: '#000',
@@ -3756,9 +3782,9 @@ const styles = StyleSheet.create({
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 2,
   },
   paymentSummaryTitle: {
     fontSize: 19,
@@ -3920,7 +3946,7 @@ const styles = StyleSheet.create({
   },
   captchaCodeBox: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 2,
+    borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 5,
     minWidth: 84,
@@ -3928,6 +3954,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: '#CBD5E1',
+    minHeight: 44,
   },
   captchaCodeText: {
     fontSize: 18,
@@ -3939,8 +3966,8 @@ const styles = StyleSheet.create({
   },
   captchaInputBox: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 2,
-    height: 36,
+    borderRadius: 10,
+    height: 44,
     width: 130,
     paddingHorizontal: 10,
     fontSize: 15,
@@ -3949,11 +3976,12 @@ const styles = StyleSheet.create({
   },
   payNowBtn: {
     backgroundColor: '#F59E0B',
-    borderRadius: 6,
-    paddingVertical: 13,
+    borderRadius: 12,
+    paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 6,
+    minHeight: 52,
   },
   payNowBtnText: {
     fontSize: 14,

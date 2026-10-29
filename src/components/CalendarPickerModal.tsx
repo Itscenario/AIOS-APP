@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Modal,
@@ -471,7 +472,8 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
 
               {/* Bottom Footer Actions */}
               <View style={styles.footerRow}>
-                <TouchableOpacity
+                <Button
+                  customLayout
                   style={styles.cancelBtn}
                   onPress={onClose}
                   activeOpacity={0.7}
@@ -479,14 +481,15 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                   <Typography
                     variant="labelMd"
                     weight="bold"
-                    color={colors.textSecondary}
+                    color="#FFFFFF"
                   >
                     Cancel
                   </Typography>
-                </TouchableOpacity>
+                </Button>
 
                 {viewMode !== 'calendar' ? (
-                  <TouchableOpacity
+                  <Button
+                    customLayout
                     style={styles.viewCalendarBtn}
                     onPress={() => setViewMode('calendar')}
                     activeOpacity={0.7}
@@ -494,11 +497,11 @@ export const CalendarPickerModal: React.FC<CalendarPickerModalProps> = ({
                     <Typography
                       variant="labelMd"
                       weight="bold"
-                      color={colors.secondaryRoyal}
+                      color="#FFFFFF"
                     >
                       Back to Calendar
                     </Typography>
-                  </TouchableOpacity>
+                  </Button>
                 ) : null}
               </View>
             </View>

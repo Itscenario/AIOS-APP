@@ -3,9 +3,11 @@
  * Tailored for AIOS (All India Ophthalmological Society / Medical Association)
  */
 export const colors = {
+  buttonBackground: '#996bb4',
+  headerBackground: '#3b1165',
   // Primary (Institutional Navy)
   primary: '#0F294A',
-  primaryNavy: '#0F294A',
+  primaryNavy: '#996bb4',
   primaryNavyLight: '#1A365D',
   primaryNavyDark: '#00142F',
   primaryNavyActive: '#0A1C33',

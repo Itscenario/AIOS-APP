@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -137,14 +138,15 @@ export const CertificateArchive: React.FC<{
                             <Text style={[styles.columnType, styles.cell]}>
                               {person.memberType}
                             </Text>
-                            <TouchableOpacity
+                            <Button
+                              customLayout
                               style={styles.download}
                               onPress={() => onOpen(conference, person)}
                               accessibilityRole="button"
                               accessibilityLabel={`Preview and download ${person.name}'s certificate`}
                             >
                               <DocumentIcon size={20} color="#0067B9" />
-                            </TouchableOpacity>
+                            </Button>
                           </View>
                         )}
                       />

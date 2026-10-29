@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import {
   View,
@@ -301,7 +303,7 @@ export const CertificatesScreen: React.FC = () => {
     <View style={styles.container}>
       <ScreenStatusBar />
       {/* 1. Official AIOS Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTopRow}>
           <View style={styles.headerLeft}>
             <View style={styles.logoBadge}>
@@ -324,7 +326,7 @@ export const CertificatesScreen: React.FC = () => {
             </View>
           </View>
         </View>
-      </View>
+      </AppHeader>
 
       <FlatList
         data={filteredCerts}
@@ -701,7 +703,8 @@ export const CertificatesScreen: React.FC = () => {
             </View>
 
             <View style={styles.previewModalActions}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.previewShareBtn}
                 onPress={() => {
                   setPreviewModalVisible(false);
@@ -721,9 +724,11 @@ export const CertificatesScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.previewShareBtnText}>Share Document</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.previewDownloadBtn}
                 onPress={() => {
                   setPreviewModalVisible(false);
@@ -745,7 +750,7 @@ export const CertificatesScreen: React.FC = () => {
               >
                 <DocumentIcon size={16} color="#FFFFFF" />
                 <Text style={styles.previewDownloadBtnText}>Download PDF</Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -787,7 +792,8 @@ export const CertificatesScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.downloadModalButtonsRow}>
-                  <TouchableOpacity
+                  <Button
+                    customLayout
                     style={styles.downloadShareBtn}
                     onPress={() => {
                       setDownloadModalVisible(false);
@@ -797,15 +803,17 @@ export const CertificatesScreen: React.FC = () => {
                   >
                     <ShareIcon size={15} color="#0284C7" />
                     <Text style={styles.downloadShareBtnText}>Share File</Text>
-                  </TouchableOpacity>
+                  </Button>
 
-                  <TouchableOpacity
+                  <Button
+
+                    customLayout
                     style={styles.downloadDoneBtn}
                     onPress={() => setDownloadModalVisible(false)}
                     activeOpacity={0.85}
                   >
                     <Text style={styles.downloadDoneBtnText}>Done</Text>
-                  </TouchableOpacity>
+                  </Button>
                 </View>
               </View>
             ) : (
@@ -1468,7 +1476,7 @@ const styles = StyleSheet.create({
   previewShareBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0284C7',
+    color: '#FFFFFF',
   },
   previewDownloadBtn: {
     flex: 1.2,
@@ -1583,7 +1591,7 @@ const styles = StyleSheet.create({
   downloadShareBtnText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#0284C7',
+    color: '#FFFFFF',
   },
   downloadDoneBtn: {
     flex: 1,

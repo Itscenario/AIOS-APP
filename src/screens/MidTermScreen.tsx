@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { HeaderBackButton } from '../components/HeaderBackButton';
 import { PaymentInformation } from '../components/PaymentInformation';
@@ -329,6 +331,16 @@ const SCIENTIFIC_COURSES = {
     'Next-Gen IOLs & Digital Centration: From Pre-Op AI to OR Execution',
   ],
 };
+// Temporary conference data; replace with the API response when available.
+const midTermConference = {
+  title: '5th AIOS Mid-Term Conference 2026',
+  name: '5th Mid-term Conference',
+  dates: 'September 25 - 27, 2026',
+  location: 'Hotel Chanakya BNR, Ranchi',
+  society: 'Jharkhand Ophthalmological Society',
+  year: '2026',
+};
+
 export const MidTermScreen: React.FC = () => {
   const bannerSource = images.conferenceBanner;
   const bannerDimensions = Image.resolveAssetSource(bannerSource);
@@ -336,10 +348,10 @@ export const MidTermScreen: React.FC = () => {
     bannerDimensions?.width && bannerDimensions?.height
       ? bannerDimensions.width / bannerDimensions.height
       : 1003 / 212;
-  const conferenceTitle = '5th AIOS Mid-Term Conference 2026';
-  const conferenceLocation = 'Hotel Chanakya BNR, Ranchi';
-  const conferenceDates = 'September 25 - 27, 2026';
-  const conferenceYear = '2026';
+  const conferenceTitle = midTermConference.title;
+  const conferenceLocation = midTermConference.location;
+  const conferenceDates = midTermConference.dates;
+  const conferenceYear = midTermConference.year;
   const insets = useSafeAreaInsets();
   const savedProfile = useAppSelector(state => state.auth.profile);
   const profile = savedProfile?.membershipId?.match(/^LM-\d+$/)
@@ -587,7 +599,7 @@ export const MidTermScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScreenStatusBar />
-      <View
+      <AppHeader
         style={[
           styles.header,
           { paddingTop: insets.top + (Platform.OS === 'ios' ? 8 : 10) },
@@ -603,23 +615,18 @@ export const MidTermScreen: React.FC = () => {
             />
           </View>
           <View style={styles.headerTitleWrap}>
-            <Text style={styles.headerTitle}>{'Mid-Term Conference'}</Text>
-            <Text style={styles.headerSubtitle}>
-              Conference Portal & Registration
-            </Text>
+            <Text style={styles.headerTitle}>{'Aios mid-term conference'}</Text>
+
           </View>
         </View>
-        <View style={styles.statusBadge}>
-          <Text style={styles.statusBadgeText}>{'Mid-Term 2026'}</Text>
-        </View>
-      </View>
+      </AppHeader>
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View
+        {/* <View
           style={[styles.bannerWrapper, { aspectRatio: bannerAspectRatio }]}
         >
           <Image
@@ -627,12 +634,21 @@ export const MidTermScreen: React.FC = () => {
             style={styles.bannerImage}
             resizeMode="contain"
           />
-        </View>
+        </View> */}
         <LinearGradient colors={['#373082', '#4257A5', '#257C87']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.conferenceOverview}>
-          <Text style={styles.overviewEyebrow}>5TH AIOS MID-TERM CONFERENCE</Text>
-          <Text style={styles.overviewTitle}>Connect in Ranchi.</Text>
+          <Text
+            style={styles.overviewTitle}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+          >
+            {midTermConference.name}
+          </Text>
           <View style={styles.overviewMeta}><CalendarIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceDates}</Text></View>
           <View style={styles.overviewMeta}><LocationPinIcon size={16} color="#B6D6FC" /><Text style={styles.overviewMetaText}>{conferenceLocation}</Text></View>
+          <Text style={styles.overviewAegis}>under the aegis of</Text>
+          <View style={styles.overviewSocietyBadge}>
+            <Text style={styles.overviewSociety}>{midTermConference.society}</Text>
+          </View>
         </LinearGradient>
         <View style={styles.portalSectionHeading}><Text style={styles.portalEyebrow}>YOUR CONFERENCE TOOLKIT</Text><Text style={styles.portalSectionTitle}>Manage your visit</Text></View>
         {!isMember && !isRegistered ? (
@@ -668,10 +684,10 @@ export const MidTermScreen: React.FC = () => {
             ].filter(item => item.id === 'registration' || isRegistered)}
             keyExtractor={item => item.id}
             renderItem={({ item, index }) => (
-              <TouchableOpacity style={[styles.annualActionBtn, { backgroundColor: ['#EDEAFE', '#FFF0E7', '#E3F5EF', '#E7F3FB', '#F6EAF5', '#EDEAFE'][index], borderColor: ['#DCD5F8', '#F5DDCB', '#CBE9DC', '#CFE4F3', '#EBD4E7', '#DCD5F8'][index] }]} onPress={item.onPress} activeOpacity={0.8}>
+              <Button customLayout style={[styles.annualActionBtn, { backgroundColor: ['#EDEAFE', '#FFF0E7', '#E3F5EF', '#E7F3FB', '#F6EAF5', '#EDEAFE'][index], borderColor: ['#DCD5F8', '#F5DDCB', '#CBE9DC', '#CFE4F3', '#EBD4E7', '#DCD5F8'][index] }]} onPress={item.onPress} activeOpacity={0.8}>
                 <View style={styles.portalActionTop}><View style={styles.portalIcon}>{item.icon}</View><Text style={styles.portalArrow}>↗</Text></View>
                 <Text style={styles.actionBtnText}>{item.title}</Text><Text style={styles.portalActionCaption}>{item.caption}</Text>
-              </TouchableOpacity>
+              </Button>
             )}
           />
         )}
@@ -782,7 +798,8 @@ export const MidTermScreen: React.FC = () => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           >
             <View style={styles.aiocFormNav}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.backToDashboardBtn}
                 accessibilityRole="button"
                 accessibilityLabel="Back to conference"
@@ -792,7 +809,7 @@ export const MidTermScreen: React.FC = () => {
                 }}
               >
                 <ArrowBackIcon size={20} color="#FFFFFF" />
-              </TouchableOpacity>
+              </Button>
               <Text style={styles.registrationHeaderTitle}>
                 {'Mid-Term Registration'}
               </Text>
@@ -1163,7 +1180,8 @@ export const MidTermScreen: React.FC = () => {
                         const expanded = expandedActivity === activity;
                         return (
                           <View key={activity} style={styles.formCol}>
-                            <TouchableOpacity
+                            <Button
+                              customLayout
                               style={[
                                 styles.extraActivityBtn,
                                 expanded && styles.extraActivityHeaderActive,
@@ -1198,7 +1216,7 @@ export const MidTermScreen: React.FC = () => {
                                   {activity}
                                 </Text>
                               </View>
-                            </TouchableOpacity>
+                            </Button>
                           </View>
                         );
                       }}
@@ -1574,7 +1592,8 @@ export const MidTermScreen: React.FC = () => {
                     </View>
 
                     {/* Submit / Pay Button */}
-                    <TouchableOpacity
+                    <Button
+                      customLayout
                       style={styles.payNowBtn}
                       activeOpacity={0.85}
                       onPress={() => {
@@ -1626,7 +1645,7 @@ export const MidTermScreen: React.FC = () => {
                           ? 'PROCEED TO PAY ➔'
                           : 'SAVE AND PRINT'}
                       </Text>
-                    </TouchableOpacity>
+                    </Button>
                   </View>
                 </>
               ) : (
@@ -1686,7 +1705,8 @@ export const MidTermScreen: React.FC = () => {
                   </View>
 
                   <View style={styles.successActionsRow}>
-                    <TouchableOpacity
+                    <Button
+                      customLayout
                       style={styles.successDownloadBtn}
                       onPress={() =>
                         handleDownloadDoc('AIOC_2027_Registration_Confirmation')
@@ -1696,9 +1716,11 @@ export const MidTermScreen: React.FC = () => {
                       <Text style={styles.successDownloadText}>
                         Download Slip (PDF)
                       </Text>
-                    </TouchableOpacity>
+                    </Button>
 
-                    <TouchableOpacity
+                    <Button
+
+                      customLayout
                       style={styles.successShareBtn}
                       onPress={() =>
                         handleShareDoc(
@@ -1709,7 +1731,7 @@ export const MidTermScreen: React.FC = () => {
                     >
                       <ShareIcon size={16} color="#0284C7" />
                       <Text style={styles.successShareText}>Share</Text>
-                    </TouchableOpacity>
+                    </Button>
                   </View>
                 </View>
               )}
@@ -1817,7 +1839,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalSecondaryBtn}
                 onPress={() =>
                   handleShareDoc(
@@ -1828,9 +1851,11 @@ export const MidTermScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={() => {
                   setPaymentModalVisible(false);
@@ -1841,7 +1866,7 @@ export const MidTermScreen: React.FC = () => {
                 <Text style={styles.modalPrimaryBtnText}>
                   Print Invoice (PDF)
                 </Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -1948,7 +1973,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalSecondaryBtn}
                 onPress={() =>
                   handleShareDoc('Registration Slip', `Reg No: ${regNo}`)
@@ -1956,9 +1982,11 @@ export const MidTermScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share Slip</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={() => {
                   setPrintRegModalVisible(false);
@@ -1967,7 +1995,7 @@ export const MidTermScreen: React.FC = () => {
               >
                 <PrinterIcon size={16} color="#FFFFFF" />
                 <Text style={styles.modalPrimaryBtnText}>Print / Save PDF</Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2040,7 +2068,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={() => {
                   setAccommodationInfoModalVisible(false);
@@ -2051,7 +2080,7 @@ export const MidTermScreen: React.FC = () => {
                 <Text style={styles.modalPrimaryBtnText}>
                   Contact Secretariat Desk
                 </Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2148,7 +2177,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalSecondaryBtn}
                 onPress={() =>
                   handleShareDoc('Hotel Booking Voucher', 'Conf: BNR-CONF-9281')
@@ -2156,9 +2186,11 @@ export const MidTermScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={() => {
                   setAccommodationReceiptModalVisible(false);
@@ -2169,7 +2201,7 @@ export const MidTermScreen: React.FC = () => {
                 <Text style={styles.modalPrimaryBtnText}>
                   Print Voucher (PDF)
                 </Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2279,7 +2311,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalSecondaryBtn}
                 onPress={() =>
                   handleShareDoc('Official AIOS Invitation Letter')
@@ -2287,9 +2320,11 @@ export const MidTermScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={() => {
                   setInvitationLetterModalVisible(false);
@@ -2300,7 +2335,7 @@ export const MidTermScreen: React.FC = () => {
                 <Text style={styles.modalPrimaryBtnText}>
                   Print Letter (PDF)
                 </Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2405,7 +2440,8 @@ export const MidTermScreen: React.FC = () => {
             </ScrollView>
 
             <View style={styles.modalActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.modalSecondaryBtn}
                 onPress={() =>
                   Share.share({
@@ -2416,9 +2452,11 @@ export const MidTermScreen: React.FC = () => {
               >
                 <ShareIcon size={16} color="#0284C7" />
                 <Text style={styles.modalSecondaryBtnText}>Share Document</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.modalPrimaryBtn}
                 onPress={handleDownloadSelectedCertificate}
                 disabled={certificateDownloading}
@@ -2427,7 +2465,7 @@ export const MidTermScreen: React.FC = () => {
                 <Text style={styles.modalPrimaryBtnText}>
                   {certificateDownloading ? 'Downloading…' : 'Download PDF'}
                 </Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2520,17 +2558,19 @@ export const MidTermScreen: React.FC = () => {
 };
 const styles = StyleSheet.create({
   conferenceOverview: { backgroundColor: '#253D68', padding: 22, borderRadius: 24, marginBottom: 24 },
-  overviewEyebrow: { color: '#D4E7FF', fontSize: 8, fontWeight: '800', letterSpacing: 1.4 },
-  overviewTitle: { color: '#FFFFFF', fontSize: 24, lineHeight: 32, fontWeight: '700', marginTop: 10, marginBottom: 14 },
+  overviewTitle: { color: '#FFDF00', fontSize: 28, lineHeight: 36, fontWeight: '800', marginBottom: 14 },
   overviewMeta: { flexDirection: 'row', gap: 9, alignItems: 'flex-start', marginTop: 9 },
   overviewMetaText: { flex: 1, color: '#E2EDFF', fontSize: 12, lineHeight: 19 },
+  overviewAegis: { color: '#FFDF00', fontSize: 14, lineHeight: 20, fontStyle: 'italic', fontWeight: '600', marginTop: 18, textAlign: 'center' },
+  overviewSocietyBadge: { backgroundColor: '#FFFFFF', borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, marginTop: 8 },
+  overviewSociety: { color: '#17233E', fontSize: 13, lineHeight: 20, fontWeight: '700', textAlign: 'center' },
   portalSectionHeading: { marginBottom: 16 },
   portalEyebrow: { color: '#8A9AB3', fontSize: 8, fontWeight: '800', letterSpacing: 1.3, marginBottom: 5 },
   portalSectionTitle: { color: '#17233E', fontSize: 21, fontWeight: '700' },
   portalActionTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   portalIcon: { backgroundColor: '#FFFFFF', borderRadius: 13, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
-  portalActionCaption: { color: '#8791A9', fontSize: 10, lineHeight: 16, marginTop: 5 },
-  portalArrow: { color: '#8496AF', fontSize: 19 },
+  portalActionCaption: { color: '#FFFFFF', fontSize: 10, lineHeight: 16, marginTop: 5 },
+  portalArrow: { color: '#FFFFFF', fontSize: 19 },
   dobPickerField: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2905,7 +2945,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   actionBtnText: {
-    color: '#253D60',
+    color: '#FFFFFF',
     fontSize: 13,
     fontWeight: '700',
     lineHeight: 20,
@@ -3407,7 +3447,7 @@ const styles = StyleSheet.create({
   extraActivityPlus: {
     fontSize: 15,
     fontWeight: '900',
-    color: '#334155',
+    color: '#FFFFFF',
   },
   extraActivityPlusActive: {
     color: '#FFFFFF',
@@ -3415,7 +3455,7 @@ const styles = StyleSheet.create({
   extraActivityText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#1E293B',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   extraActivityTextActive: {
@@ -3914,7 +3954,7 @@ const styles = StyleSheet.create({
   payNowBtnText: {
     fontSize: 14,
     fontWeight: '900',
-    color: '#0F172A',
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   /* Success Confirmed Card */
@@ -4005,7 +4045,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   successShareText: {
-    color: '#0284C7',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },
@@ -4093,7 +4133,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   modalSecondaryBtnText: {
-    color: '#0284C7',
+    color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
   },

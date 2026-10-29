@@ -1,8 +1,8 @@
+import { Button } from './Button';
 import React, { useState } from 'react';
 import {
   Alert,
   StyleSheet,
-  TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
@@ -116,16 +116,17 @@ export const FilePicker: React.FC<FilePickerProps> = ({
       ) : null}
 
       <View style={styles.fileActionRow}>
-        <TouchableOpacity
+        <Button
+          customLayout
           style={styles.chooseFileButton}
           onPress={handlePick}
           activeOpacity={0.8}
           disabled={loading}
         >
-          <Typography variant="bodySm" weight="bold" color={colors.primaryNavy}>
+          <Typography variant="bodySm" weight="bold" color="#FFFFFF">
             {loading ? 'Opening...' : buttonText}
           </Typography>
-        </TouchableOpacity>
+        </Button>
 
         <View style={styles.fileSelectedBox}>
           <Typography

@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import { VideoShareIcon } from '../components/VideoShareIcon';
 import { PRESIDENT_ADDRESS_CONTINUATION } from '../constants/presidentAddress';
 import React from 'react';
@@ -32,10 +34,10 @@ export const PresidentAIOSScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.openDrawer()} accessibilityRole="button" accessibilityLabel="Open navigation menu"><ArrowBackIcon size={20} color="#FFFFFF" /></TouchableOpacity>
         <Text style={styles.headerTitle}>President AIOS</Text>
-      </View>
+      </AppHeader>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: Math.max(insets.bottom, 20) }]}>
         <Text style={styles.title}>Know your President</Text>
         <Text style={styles.subtitle}>All India Ophthalmological Society</Text>
@@ -50,7 +52,8 @@ export const PresidentAIOSScreen: React.FC = () => {
           <View style={styles.playOverlay}>
             <View style={styles.playButton}><Text style={styles.playSymbol}>▶</Text></View>
           </View>
-          <TouchableOpacity
+          <Button
+            customLayout
             style={styles.videoShare}
             onPress={event => {
               event.stopPropagation();
@@ -60,7 +63,7 @@ export const PresidentAIOSScreen: React.FC = () => {
             accessibilityLabel="Share video"
           >
             <VideoShareIcon size={30} color="#FFFFFF" />
-          </TouchableOpacity>
+          </Button>
           <View style={styles.watchBadge}><Text style={styles.watchBadgeText}>Watch on YouTube ↗</Text></View>
         </TouchableOpacity>
         <View style={styles.addressCard}>

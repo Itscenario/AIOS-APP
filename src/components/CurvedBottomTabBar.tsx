@@ -50,7 +50,7 @@ const PillTab: React.FC<{
           <Animated.View style={[styles.iconWrapper, {
             opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
           }]}>
-            <tab.Icon size={23} color="#91A3BB" />
+            <tab.Icon size={tab === TABS.MidTerm ? 27 : 23} color="#91A3BB" />
           </Animated.View>
           <Animated.View style={[styles.selectedContent, {
             width: pillWidth,
@@ -58,8 +58,8 @@ const PillTab: React.FC<{
             opacity: progress,
             transform: [{ scale: progress.interpolate({ inputRange: [0, 1], outputRange: [0.95, 1] }) }],
           }]}>
-            <View style={styles.selectedIcon}>
-              <tab.Icon size={23} color="#FFFFFF" />
+            <View style={[styles.selectedIcon, tab === TABS.MidTerm && styles.midTermIcon]}>
+              <tab.Icon size={tab === TABS.MidTerm ? 27 : 23} color="#FFFFFF" />
             </View>
             <Text
               style={[styles.label, tab.label === 'Dashboard' && styles.dashboardLabel]}
@@ -158,7 +158,7 @@ export const CurvedBottomTabBar: React.FC<BottomTabBarProps> = ({ state, navigat
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#0B1728',
+    backgroundColor: '#3b1165',
     borderTopLeftRadius: 26,
     borderTopRightRadius: 26,
     borderTopWidth: 1,
@@ -226,6 +226,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  midTermIcon: {
+    width: 28,
   },
   iconWrapper: {
     width: 28,

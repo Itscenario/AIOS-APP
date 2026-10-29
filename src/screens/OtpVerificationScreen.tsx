@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -85,7 +87,7 @@ export const OtpVerificationScreen: React.FC = () => {
 
   return (
     <Background scrollable keyboardAvoiding>
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -110,7 +112,7 @@ export const OtpVerificationScreen: React.FC = () => {
         </View>
 
         <View style={styles.headerRightActions} />
-      </View>
+      </AppHeader>
 
       <View style={styles.cardContainer}>
         <View style={styles.shieldEmblemContainer}>
@@ -179,16 +181,18 @@ export const OtpVerificationScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
+        <Button
+
+          customLayout
           style={styles.verifyButton}
           onPress={handleVerify}
           activeOpacity={0.8}
         >
-          <Typography variant="labelLg" weight="bold" color={colors.onPrimary}>
+          <Typography variant="labelLg" weight="bold" color="#FFFFFF">
             Verify & Proceed
           </Typography>
           <ArrowRightIcon size={16} color={colors.onPrimary} />
-        </TouchableOpacity>
+        </Button>
       </View>
     </Background>
   );

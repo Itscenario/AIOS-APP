@@ -1,5 +1,6 @@
+import { Button } from './Button';
 import React from 'react';
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { LogoutIcon } from './Icons';
 
 export const LogoutConfirmation: React.FC<{
@@ -14,8 +15,8 @@ export const LogoutConfirmation: React.FC<{
         <Text style={styles.title}>Log out of AIOS?</Text>
         <Text style={styles.message}>You can sign in again anytime to access your account.</Text>
         <View style={styles.actions}>
-          <TouchableOpacity style={styles.cancel} onPress={onCancel} accessibilityRole="button"><Text style={styles.cancelText}>Cancel</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.confirm} onPress={onConfirm} accessibilityRole="button"><Text style={styles.confirmText}>Logout</Text></TouchableOpacity>
+          <Button customLayout style={styles.cancel} onPress={onCancel} accessibilityRole="button"><Text style={styles.cancelText}>Cancel</Text></Button>
+          <Button customLayout style={styles.confirm} onPress={onConfirm} accessibilityRole="button"><Text style={styles.confirmText}>Logout</Text></Button>
         </View>
       </View>
     </View>
@@ -31,6 +32,6 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', gap: 12, marginTop: 26 },
   cancel: { flex: 1, paddingVertical: 14, alignItems: 'center', backgroundColor: '#F1F5F9', borderRadius: 14 },
   confirm: { flex: 1, paddingVertical: 14, alignItems: 'center', backgroundColor: '#DC2626', borderRadius: 14 },
-  cancelText: { color: '#334155', fontWeight: '700', fontSize: 15 },
+  cancelText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
   confirmText: { color: '#FFFFFF', fontWeight: '700', fontSize: 15 },
 });

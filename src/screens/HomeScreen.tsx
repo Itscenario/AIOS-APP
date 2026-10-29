@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React from 'react';
 import { Image, Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -18,7 +20,7 @@ export const HomeScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.openDrawer()}
@@ -29,7 +31,7 @@ export const HomeScreen: React.FC = () => {
         </TouchableOpacity>
         <Image source={images.logo} style={styles.logo} resizeMode="contain" />
         <View style={styles.brandGroup}><Text style={styles.brand}>All India</Text><Text style={styles.brand}>Ophthalmological Society</Text><Text style={styles.tagline}>FROM DARKNESS TO LIGHT</Text></View>
-      </View>
+      </AppHeader>
       <View style={styles.toolbar}>
         <Text style={styles.homeLabel}>Home</Text>
         <TouchableOpacity onPress={() => Linking.openURL('https://wa.me/919697692000')} accessibilityRole="link"><Text style={styles.contact}>WhatsApp · 9697692000</Text></TouchableOpacity>
@@ -40,7 +42,7 @@ export const HomeScreen: React.FC = () => {
         <View style={[styles.card, styles.youtubeCard]}>
           <Text style={styles.cardTitle}><Text style={styles.blue}>ONE AIOS</Text> — the all-in-one AIOS YouTube Channel</Text>
           <Text style={styles.body}>Live sessions and archived content, all in one place.</Text>
-          <TouchableOpacity style={styles.subscribe} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=ONE+AIOS')} accessibilityRole="link"><Text style={styles.buttonText}>▶  Subscribe on YouTube</Text></TouchableOpacity>
+          <Button customLayout style={styles.subscribe} onPress={() => Linking.openURL('https://www.youtube.com/results?search_query=ONE+AIOS')} accessibilityRole="link"><Text style={styles.buttonText}>▶  Subscribe on YouTube</Text></Button>
         </View>
 
         
@@ -67,7 +69,7 @@ export const HomeScreen: React.FC = () => {
           <View style={styles.aboutAccent} />
           <Text style={styles.aboutBody}>{ABOUT_AIOS_INTRO}</Text>
           <Text style={styles.aboutBody}>The objectives of the society are cultivation and promotion of the study and practice of ophthalmic sciences, research and man-power development...</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('AboutAIOS')} accessibilityRole="button" style={styles.readMore}><Text style={styles.readMoreText}>Read More</Text></TouchableOpacity>
+          <Button customLayout onPress={() => navigation.navigate('AboutAIOS')} accessibilityRole="button" style={styles.readMore}><Text style={styles.readMoreText}>Read More</Text></Button>
         </View>
         <HomeUpdates
           onJobs={() => navigation.getParent()?.navigate('JobOpportunities')}
@@ -100,7 +102,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   readMoreText: {
-    color: '#101047',
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '500',
   },

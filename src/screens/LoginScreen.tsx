@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React, { useState } from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import {
@@ -95,7 +96,7 @@ export const LoginScreen: React.FC = () => {
         <View style={styles.accentBlue} />
       </View> */}
 
-      <View style={styles.headerBar}>
+      <AppHeader style={styles.headerBar}>
         <View style={styles.headerLeft}>
           <View style={styles.logoContainer}>
             <Image
@@ -110,7 +111,7 @@ export const LoginScreen: React.FC = () => {
               <Typography
                 variant="headlineSm"
                 weight="bold"
-                color="#C2410C"
+                color="#f7e3ff"
                 style={styles.brandTitle}
               >
                 AIOS
@@ -122,13 +123,13 @@ export const LoginScreen: React.FC = () => {
                   color={colors.secondaryRoyal}
                   style={styles.memberBadgeText}
                 >
-                  MEMBER
+                 FROM DARKNESS TO LIGHT
                 </Typography>
               </View>
             </View>
 
             <Typography
-              variant="labelSm"
+              // variant="labelSm"
               color={colors.white}
               style={styles.brandSubtitle}
             >
@@ -152,7 +153,7 @@ export const LoginScreen: React.FC = () => {
             Support
           </Typography>
         </TouchableOpacity> */}
-      </View>
+      </AppHeader>
 
       <View style={styles.card}>
         {/* <View style={styles.officialPill}>
@@ -260,7 +261,9 @@ export const LoginScreen: React.FC = () => {
             <View style={styles.dividerLine} />
           </View>
 
-          <TouchableOpacity
+          <Button
+
+            customLayout
             style={styles.createAccountButton}
             onPress={() => {
               // console.log("Create Account Pressed");
@@ -272,12 +275,12 @@ export const LoginScreen: React.FC = () => {
             <Typography
               variant="labelLg"
               weight="semibold"
-              color={colors.primaryNavy}
+              color="#FFFFFF"
               style={styles.createAccountButtonText}
             >
               Create an account
             </Typography>
-          </TouchableOpacity>
+          </Button>
         </View>
       </View>
     </Background>
@@ -339,7 +342,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   memberBadge: {
-    backgroundColor: colors.surfaceContainerHigh,
+    backgroundColor:"#f7e3ff",
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
@@ -350,7 +353,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   brandSubtitle: {
-    fontSize: 11,
+    fontSize: 14,
     marginTop: 2,
   },
   supportButton: {
@@ -444,7 +447,7 @@ const styles = StyleSheet.create({
 
   // Buttons
   signInButton: {
-    backgroundColor: colors.primaryNavy,
+    backgroundColor: '#996bb4',
     minHeight: 52,
     borderRadius: rounded.md, // 12px
   },

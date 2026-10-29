@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   FlatList,
@@ -351,7 +352,7 @@ export const SignupScreen: React.FC = () => {
       keyboardShouldPersistTaps="handled"
       contentContainerStyle={styles.scrollContent}
     >
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -371,7 +372,7 @@ export const SignupScreen: React.FC = () => {
             Create your account
           </Typography>
         </View>
-      </View>
+      </AppHeader>
 
       <View style={styles.cardContainer}>
         <View style={styles.noticeBox}>

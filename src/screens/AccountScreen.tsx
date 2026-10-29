@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import { LogoutConfirmation } from '../components/LogoutConfirmation';
 import { Toast, ToastNotification } from '../components/Toast';
 import { PaymentInformation } from '../components/PaymentInformation';
@@ -458,14 +460,14 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
     return (
       <View style={styles.container}>
         <ScreenStatusBar />
-        <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+        <AppHeader style={[styles.header, { paddingTop: insets.top + 8 }]}>
           <View style={styles.headerLeft}>
             <TouchableOpacity onPress={() => navigation.goBack()} style={styles.preferenceBack} accessibilityRole="button" accessibilityLabel="Go back">
               <ArrowBackIcon size={22} color="#FFFFFF" />
             </TouchableOpacity>
             <Text style={styles.brandTitle}>{title}</Text>
           </View>
-        </View>
+        </AppHeader>
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 24 }]}>
           {preferencePage === 'green' && (<>
           <View style={styles.formSectionCard}>
@@ -777,13 +779,13 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
           </View>
           </>)}
           {preferencePage && (
-            <TouchableOpacity style={styles.preferenceSave} onPress={() => {
+            <Button customLayout style={styles.preferenceSave} onPress={() => {
               dispatch(updateProfile({ specialities, publicationPreferences: goGreenSelections, contactPrivacy: { mobile: mobileConsent, email: emailConsent } }));
               navigation.goBack();
               showToast('Preferences saved.');
             }} accessibilityRole="button">
               <Text style={styles.preferenceSaveText}>Save preferences</Text>
-            </TouchableOpacity>
+            </Button>
           )}
         </ScrollView>
       </View>
@@ -806,7 +808,7 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
           navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         }}
       />
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerLeft}>
           <View style={styles.logoBadge}>
             <Image
@@ -822,7 +824,7 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
             </Text>
           </View>
         </View>
-      </View>
+      </AppHeader>
       <View
         ref={formViewport}
         style={styles.scrollView}
@@ -1091,13 +1093,14 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
             ))}
 
             <View style={styles.degreeActionsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.navyPillBtn}
                 activeOpacity={0.8}
                 onPress={handleAddDegree}
               >
                 <Text style={styles.navyPillBtnText}>+ Add More Degree</Text>
-              </TouchableOpacity>
+              </Button>
 
               <TouchableOpacity
                 style={[
@@ -1765,13 +1768,15 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
               </View>
             </View>
 
-            <TouchableOpacity
+            <Button
+
+              customLayout
               style={styles.payNowBtn}
               activeOpacity={0.85}
               onPress={handlePayNow}
             >
               <Text style={styles.payNowBtnText}>Pay Now ➔</Text>
-            </TouchableOpacity>
+            </Button>
 
             <Text style={styles.paymentDisclaimer}>
               * Online payment to the society / Member Registration. All
@@ -1952,21 +1957,24 @@ export const AccountScreen: React.FC<{ preferencePage?: PreferencePage }> = ({ p
             </ScrollView>
 
             <View style={styles.editModalButtonsRow}>
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.editModalCancelBtn}
                 onPress={() => setEditModalVisible(false)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.editModalCancelBtnText}>Cancel</Text>
-              </TouchableOpacity>
+              </Button>
 
-              <TouchableOpacity
+              <Button
+
+                customLayout
                 style={styles.editModalSaveBtn}
                 onPress={handleSaveProfile}
                 activeOpacity={0.8}
               >
                 <Text style={styles.editModalSaveBtnText}>Save Changes</Text>
-              </TouchableOpacity>
+              </Button>
             </View>
           </View>
         </View>
@@ -2523,7 +2531,7 @@ const styles = StyleSheet.create({
   editModalCancelBtnText: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#64748B',
+    color: '#FFFFFF',
   },
   editModalSaveBtn: {
     flex: 1,

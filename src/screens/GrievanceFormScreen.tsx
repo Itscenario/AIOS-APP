@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -39,10 +41,10 @@ export const GrievanceFormScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
-        <View><Text style={styles.headerTitle}>Share your concern</Text><Text style={styles.headerSubtitle}>AIOS Suggestion / Grievance Corner</Text></View>
-      </View>
+        <View><Text style={styles.headerTitle}>Share your concern</Text></View>
+      </AppHeader>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView ref={scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 28 }]}>
           <View style={styles.intro}><Text style={styles.eyebrow}>WE ARE LISTENING</Text><Text style={styles.title}>Let’s work towards{'\n'}a resolution.</Text><Text style={styles.copy}>Tell us what happened and attach any relevant documents.</Text></View>
@@ -53,7 +55,19 @@ export const GrievanceFormScreen: React.FC = () => {
           <View style={styles.adverse}>
             <Text style={styles.adverseTitle}>Reporting an adverse event?</Text>
             <Text style={styles.adverseCopy}>Use the adverse registry for adverse event reports.</Text>
-            <TouchableOpacity accessibilityRole="button" onPress={() => navigation.navigate('AdverseRegistry')} style={styles.registryButton}><Text style={styles.registryText}>Adverse Registry ↗</Text></TouchableOpacity>
+            <TouchableOpacity
+              accessibilityRole="button"
+              accessibilityLabel="Open Adverse Registry"
+              onPress={() => navigation.navigate('AdverseRegistry')}
+              activeOpacity={0.75}
+              style={styles.registryButton}
+            >
+              <DocumentIcon size={18} color="#94602D" />
+              <Text style={styles.registryText}>Adverse Registry</Text>
+              <View style={styles.registryArrowBadge}>
+                <Text style={styles.registryArrow}>↗</Text>
+              </View>
+            </TouchableOpacity>
           </View>
           <View style={styles.card}>
             <Text style={styles.step}>01 / ISSUE DETAILS</Text>
@@ -68,11 +82,11 @@ export const GrievanceFormScreen: React.FC = () => {
             <Text style={styles.sectionTitle}>Add relevant documents</Text>
             <Text style={styles.copy}>Attach up to 3 files to help us understand your concern.</Text>
             {documents.map((file, index) => <View key={index} style={styles.uploadRow}>
-              <TouchableOpacity onPress={() => pickFile(index)} style={styles.upload} accessibilityRole="button" accessibilityLabel={`Choose document ${index + 1}`}>
+              <Button customLayout onPress={() => pickFile(index)} style={styles.upload} accessibilityRole="button" accessibilityLabel={`Choose document ${index + 1}`}>
                 <View style={styles.fileIcon}><DocumentIcon size={20} color="#5363B8" /></View>
                 <View style={styles.fileInfo}><Text style={styles.fileTitle} numberOfLines={2}>{file?.name || 'Choose File'}</Text>{file && <Text style={styles.fileHint}>Tap to replace</Text>}</View>
                 <Text style={styles.plus}>{file ? '↻' : '+'}</Text>
-              </TouchableOpacity>
+              </Button>
               {file && <TouchableOpacity onPress={() => setDocuments(current => current.map((value, i) => i === index ? null : value))} style={styles.remove} accessibilityRole="button" accessibilityLabel={`Remove document ${index + 1}`}><Text style={styles.removeText}>Remove</Text></TouchableOpacity>}
             </View>)}
           </View>
@@ -84,7 +98,7 @@ export const GrievanceFormScreen: React.FC = () => {
               <TextInput style={styles.captchaInput} value={answer} onChangeText={setAnswer} placeholder="Enter code" placeholderTextColor="#94A3B8" autoCapitalize="none" autoCorrect={false} accessibilityLabel="Enter captcha" onFocus={() => requestAnimationFrame(() => scroll.current?.scrollToEnd({ animated: true }))} />
             </View>
             {!!error && <Text style={styles.error} accessibilityLiveRegion="polite">{error}</Text>}
-            <TouchableOpacity onPress={submit} style={styles.submit} accessibilityRole="button"><Text style={styles.submitText}>Save & Submit</Text><Text style={styles.submitArrow}>→</Text></TouchableOpacity>
+            <Button customLayout onPress={submit} style={styles.submit} accessibilityRole="button"><Text style={styles.submitText}>Save & Submit</Text><Text style={styles.submitArrow}>→</Text></Button>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -107,7 +121,10 @@ const styles = StyleSheet.create({
   detail: { marginTop: 14 }, detailLabel: { fontSize: 10, color: '#64748B', marginBottom: 5 }, detailValue: { fontSize: 14, color: '#253B60', fontWeight: '600' },
   adverse: { padding: 18, backgroundColor: '#FFF6E9', borderRadius: 18, borderWidth: 1, borderColor: '#F6E4C6' },
   adverseTitle: { fontSize: 14, color: '#94602D', fontWeight: '700' }, adverseCopy: { fontSize: 12, color: '#A17D53', lineHeight: 19, marginTop: 6 },
-  registryButton: { alignSelf: 'flex-start', minHeight: 44, justifyContent: 'center' }, registryText: { color: '#94602D', fontSize: 12, fontWeight: '700' },
+  registryButton: { alignSelf: 'stretch', minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 14, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#EBD4B4', borderRadius: 12 },
+  registryText: { flex: 1, color: '#825025', fontSize: 13, lineHeight: 20, fontWeight: '700' },
+  registryArrowBadge: { width: 28, height: 28, borderRadius: 9, backgroundColor: '#FFF1DC', alignItems: 'center', justifyContent: 'center' },
+  registryArrow: { color: '#94602D', fontSize: 19, fontWeight: '600' },
   card: { backgroundColor: '#FFFFFF', padding: 20, borderRadius: 22, borderWidth: 1, borderColor: '#E3EAF4' },
   step: { color: '#7C8AA4', fontSize: 9, letterSpacing: 1.2, fontWeight: '700', marginBottom: 10 },
   sectionTitle: { color: '#17233E', fontSize: 17, fontWeight: '700' },
@@ -118,7 +135,7 @@ const styles = StyleSheet.create({
   radio: { width: 16, height: 16, borderRadius: 8, borderWidth: 1, borderColor: '#CBD5E1' }, radioSelected: { borderWidth: 5, borderColor: '#3561A9' },
   description: { minHeight: 150, padding: 14, fontSize: 14, lineHeight: 22, color: '#17233E', backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 14 },
   uploadRow: { marginTop: 12 }, upload: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 12, borderWidth: 1, borderStyle: 'dashed', borderColor: '#CAD5EA', borderRadius: 14, backgroundColor: '#FAFBFF' },
-  fileIcon: { padding: 10, backgroundColor: '#EEF0FC', borderRadius: 12 }, fileInfo: { flex: 1 }, fileTitle: { fontSize: 12, color: '#334155', fontWeight: '600' }, fileHint: { fontSize: 10, color: '#94A3B8', marginTop: 4 }, plus: { color: '#5363B8', fontSize: 23 },
+  fileIcon: { padding: 10, backgroundColor: '#EEF0FC', borderRadius: 12 }, fileInfo: { flex: 1 }, fileTitle: { fontSize: 12, color: '#FFFFFF', fontWeight: '600' }, fileHint: { fontSize: 10, color: '#FFFFFF', marginTop: 4 }, plus: { color: '#FFFFFF', fontSize: 23 },
   remove: { alignSelf: 'flex-end', padding: 10, minHeight: 44, justifyContent: 'center' }, removeText: { color: '#B45353', fontSize: 11 },
   captchaRow: { flexDirection: 'row', gap: 12, marginTop: 18 }, captchaBadge: { flex: 1, minHeight: 54, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', borderRadius: 12, backgroundColor: '#EAF0FA' },
   captchaCode: { color: '#334A76', fontSize: 20, letterSpacing: 3, fontWeight: '800' }, refresh: { color: '#6179A6', fontSize: 20 },

@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -207,7 +209,7 @@ export const JobApplicationScreen: React.FC = () => {
         { paddingLeft: insets.left, paddingRight: insets.right },
       ]}
     >
-      <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -219,7 +221,7 @@ export const JobApplicationScreen: React.FC = () => {
         <View style={styles.headerTitleCol}>
           <Text style={styles.headerTitle}>Job Application</Text>
         </View>
-      </View>
+      </AppHeader>
 
       {job && (
         <View style={styles.jobSummaryFixedContainer}>
@@ -401,7 +403,8 @@ export const JobApplicationScreen: React.FC = () => {
                 </TouchableOpacity>
               </View>
             ) : (
-              <TouchableOpacity
+              <Button
+                customLayout
                 style={styles.resumeAttachBtn}
                 onPress={handlePickCV}
                 activeOpacity={0.8}
@@ -415,7 +418,7 @@ export const JobApplicationScreen: React.FC = () => {
                     Tap to browse and select file from device
                   </Text>
                 </View>
-              </TouchableOpacity>
+              </Button>
             )}
             {errors.cv ? (
               <View style={styles.errorContainer}>
@@ -437,35 +440,40 @@ export const JobApplicationScreen: React.FC = () => {
             />
           </View>
 
-          <TouchableOpacity
+          <Button
+
+            customLayout
             style={styles.submitBtn}
             onPress={handleSubmit}
             activeOpacity={0.85}
           >
             <Text style={styles.submitBtnText}>Submit Application</Text>
-          </TouchableOpacity>
+          </Button>
         </View>
 
         <View style={styles.directContactSection}>
           <Text style={styles.directContactHeading}>Or Contact Directly</Text>
           <View style={styles.directContactButtonsRow}>
-            <TouchableOpacity
+            <Button
+              customLayout
               style={styles.directWhatsAppBtn}
               onPress={handleWhatsApp}
               activeOpacity={0.8}
             >
               <WhatsAppIcon size={16} color="#FFFFFF" />
               <Text style={styles.directBtnText}>Apply on WhatsApp</Text>
-            </TouchableOpacity>
+            </Button>
 
-            <TouchableOpacity
+            <Button
+
+              customLayout
               style={styles.directEmailBtn}
               onPress={handleEmail}
               activeOpacity={0.8}
             >
               <MailIcon size={16} color="#FFFFFF" />
               <Text style={styles.directBtnText}>Send Email CV</Text>
-            </TouchableOpacity>
+            </Button>
           </View>
         </View>
       </ScrollView>
@@ -514,7 +522,9 @@ export const JobApplicationScreen: React.FC = () => {
               </Text>
             </View>
 
-            <TouchableOpacity
+            <Button
+
+              customLayout
               style={styles.doneBtn}
               onPress={() => {
                 setIsSuccessModalVisible(false);
@@ -523,7 +533,7 @@ export const JobApplicationScreen: React.FC = () => {
               activeOpacity={0.85}
             >
               <Text style={styles.doneBtnText}>Back to Jobs</Text>
-            </TouchableOpacity>
+            </Button>
           </View>
         </View>
       </Modal>
@@ -746,11 +756,11 @@ const styles = StyleSheet.create({
   uploadCVTitle: {
     fontSize: 12.5,
     fontWeight: '700',
-    color: '#1E293B',
+    color: '#FFFFFF',
   },
   uploadCVSubtext: {
     fontSize: 10.5,
-    color: '#64748B',
+    color: '#FFFFFF',
     marginTop: 2,
   },
   cvAttachedCard: {

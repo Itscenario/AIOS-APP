@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import { DashboardOfficeBearers } from '../components/DashboardOfficeBearers';
 import { BannerSlider } from '../components/BannerSlider';
 import React from 'react';
@@ -36,10 +37,16 @@ export const DashboardScreen: React.FC = () => {
     ? { ...savedProfile, membershipId: undefined }
     : savedProfile;
   const isMember = profile?.membershipStatus === 'active';
-  const fullName =
-    [profile?.firstName, profile?.surname].filter(Boolean).join(' ').trim() ||
-    profile?.name?.trim() ||
-    '';
+  const givenName = (profile?.firstName || profile?.name || '').trim();
+  const surname = profile?.surname?.trim() || '';
+  const normalizedName = givenName.replace(/\s+/g, ' ').toLowerCase();
+  const normalizedSurname = surname.replace(/\s+/g, ' ').toLowerCase();
+  const includesSurname =
+    normalizedName === normalizedSurname ||
+    normalizedName.endsWith(` ${normalizedSurname}`);
+  const fullName = [givenName, !includesSurname && surname]
+    .filter(Boolean)
+    .join(' ');
   const displayName = formatProfileName(
     profile?.title &&
       !fullName.toLowerCase().startsWith(profile.title.trim().toLowerCase())
@@ -50,10 +57,7 @@ export const DashboardScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScreenStatusBar />
-      <LinearGradient
-        colors={['#0B1728', '#172B50', '#263665']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
+      <AppHeader
         style={[styles.header, { paddingTop: insets.top + 6 }]}
       >
         <View style={styles.headerLeft}>
@@ -68,9 +72,9 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.headerTitleCol}>
             <View style={styles.headerBrandRow}>
               <Text style={styles.brandTitle}>AIOS</Text>
-              <View style={styles.officialPill}>
-                <Text style={styles.officialPillText}>OFFICIAL</Text>
-              </View>
+              {/* <View style={styles.officialPill}>
+                <Text style={styles.officialPillText}>FROM DARKNESS TO LIGHT</Text>
+              </View> */}
             </View>
             <Text style={styles.brandSubtitle} numberOfLines={1}>
               All India Ophthalmological Society
@@ -108,7 +112,7 @@ export const DashboardScreen: React.FC = () => {
             <View style={styles.onlineDot} />
           </TouchableOpacity>
         </View>
-      </LinearGradient>
+      </AppHeader>
 
       <ScrollView
         style={styles.scrollView}
@@ -436,7 +440,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   officialPill: {
-    backgroundColor: '#38BDF8',
+    backgroundColor: '#d7b9ef',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,

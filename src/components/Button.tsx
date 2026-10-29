@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextStyle,
   TouchableOpacity,
+  TouchableOpacityProps,
   View,
   ViewStyle,
 } from 'react-native';
@@ -22,7 +23,10 @@ export type ButtonVariant =
   | 'link';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
-export interface ButtonProps {
+export interface ButtonProps
+  extends Omit<TouchableOpacityProps, 'style' | 'children'> {
+  /** Preserve an existing button's layout and render its children directly. */
+  customLayout?: boolean;
   title?: string;
   children?: React.ReactNode;
   onPress?: (event: GestureResponderEvent) => void;
@@ -52,16 +56,19 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   activeOpacity = 0.8,
+  customLayout = false,
+  ...touchableProps
 }) => {
   const isDisabled = disabled || loading;
 
   const containerStyles: StyleProp<ViewStyle> = [
-    styles.base,
-    styles[size],
+    !customLayout && styles.base,
+    !customLayout && styles[size],
     styles[variant],
-    fullWidth && styles.fullWidth,
-    isDisabled && styles.disabled,
+    !customLayout && fullWidth && styles.fullWidth,
     style,
+    variant === 'primary' && styles.primary,
+    isDisabled && styles.disabled,
   ];
 
   const getTextColor = (): string => {
@@ -89,6 +96,8 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
+      accessibilityRole="button"
+      {...touchableProps}
       style={containerStyles}
       onPress={onPress}
       disabled={isDisabled}
@@ -96,6 +105,8 @@ export const Button: React.FC<ButtonProps> = ({
     >
       {loading ? (
         <ActivityIndicator size="small" color={getIndicatorColor()} />
+      ) : customLayout ? (
+        children
       ) : (
         <View style={styles.contentContainer}>
           {leftIcon && <View style={styles.leftIconContainer}>{leftIcon}</View>}
@@ -170,7 +181,7 @@ const styles = StyleSheet.create({
 
   // Variants per DESIGN.md Clinical Prestige
   primary: {
-    backgroundColor: colors.primaryNavy, // #0F294A
+    backgroundColor: colors.buttonBackground,
   },
   secondary: {
     backgroundColor: colors.surfaceContainerLowest, // #FFFFFF

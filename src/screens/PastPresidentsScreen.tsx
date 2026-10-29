@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -14,10 +15,10 @@ export const PastPresidentsScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.openDrawer()} accessibilityRole="button" accessibilityLabel="Open navigation menu"><ArrowBackIcon size={20} color="#FFFFFF" /></TouchableOpacity>
         <Text style={styles.headerTitle}>Past Presidents</Text>
-      </View>
+      </AppHeader>
       <FlatList
         data={PAST_PRESIDENTS}
         keyExtractor={(item, index) => `${item.year}-${index}`}

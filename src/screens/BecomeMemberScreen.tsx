@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Alert,
@@ -308,7 +309,7 @@ export const BecomeMemberScreen: React.FC = () => {
         style={styles.formScroll}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-      <View style={styles.topHeader}>
+      <AppHeader style={styles.topHeader}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -326,7 +327,7 @@ export const BecomeMemberScreen: React.FC = () => {
             Become an AIOS Member
           </Typography>
         </View>
-      </View>
+      </AppHeader>
       <ScrollView
         ref={formScroll}
         onLayout={scrollToCaptcha}
@@ -2123,7 +2124,7 @@ const styles = StyleSheet.create({
 
   /* Payment Summary Card */
   paymentSummaryCard: {
-    backgroundColor: colors.primaryNavy,
+    backgroundColor: colors.headerBackground,
     borderRadius: 14,
     overflow: 'hidden',
     marginTop: 6,

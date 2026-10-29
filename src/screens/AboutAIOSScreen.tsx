@@ -1,3 +1,4 @@
+import { AppHeader } from '../components/AppHeader';
 import React, { useCallback } from 'react';
 import { BackHandler, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -25,11 +26,11 @@ export const AboutAIOSScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 12 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 12 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.openDrawer()} accessibilityRole="button" accessibilityLabel="Open navigation menu"><ArrowBackIcon size={20} color="#FFFFFF" /></TouchableOpacity>
         <Image source={images.logo} style={styles.logo} resizeMode="contain" />
         <View style={styles.brandGroup}><Text style={styles.brand}>All India Ophthalmological Society</Text><Text style={styles.tagline}>FROM DARKNESS TO LIGHT</Text></View>
-      </View>
+      </AppHeader>
       <View style={styles.breadcrumb}><Text style={styles.pageTitle}>About Us</Text></View>
       <ScrollView contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>All India Ophthalmological Society</Text>

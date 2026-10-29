@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import { HeaderBackButton } from '../components/HeaderBackButton';
 import React, { useState, useMemo } from 'react';
 import {
@@ -242,7 +244,8 @@ export const JobOpportunitiesScreen: React.FC = () => {
         )}
 
         <View style={styles.actionButtonsRow}>
-          <TouchableOpacity
+          <Button
+            customLayout
             style={styles.viewDetailsBtn}
             activeOpacity={0.8}
             onPress={() => toggleExpand(job.id)}
@@ -250,15 +253,17 @@ export const JobOpportunitiesScreen: React.FC = () => {
             <Text style={styles.viewDetailsText}>
               {isExpanded ? 'Hide Details' : 'View Details →'}
             </Text>
-          </TouchableOpacity>
+          </Button>
 
-          <TouchableOpacity
+          <Button
+
+            customLayout
             style={styles.applyNowBtn}
             activeOpacity={0.85}
             onPress={() => handleApply(job)}
           >
             <Text style={styles.applyNowText}>Apply Now</Text>
-          </TouchableOpacity>
+          </Button>
         </View>
       </View>
     );
@@ -329,7 +334,7 @@ export const JobOpportunitiesScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <ScreenStatusBar barStyle="dark-content" />
-      <View style={[styles.header, { paddingTop: insets.top + 6 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 6 }]}>
         <View style={styles.headerLeft}>
           <HeaderBackButton />
           <View style={styles.logoBadge}>
@@ -343,7 +348,7 @@ export const JobOpportunitiesScreen: React.FC = () => {
             <Text style={styles.brandTitle}>Job Opportunities</Text>
           </View>
         </View>
-      </View>
+      </AppHeader>
 
       <FlatList
         data={filteredJobs}
@@ -803,7 +808,7 @@ const styles = StyleSheet.create({
   viewDetailsText: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#1E293B',
+    color: '#FFFFFF',
   },
   applyNowBtn: {
     flex: 1,

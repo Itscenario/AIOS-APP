@@ -1,3 +1,5 @@
+import { Button } from '../components/Button';
+import { AppHeader } from '../components/AppHeader';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,10 +18,10 @@ export const AnnualAccommodationScreen: React.FC = () => {
   return (
     <View style={styles.screen}>
       <ScreenStatusBar />
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
+      <AppHeader style={[styles.header, { paddingTop: insets.top + 10 }]}>
         <TouchableOpacity style={styles.back} onPress={() => navigation.goBack()} accessibilityRole="button" accessibilityLabel="Go back"><ArrowBackIcon size={21} color="#FFFFFF" /></TouchableOpacity>
         <View style={styles.flex}><Text style={styles.headerTitle}>Accommodation</Text><Text style={styles.headerSubtitle}>AIOC 2027 · Gandhinagar</Text></View>
-      </View>
+      </AppHeader>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 24 }]}>
         <LinearGradient colors={['#233C6D', '#53668F']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
           <Text style={styles.eyebrow}>YOUR CONFERENCE STAY</Text><Text style={styles.heroTitle}>Stay comfortably.{'\n'}Connect effortlessly.</Text>
@@ -48,7 +50,7 @@ export const AnnualAccommodationScreen: React.FC = () => {
           <Text style={styles.policyTitle}>Payment policy</Text><Text style={styles.noteText}>100% advance payment is required for room confirmation.</Text>
           <Text style={styles.policyTitle}>Cancellation policy</Text><Text style={styles.noteText}>Payment is non-refundable.</Text>
         </View>
-        <TouchableOpacity style={styles.book} onPress={() => navigation.navigate('AnnualAccommodationBooking')} accessibilityRole="button"><Text style={styles.bookText}>Book Now</Text><Text style={styles.bookArrow}>→</Text></TouchableOpacity>
+        <Button customLayout style={styles.book} onPress={() => navigation.navigate('AnnualAccommodationBooking')} accessibilityRole="button"><Text style={styles.bookText}>Book Now</Text><Text style={styles.bookArrow}>→</Text></Button>
       </ScrollView>
     </View>
   );

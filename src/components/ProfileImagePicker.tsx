@@ -1,3 +1,4 @@
+import { Button } from './Button';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -466,7 +467,8 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
                   </View>
 
                   {/* Cancel Button */}
-                  <TouchableOpacity
+                  <Button
+                    customLayout
                     style={styles.cancelButton}
                     onPress={() => setModalVisible(false)}
                     activeOpacity={0.8}
@@ -474,11 +476,11 @@ export const ProfileImagePicker: React.FC<ProfileImagePickerProps> = ({
                     <Typography
                       variant="labelLg"
                       weight="bold"
-                      color={colors.textSecondary}
+                      color="#FFFFFF"
                     >
                       Cancel
                     </Typography>
-                  </TouchableOpacity>
+                  </Button>
                 </SafeAreaView>
               </TouchableWithoutFeedback>
             </View>
